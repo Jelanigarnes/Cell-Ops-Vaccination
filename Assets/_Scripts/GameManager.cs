@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -7,6 +8,8 @@ public class GameManager : MonoBehaviour
     public static GameManager instance = null;
     private GameObject _gameControllerObject;
     private GameController _gameController;
+
+    public GameSettings GameSettings;
 
     //Awake is always called before any Start functions
     void Awake()
@@ -25,12 +28,28 @@ public class GameManager : MonoBehaviour
 
         //Sets this to not be destroyed when reloading scene
         DontDestroyOnLoad(gameObject);
+
+        //Checks if game settings file exist
+        if (System.IO.File.Exists(Application.persistentDataPath + "/gamesettings.json"))
+        {
+            //Loads game Settings
+            GameSettings = JsonUtility.FromJson<GameSettings>(File.ReadAllText(Application.persistentDataPath + "/gamesettings.json"));
+        }
+        else
+        {
+            //Create File
+            Debug.Log("Creating file");
+            GameSettings = new GameSettings();
+            GameSettings.MusicVolume = 50f;
+            string jsonData = JsonUtility.ToJson(GameSettings, true);
+            File.WriteAllText(Application.persistentDataPath + "/gamesettings.json", jsonData);
+        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        LoadSettings();
     }
 
     // Update is called once per frame
@@ -39,10 +58,35 @@ public class GameManager : MonoBehaviour
         
     }
     /// <summary>
+    /// For When player wins game
+    /// </summary>
+    public void WinGame()
+    {
+
+    }
+    /// <summary>
     /// Closes Game
     /// </summary>
     public void Close_Game()
     {
         Application.Quit();
     }
+    /// <summary>
+    /// Grabs game settings file from location
+    /// </summary>
+    public void ChangedSettings()
+    {
+        GameSettings = JsonUtility.FromJson<GameSettings>(File.ReadAllText(Application.persistentDataPath + "/gamesettings.json"));
+    }
+    /// <summary>
+    /// Loads player settings
+    /// </summary>
+    void LoadSettings()
+    {
+        QualitySettings.antiAliasing = GameSettings.Antialiasing;
+        QualitySettings.vSyncCount = GameSettings.VSync;
+        QualitySettings.masterTextureLimit = GameSettings.TextureQuality;
+        Screen.fullScreen = GameSettings.Fullscreen;
+    }
+
 }
