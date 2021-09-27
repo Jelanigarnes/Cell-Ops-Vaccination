@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public class GameSettings : MonoBehaviour
+public class GameSettings
 {
     public bool Fullscreen;
     public int TextureQuality;

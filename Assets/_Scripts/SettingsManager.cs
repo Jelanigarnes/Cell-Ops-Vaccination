@@ -12,12 +12,14 @@ namespace Assets._Scripts
         public Toggle FullScreenToggle;
         public Dropdown ResolutionDropdown;
         public Dropdown TextureQualityDropdown;
-        public Dropdown AntialisasimDropdown;
+        public Dropdown AaDropDown;
         public Dropdown vSyncDropdown;
         public Slider VolumeSlider;
         public AudioSource audiosource;
         public Resolution[] Resolutions;
         public GameSettings GameSettings;
+
+
         private GameManager _gameManager;
 
         void Start()
@@ -28,7 +30,7 @@ namespace Assets._Scripts
             FullScreenToggle.onValueChanged.AddListener(delegate { OnFullscreenToggle(); });
             ResolutionDropdown.onValueChanged.AddListener(delegate { OnResolutionChange(); });
             TextureQualityDropdown.onValueChanged.AddListener(delegate { OnTextureQualityChange(); });
-            AntialisasimDropdown.onValueChanged.AddListener(delegate { OnAntialiasingChange(); });
+            AaDropDown.onValueChanged.AddListener(delegate { OnAntialiasingChange(); });
             vSyncDropdown.onValueChanged.AddListener(delegate { OnVSyncChange(); });
             VolumeSlider.onValueChanged.AddListener(delegate { OnVolumeChange(); });
 
@@ -54,7 +56,7 @@ namespace Assets._Scripts
         }
         public void OnAntialiasingChange()
         {
-            QualitySettings.antiAliasing = GameSettings.Antialiasing = (int)Mathf.Pow(2f, AntialisasimDropdown.value);
+            QualitySettings.antiAliasing = GameSettings.Antialiasing = (int)Mathf.Pow(2f, AaDropDown.value);
         }
         public void OnVSyncChange()
         {
@@ -74,7 +76,7 @@ namespace Assets._Scripts
         {
             GameSettings = JsonUtility.FromJson<GameSettings>(File.ReadAllText(Application.persistentDataPath + "/gamesettings.json"));
             VolumeSlider.value = GameSettings.MusicVolume;
-            AntialisasimDropdown.value = GameSettings.Antialiasing;
+            AaDropDown.value = GameSettings.Antialiasing;
             vSyncDropdown.value = GameSettings.VSync;
             TextureQualityDropdown.value = GameSettings.TextureQuality;
             ResolutionDropdown.value = GameSettings.ResolutionIndex;
@@ -84,7 +86,7 @@ namespace Assets._Scripts
         }
         public void Back()
         {
-            SceneManager.LoadScene("Main Menu");
+            SceneManager.LoadScene("Menu");
         }
     }
 }

@@ -8,12 +8,11 @@ public class MainMenu : MonoBehaviour
 {
     private GameObject _gameManagerObject;
     private GameManager _gameManager;
+    private Text _version;
 
     // PUBLIC INSTANCE VARIABLES
     public AudioSource MainMenuSound;
-
-    [Header("Text")]
-    public Text VersionLabel;
+    public GameObject Settings;
 
     [Header("Buttons")]
     public Button StartButton;
@@ -25,16 +24,24 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     void Start()
     {
-        VersionLabel.text = "Version: " + Application.version;
+        Initialize();
+        _version.text = "Version: " + Application.version;
         Cursor.visible = true;
         this._gameManagerObject = GameObject.Find("GameManager");
         _gameManager = _gameManagerObject.GetComponent<GameManager>();
+        MainMenuSound.volume = _gameManager.GameSettings.MusicVolume;
     }
-
+    void Initialize()
+    {
+        this._gameManagerObject = GameObject.Find("GameManager");
+        _gameManager = _gameManagerObject.GetComponent<GameManager>();
+        _version = GameObject.Find("TxtVersion").GetComponent<Text>();
+        Settings = GameObject.Find("Settings");
+    }
     // Update is called once per frame
     void Update()
     {
-        
+        Settings.transform.Rotate(0, 0, Time.deltaTime * 15);
     }
     // PUBLIC METHODS
     /// <summary>
@@ -44,6 +51,20 @@ public class MainMenu : MonoBehaviour
     {
         MainMenuSound.Stop();
         SceneManager.LoadScene("Game");
+    }
+    /// <summary>
+    /// Loads Settings Scene
+    /// </summary>
+    public void ClickSettings()
+    {
+        SceneManager.LoadScene("Settings");
+    }
+    /// <summary>
+    /// Leads Credits Scene
+    /// </summary>
+    public void ClickCredits()
+    {
+        SceneManager.LoadScene("Credits");
     }
     /// <summary>
     /// Calls Close Game method in GameManager
