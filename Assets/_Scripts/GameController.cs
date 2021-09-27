@@ -65,6 +65,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
        Initialize();
+        BringDownMenu();
     }
 
     // Update is called once per frame
