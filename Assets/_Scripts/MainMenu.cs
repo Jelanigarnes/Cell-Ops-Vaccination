@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    private GameObject _gameManagerObject;
     private GameManager _gameManager;
     private Text _version;
 
@@ -19,7 +18,6 @@ public class MainMenu : MonoBehaviour
     public Button ExitButton;
 
     /// <summary>
-    /// Use this for initialization
     /// Start is called before the first frame update
     /// </summary>
     void Start()
@@ -27,14 +25,15 @@ public class MainMenu : MonoBehaviour
         Initialize();
         _version.text = "Version: " + Application.version;
         Cursor.visible = true;
-        this._gameManagerObject = GameObject.Find("GameManager");
-        _gameManager = _gameManagerObject.GetComponent<GameManager>();
         MainMenuSound.volume = _gameManager.GameSettings.MusicVolume;
     }
+    /// <summary>
+    /// Initialize
+    /// mainly used to find game objects
+    /// </summary>
     void Initialize()
     {
-        this._gameManagerObject = GameObject.Find("GameManager");
-        _gameManager = _gameManagerObject.GetComponent<GameManager>();
+        _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         _version = GameObject.Find("TxtVersion").GetComponent<Text>();
         Settings = GameObject.Find("Settings");
     }
@@ -49,8 +48,15 @@ public class MainMenu : MonoBehaviour
     /// </summary>
     public void Start_Game()
     {
-        MainMenuSound.Stop();
-        SceneManager.LoadScene("Game");
+        if (_gameManager.AbilitySelected)
+        {
+            MainMenuSound.Stop();
+            SceneManager.LoadScene("Game");
+        }
+        else
+        {
+            CharacterSelect();
+        }
     }
     /// <summary>
     /// Loads Settings Scene
@@ -65,6 +71,10 @@ public class MainMenu : MonoBehaviour
     public void ClickCredits()
     {
         SceneManager.LoadScene("Credits");
+    }
+    public void CharacterSelect()
+    {
+        SceneManager.LoadScene("Vaccine Select");
     }
     /// <summary>
     /// Calls Close Game method in GameManager
