@@ -13,10 +13,6 @@ public class MainMenu : MonoBehaviour
     public AudioSource MainMenuSound;
     public GameObject Settings;
 
-    [Header("Buttons")]
-    public Button StartButton;
-    public Button ExitButton;
-
     /// <summary>
     /// Start is called before the first frame update
     /// </summary>
