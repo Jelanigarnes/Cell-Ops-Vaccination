@@ -38,9 +38,16 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!_gameController.IsGamePause)
+        {
+            //Activate Ability
+            if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
+            {
+                Ability(_gameController.PlayerAbility);
+            }
+        }
     }
-     void FixedUpdate()
+    void FixedUpdate()
     {
         if (!_gameController.IsGamePause)
         {
@@ -50,11 +57,28 @@ public class PlayerController : MonoBehaviour
             }
 
             //Movement
-      
              Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             _rigidbody.MovePosition(transform.position + move * Time.deltaTime * _playerSpeed);
 
-
+        }
+    }
+    //Private methods
+    private void Ability(string _abilityType)
+    {
+        switch (_abilityType)
+        {
+            case "Phizer-BioNTech":
+                Debug.Log("Phizer-BioNTech Ability.");
+                break;
+            case "Johnson & Johnson":
+                Debug.Log("Johnson & Johnson Ability.");
+                break;
+            case "Moderna":
+                Debug.Log("Moderna");
+                break;
+            default:
+                Debug.Log("No Ability Written yet.");
+                break;
         }
     }
 }

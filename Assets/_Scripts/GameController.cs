@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour
     private bool _isGameOver;
     private bool _isGamePause;
     private GameManager _gameManager;
+    private string _playerAbility;
 
     // PUBLIC INSTANCE VARIABLES
 
@@ -66,6 +67,17 @@ public class GameController : MonoBehaviour
             }
         }
     }
+    public string PlayerAbility
+    {
+        get
+        {
+            return this._playerAbility;
+        }
+        set
+        {
+            this._playerAbility = value;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -74,6 +86,7 @@ public class GameController : MonoBehaviour
        BringDownMenu();
        this.IsGamePause = false;
        this.IsGameOver = false;
+        PlayerAbility = _gameManager.AbilityChoice;
     }
 
     // Update is called once per frame
