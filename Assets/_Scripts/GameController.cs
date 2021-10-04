@@ -65,7 +65,9 @@ public class GameController : MonoBehaviour
     void Start()
     {
        Initialize();
-        BringDownMenu();
+       BringDownMenu();
+       this.IsGamePause = false;
+       this.IsGameOver = false;
     }
 
     // Update is called once per frame
@@ -86,8 +88,6 @@ public class GameController : MonoBehaviour
     void Initialize()
     {
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        this.IsGamePause = false;
-        this.IsGameOver = false;
     }
     // Private METHODS*******************************
     private void _bringUpMenu()

@@ -9,7 +9,6 @@ public class PlayerController : MonoBehaviour
     private bool _groundedPlayer;
     private Vector3 _playerVelocity;
     private float _playerSpeed= 10f;
-    private float _gravity = -9.81f;
     private Rigidbody _rigidbody;
 
     //Public Variables
