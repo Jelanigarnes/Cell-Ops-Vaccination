@@ -19,6 +19,12 @@ public class GameController : MonoBehaviour
     public Text MenuTitle;
     public Button BackToMainMenu;
     public Button Resume;
+
+    [Header("Enemies")]
+    public List<GameObject> Enemies;
+
+    [Header("Targets")]
+    public List<GameObject> Targets;
     public bool IsGameOver
     {
         get
@@ -77,10 +83,9 @@ public class GameController : MonoBehaviour
         {
             
         }
-        if (Input.GetKeyDown(KeyCode.Escape) && !IsGameOver)
+        if (Input.GetKey(KeyCode.Escape) && !IsGameOver)
         {
-            _bringUpMenu();
-            
+            _bringUpMenu();          
         }
     }
 
