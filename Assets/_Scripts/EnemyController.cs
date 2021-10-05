@@ -33,15 +33,12 @@ public class EnemyController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Enemy Spawned");
         Initialize();
-        Invoke("EnabledNavMeshAgent", 0.025f);
+        Agent.speed = Speed;
+        Agent.SetDestination(Target.transform.position);
     }
     void Initialize()
     {
-        //TO remove later
-        Target = GameObject.FindGameObjectWithTag("Target");
-        //
         _gameController = GameObject.Find("GameController").GetComponent<GameController>();
         Agent = GetComponent<NavMeshAgent>();
         _rigidbody = GetComponent<Rigidbody>();
@@ -49,12 +46,5 @@ public class EnemyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {        
-    }
-    //private methods
-    private void EnabledNavMeshAgent()
-    {
-        Agent.enabled = true;
-        Agent.speed = Speed;
-        Agent.SetDestination(Target.transform.position);
     }
 }

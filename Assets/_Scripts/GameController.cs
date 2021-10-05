@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
     private string _playerAbility;
     private Transform _playerRespawnpoint;
     private float _spawnDelay = 1.0f;
+    private int _numberOfEnemiesToSpawn;
 
     // PUBLIC INSTANCE VARIABLES
 
@@ -90,6 +91,8 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public int NumberOfEnemiesToSpawn { get => _numberOfEnemiesToSpawn; set => _numberOfEnemiesToSpawn = value; }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -98,7 +101,7 @@ public class GameController : MonoBehaviour
        this.IsGamePause = false;
        this.IsGameOver = false;
         PlayerAbility = _gameManager.AbilityChoice;
-        _createEnemies(1, 0, 0);
+        StartCoroutine(_createEnemies(1, 0, 0));
         Enemies = GameObject.FindGameObjectsWithTag("Enemy");
     }
 
@@ -163,12 +166,10 @@ public class GameController : MonoBehaviour
 
 
         GameObject newgameobject = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>());
-        //newgameobject.GetComponent<EnemyController>().agent.enabled = true;
         newgameobject.GetComponent<EnemyController>().EnemyType = "Normal";
         newgameobject.GetComponent<EnemyController>().Speed = 2.0f;
         newgameobject.GetComponent<EnemyController>().HealthPoints = 20;
         newgameobject.GetComponent<EnemyController>().Target = Targets[0];
-        Debug.Log("Enemy Created");
 
         yield return Wait;
     }
