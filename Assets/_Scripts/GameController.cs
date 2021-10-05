@@ -11,7 +11,10 @@ public class GameController : MonoBehaviour
     private bool _isGameOver;
     private bool _isGamePause;
     private GameManager _gameManager;
+    //[SerializeField]
     private string _playerAbility;
+    private Transform _playerRespawnpoint;
+    private float _spawnDelay = 1.0f;
 
     // PUBLIC INSTANCE VARIABLES
 
@@ -21,11 +24,19 @@ public class GameController : MonoBehaviour
     public Button BackToMainMenu;
     public Button Resume;
 
+
+    [Tooltip("The amount of enemies in the game.")]
     [Header("Enemies")]
-    public List<GameObject> Enemies;
+    public GameObject EnemyPrefab;
+    public GameObject[] Enemies;
 
     [Header("Targets")]
-    public List<GameObject> Targets;
+    public GameObject[] Targets;
+
+    [Header("Enemy Spawnpoints")]
+    public GameObject[] SpawnPoints;
+    
+    public Transform PlayerRespawnpoint { get => _playerRespawnpoint; set => _playerRespawnpoint = value; }
     public bool IsGameOver
     {
         get
@@ -87,6 +98,8 @@ public class GameController : MonoBehaviour
        this.IsGamePause = false;
        this.IsGameOver = false;
         PlayerAbility = _gameManager.AbilityChoice;
+        _createEnemies(1, 0, 0);
+        Enemies = GameObject.FindGameObjectsWithTag("Enemy");
     }
 
     // Update is called once per frame
@@ -106,6 +119,9 @@ public class GameController : MonoBehaviour
     void Initialize()
     {
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        PlayerRespawnpoint = GameObject.FindGameObjectWithTag("Respawn").GetComponent<Transform>();
+        SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
+        Targets = GameObject.FindGameObjectsWithTag("Target");
     }
     // Private METHODS*******************************
     private void _bringUpMenu()
@@ -118,8 +134,6 @@ public class GameController : MonoBehaviour
         Cursor.visible = true;
     }
     // Public METHODS*******************************
-
-
     public void BackToMainScreen()
     {
         SceneManager.LoadScene("Menu");
@@ -133,5 +147,29 @@ public class GameController : MonoBehaviour
         MenuTitle.gameObject.SetActive(false);
         BackToMainMenu.gameObject.SetActive(false);
         Resume.gameObject.SetActive(false);
+    }
+
+    //IEnumerators
+    /// <summary>
+    /// Method to spawn enemies on map at spawn points
+    /// </summary>
+    /// <param name="_amountN">Amount of Normal type enemies to spawn</param>
+    /// <param name="_amountF">Amount of Fast type enemies to spawn</param>
+    /// <param name="_amountB">Amount of Big type enemies to spawn</param>
+    private IEnumerator _createEnemies(int _amountN, int _amountF, int _amountB)
+    {
+        //Wait 1 second before spawning another enemy
+        WaitForSeconds Wait = new WaitForSeconds(_spawnDelay);
+
+
+        GameObject newgameobject = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>());
+        //newgameobject.GetComponent<EnemyController>().agent.enabled = true;
+        newgameobject.GetComponent<EnemyController>().EnemyType = "Normal";
+        newgameobject.GetComponent<EnemyController>().Speed = 2.0f;
+        newgameobject.GetComponent<EnemyController>().HealthPoints = 20;
+        newgameobject.GetComponent<EnemyController>().Target = Targets[0];
+        Debug.Log("Enemy Created");
+
+        yield return Wait;
     }
 }
