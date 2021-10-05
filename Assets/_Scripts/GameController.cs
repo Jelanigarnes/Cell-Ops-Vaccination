@@ -16,8 +16,11 @@ public class GameController : MonoBehaviour
     private Transform _playerRespawnpoint;
     private float _spawnDelay = 2.0f;
     private int _numberOfEnemiesToSpawn;
+    private Transform _playerRespawnLocation;
 
     // PUBLIC INSTANCE VARIABLES
+
+    public GameObject Camera;
 
     [Header("Menu")]
     public Text TimeLable;
@@ -25,15 +28,20 @@ public class GameController : MonoBehaviour
     public Button BackToMainMenuButton;
     public Button ResumeButton;
 
+    [Tooltip("Player Spawn.")]
+    [Header("Player")]
+    public GameObject PlayerPrefab;
 
     [Tooltip("The amount of enemies in the game.")]
     [Header("Enemies")]
     public GameObject EnemyPrefab;
     public List<GameObject> Enemies;
 
+    [Tooltip("The amount of Targets in the game.")]
     [Header("Targets")]
     public List<GameObject> Targets;
 
+    [Tooltip("The amount of enemy spawnpoints in the game.")]
     [Header("Enemy Spawnpoints")]
     public GameObject[] SpawnPoints;
     
@@ -92,6 +100,7 @@ public class GameController : MonoBehaviour
     }
 
     public int NumberOfEnemiesToSpawn { get => _numberOfEnemiesToSpawn; set => _numberOfEnemiesToSpawn = value; }
+    public Transform PlayerRespawnLocation { get => _playerRespawnLocation; set => _playerRespawnLocation = value; }
 
     // Start is called before the first frame update
     void Start()
@@ -141,12 +150,15 @@ public class GameController : MonoBehaviour
         PlayerRespawnpoint = GameObject.FindGameObjectWithTag("Respawn").GetComponent<Transform>();
         SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
         Targets.AddRange(GameObject.FindGameObjectsWithTag("Target"));
+        PlayerRespawnLocation = GameObject.FindGameObjectWithTag("Respawn").transform;
     }
     /// <summary>
     /// Start the game
     /// </summary>
     public void StartGame()
     {
+        Object.Destroy(Camera);
+        Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         _isGamePause = false;
         Cursor.visible = false;
         StartCoroutine(_createEnemies(5, 3, 1));
@@ -189,7 +201,6 @@ public class GameController : MonoBehaviour
     /// <param name="_totalEnemies">Amount of Enemies in total</param>
     private IEnumerator _createEnemies(int _amountN, int _amountF, int _amountB,int _totalEnemies=40)
     {
-        Debug.Log("Spawning enemy");
         while (_totalEnemies > 0 || (_amountN == 0 && _amountF == 0 && _amountB == 0))
         {
             while (IsGamePause)
@@ -198,7 +209,6 @@ public class GameController : MonoBehaviour
             }
             if (_amountN > 0)
             {
-                Debug.Log("Spawning Normal Enemy.");
                 GameObject NormalEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                 NormalEnemy.GetComponent<EnemyController>().EnemyType = "Normal";
                 NormalEnemy.GetComponent<EnemyController>().Speed = 2.0f;
@@ -212,7 +222,6 @@ public class GameController : MonoBehaviour
             }
             else if (_amountF > 0)
             {
-                    Debug.Log("Spawning Fast Enemy.");
                     GameObject FastEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                     FastEnemy.GetComponent<EnemyController>().EnemyType = "Fast";
                     FastEnemy.GetComponent<EnemyController>().Speed = 4.0f;
@@ -226,7 +235,6 @@ public class GameController : MonoBehaviour
             }
             else if (_amountB > 0)
             {
-                    Debug.Log("Spawning Big Enemy.");
                     GameObject BigEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                     BigEnemy.GetComponent<EnemyController>().EnemyType = "Big";
                     BigEnemy.GetComponent<EnemyController>().Speed = 1.0f;
