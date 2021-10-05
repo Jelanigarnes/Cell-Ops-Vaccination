@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     // Private Instance Variables
-    private float _time;
+    private float _time=0.0f;
     private bool _isGameOver;
     private bool _isGamePause;
     private GameManager _gameManager;
@@ -22,17 +22,17 @@ public class GameController : MonoBehaviour
     [Header("Menu")]
     public Text TimeLable;
     public Text MenuTitle;
-    public Button BackToMainMenu;
-    public Button Resume;
+    public Button BackToMainMenuButton;
+    public Button ResumeButton;
 
 
     [Tooltip("The amount of enemies in the game.")]
     [Header("Enemies")]
     public GameObject EnemyPrefab;
-    public GameObject[] Enemies;
+    public List<GameObject> Enemies;
 
     [Header("Targets")]
-    public GameObject[] Targets;
+    public List<GameObject> Targets;
 
     [Header("Enemy Spawnpoints")]
     public GameObject[] SpawnPoints;
@@ -98,10 +98,11 @@ public class GameController : MonoBehaviour
     {        
         Initialize();
         BringDownMenu();
-        this.IsGamePause = false;
+        this.IsGamePause = true;
         this.IsGameOver = false;
         PlayerAbility = _gameManager.AbilityChoice;
         Cursor.visible = true;
+        TimeLable.text = "00:00:00";
     }
 
     // Update is called once per frame
@@ -109,14 +110,27 @@ public class GameController : MonoBehaviour
     {
         if (!IsGamePause)
         {
-            
-        }
-        if (Input.GetKey(KeyCode.Escape) && !IsGameOver)
+            _updateTimer();
+        }        
+        if (Input.GetKey(KeyCode.Escape))
         {
+            IsGamePause = true;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             _bringUpMenu();          
         }
+    }
+    /// <summary>
+    /// Gets and display the time
+    /// </summary>
+    private void _updateTimer()
+    {
+        _time += Time.deltaTime;
+        float minutes = Mathf.Floor(_time / 60);
+        float seconds = Mathf.RoundToInt(_time % 60);
+        float splitseconds = Mathf.RoundToInt((_time - seconds) * 100);
+
+        TimeLable.text = minutes.ToString("00")+":"+seconds.ToString("00")+":"+splitseconds.ToString("00");
     }
 
     // Use this for initialization
@@ -125,25 +139,25 @@ public class GameController : MonoBehaviour
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         PlayerRespawnpoint = GameObject.FindGameObjectWithTag("Respawn").GetComponent<Transform>();
         SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
-        Targets = GameObject.FindGameObjectsWithTag("Target");
+        Targets.AddRange(GameObject.FindGameObjectsWithTag("Target"));
     }
     /// <summary>
     /// Start the game
     /// </summary>
     public void StartGame()
     {
+        _isGamePause = false;
         Cursor.visible = false;
-        StartCoroutine(_createEnemies(10, 0, 0));
-        Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        StartCoroutine(_createEnemies(5, 3, 1));
+        //Enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject.Find("BtnStart").SetActive(false);
     }
     // Private METHODS*******************************
     private void _bringUpMenu()
     {
-        IsGamePause = true;
         MenuTitle.gameObject.SetActive(true);
-        BackToMainMenu.gameObject.SetActive(true);
-        Resume.gameObject.SetActive(true);
+        BackToMainMenuButton.gameObject.SetActive(true);
+        ResumeButton.gameObject.SetActive(true);
     }
     // Public METHODS*******************************
     public void BackToMainScreen()
@@ -152,13 +166,16 @@ public class GameController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
-
-    public void BringDownMenu()
+    public void Resume()
     {
         IsGamePause = false;
+        BringDownMenu();
+    }
+    public void BringDownMenu()
+    {
         MenuTitle.gameObject.SetActive(false);
-        BackToMainMenu.gameObject.SetActive(false);
-        Resume.gameObject.SetActive(false);
+        BackToMainMenuButton.gameObject.SetActive(false);
+        ResumeButton.gameObject.SetActive(false);
     }
 
     //IEnumerators
@@ -174,6 +191,10 @@ public class GameController : MonoBehaviour
         Debug.Log("Spawning enemy");
         while (_totalEnemies > 0 || (_amountN == 0 && _amountF == 0 && _amountB == 0))
         {
+            while (IsGamePause)
+            {
+                yield return null;
+            }
             if (_amountN > 0)
             {
                 Debug.Log("Spawning Normal Enemy.");
@@ -182,40 +203,42 @@ public class GameController : MonoBehaviour
                 NormalEnemy.GetComponent<EnemyController>().Speed = 2.0f;
                 NormalEnemy.GetComponent<EnemyController>().HealthPoints = 20;
                 NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
-                NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Length)];
+                NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
+                Enemies.Add(NormalEnemy);
 
                 _amountN = _amountN - 1;
                 _totalEnemies = _totalEnemies - 1;
             }
             else if (_amountF > 0)
             {
-                Debug.Log("Spawning Fast Enemy.");
-                GameObject FastEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
-                FastEnemy.GetComponent<EnemyController>().EnemyType = "Fast";
-                FastEnemy.GetComponent<EnemyController>().Speed = 4.0f;
-                FastEnemy.GetComponent<EnemyController>().HealthPoints = 10;
-                FastEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
-                FastEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Length)];
+                    Debug.Log("Spawning Fast Enemy.");
+                    GameObject FastEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                    FastEnemy.GetComponent<EnemyController>().EnemyType = "Fast";
+                    FastEnemy.GetComponent<EnemyController>().Speed = 4.0f;
+                    FastEnemy.GetComponent<EnemyController>().HealthPoints = 10;
+                    FastEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
+                    FastEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
+                Enemies.Add(FastEnemy);
 
                 _amountF = _amountF - 1;
-                _totalEnemies = _totalEnemies - 1;
+                    _totalEnemies = _totalEnemies - 1;
             }
             else if (_amountB > 0)
             {
-                Debug.Log("Spawning Big Enemy.");
-                GameObject BigEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
-                BigEnemy.GetComponent<EnemyController>().EnemyType = "Big";
-                BigEnemy.GetComponent<EnemyController>().Speed = 1.0f;
-                BigEnemy.GetComponent<EnemyController>().HealthPoints = 40;
-                BigEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
-                BigEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Length)];
+                    Debug.Log("Spawning Big Enemy.");
+                    GameObject BigEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                    BigEnemy.GetComponent<EnemyController>().EnemyType = "Big";
+                    BigEnemy.GetComponent<EnemyController>().Speed = 1.0f;
+                    BigEnemy.GetComponent<EnemyController>().HealthPoints = 40;
+                    BigEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
+                    BigEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
+                Enemies.Add(BigEnemy);
 
                 _amountB = _amountB - 1;
-                _totalEnemies = _totalEnemies - 1;
+                    _totalEnemies = _totalEnemies - 1;
             }
             //Wait 1 second before spawning another enemy
             WaitForSeconds Wait = new WaitForSeconds(_spawnDelay);
-
             yield return Wait;
         }
     }

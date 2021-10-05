@@ -14,6 +14,7 @@ public class EnemyController : MonoBehaviour
     private string _enemyType;
     private int _healthPoints;
     private int _enemyDmg;
+    private RigidbodyConstraints _rigidbodyConstraints;
 
     //Public Variables
     public GameObject Target;
@@ -38,6 +39,7 @@ public class EnemyController : MonoBehaviour
         Initialize();
         Agent.speed = Speed;
         Agent.SetDestination(Target.transform.position);
+        _rigidbodyConstraints = _rigidbody.constraints;
     }
     void Initialize()
     {
@@ -47,6 +49,20 @@ public class EnemyController : MonoBehaviour
     }
     // Update is called once per frame
     void Update()
-    {        
+    {
+        if (_gameController.IsGamePause)
+        {
+            Agent.isStopped=true;
+            _rigidbody.constraints = RigidbodyConstraints.FreezePositionX;
+            _rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;
+        }
+        else
+        {
+            //remove all constraits and reset
+            _rigidbody.constraints = _rigidbodyConstraints;
+
+            //resume persute
+            Agent.isStopped=false;            
+        }
     }
 }

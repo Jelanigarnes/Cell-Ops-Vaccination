@@ -680,7 +680,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 514514440}
         m_TargetAssemblyTypeName: GameController, Assembly-CSharp
-        m_MethodName: BringDownMenu
+        m_MethodName: Resume
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -793,8 +793,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TimeLable: {fileID: 1272836769}
   MenuTitle: {fileID: 1425671101}
-  BackToMainMenu: {fileID: 457644772}
-  Resume: {fileID: 511227747}
+  BackToMainMenuButton: {fileID: 457644772}
+  ResumeButton: {fileID: 511227747}
   EnemyPrefab: {fileID: 5621355145277571418, guid: 761f2423a148ca64ebe55cc62f4f2ba0,
     type: 3}
   Enemies: []
@@ -1248,8 +1248,8 @@ Transform:
   m_Children:
   - {fileID: 1724024334150055504}
   - {fileID: 1229003665}
-  - {fileID: 323415340}
   - {fileID: 2103130738}
+  - {fileID: 323415340}
   m_Father: {fileID: 565857111}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1812,7 +1812,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1548516489}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.68, y: 2, z: 10.6}
+  m_LocalPosition: {x: -3.89, y: 2, z: -0.11}
   m_LocalScale: {x: 2, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
