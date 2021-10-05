@@ -164,8 +164,8 @@ public class GameController : MonoBehaviour
         //Wait 1 second before spawning another enemy
         WaitForSeconds Wait = new WaitForSeconds(_spawnDelay);
 
-
-        GameObject newgameobject = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>());
+        
+        GameObject newgameobject = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position,Quaternion.identity);
         newgameobject.GetComponent<EnemyController>().EnemyType = "Normal";
         newgameobject.GetComponent<EnemyController>().Speed = 2.0f;
         newgameobject.GetComponent<EnemyController>().HealthPoints = 20;
