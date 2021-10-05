@@ -14,7 +14,7 @@ public class GameController : MonoBehaviour
     //[SerializeField]
     private string _playerAbility;
     private Transform _playerRespawnpoint;
-    private float _spawnDelay = 1.0f;
+    private float _spawnDelay = 2.0f;
     private int _numberOfEnemiesToSpawn;
 
     // PUBLIC INSTANCE VARIABLES
@@ -95,14 +95,13 @@ public class GameController : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {
-       Initialize();
-       BringDownMenu();
-       this.IsGamePause = false;
-       this.IsGameOver = false;
+    {        
+        Initialize();
+        BringDownMenu();
+        this.IsGamePause = false;
+        this.IsGameOver = false;
         PlayerAbility = _gameManager.AbilityChoice;
-        StartCoroutine(_createEnemies(1, 0, 0));
-        Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        Cursor.visible = true;
     }
 
     // Update is called once per frame
@@ -114,6 +113,8 @@ public class GameController : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.Escape) && !IsGameOver)
         {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             _bringUpMenu();          
         }
     }
@@ -126,6 +127,16 @@ public class GameController : MonoBehaviour
         SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
         Targets = GameObject.FindGameObjectsWithTag("Target");
     }
+    /// <summary>
+    /// Start the game
+    /// </summary>
+    public void StartGame()
+    {
+        Cursor.visible = false;
+        StartCoroutine(_createEnemies(10, 0, 0));
+        Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        GameObject.Find("BtnStart").SetActive(false);
+    }
     // Private METHODS*******************************
     private void _bringUpMenu()
     {
@@ -133,8 +144,6 @@ public class GameController : MonoBehaviour
         MenuTitle.gameObject.SetActive(true);
         BackToMainMenu.gameObject.SetActive(true);
         Resume.gameObject.SetActive(true);
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
     }
     // Public METHODS*******************************
     public void BackToMainScreen()
@@ -159,18 +168,38 @@ public class GameController : MonoBehaviour
     /// <param name="_amountN">Amount of Normal type enemies to spawn</param>
     /// <param name="_amountF">Amount of Fast type enemies to spawn</param>
     /// <param name="_amountB">Amount of Big type enemies to spawn</param>
-    private IEnumerator _createEnemies(int _amountN, int _amountF, int _amountB)
+    /// <param name="_totalEnemies">Amount of Enemies in total</param>
+    private IEnumerator _createEnemies(int _amountN, int _amountF, int _amountB,int _totalEnemies=40)
     {
-        //Wait 1 second before spawning another enemy
-        WaitForSeconds Wait = new WaitForSeconds(_spawnDelay);
+        Debug.Log("Spawning enemy");
+        while (_totalEnemies > 0)
+        {
+            if (_amountN > 0)
+            {
+                Debug.Log("Spawning Normal Enemy.");
+                GameObject newgameobject = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                newgameobject.GetComponent<EnemyController>().EnemyType = "Normal";
+                newgameobject.GetComponent<EnemyController>().Speed = 2.0f;
+                newgameobject.GetComponent<EnemyController>().HealthPoints = 20;
+                newgameobject.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Length)];
 
-        
-        GameObject newgameobject = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position,Quaternion.identity);
-        newgameobject.GetComponent<EnemyController>().EnemyType = "Normal";
-        newgameobject.GetComponent<EnemyController>().Speed = 2.0f;
-        newgameobject.GetComponent<EnemyController>().HealthPoints = 20;
-        newgameobject.GetComponent<EnemyController>().Target = Targets[0];
+                _amountN = _amountN - 1;
+                _totalEnemies = _totalEnemies - 1;
+            }
+            else if (_amountF > 0)
+            {
+                _amountF = _amountF - 1;
+                _totalEnemies = _totalEnemies - 1;
+            }
+            else if (_amountB > 0)
+            {
+                _amountB = _amountB - 1;
+                _totalEnemies = _totalEnemies - 1;
+            }
+            //Wait 1 second before spawning another enemy
+            WaitForSeconds Wait = new WaitForSeconds(_spawnDelay);
 
-        yield return Wait;
+            yield return Wait;
+        }
     }
 }
