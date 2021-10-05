@@ -128,9 +128,10 @@ public class GameController : MonoBehaviour
         _time += Time.deltaTime;
         float minutes = Mathf.Floor(_time / 60);
         float seconds = Mathf.RoundToInt(_time % 60);
-        float splitseconds = Mathf.RoundToInt((_time - seconds) * 100);
+        float splitseconds = Mathf.RoundToInt(_time * 1000);
+        splitseconds = (splitseconds % 1000);
 
-        TimeLable.text = minutes.ToString("00")+":"+seconds.ToString("00")+":"+splitseconds.ToString("00");
+        TimeLable.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, splitseconds); 
     }
 
     // Use this for initialization
