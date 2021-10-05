@@ -172,27 +172,44 @@ public class GameController : MonoBehaviour
     private IEnumerator _createEnemies(int _amountN, int _amountF, int _amountB,int _totalEnemies=40)
     {
         Debug.Log("Spawning enemy");
-        while (_totalEnemies > 0)
+        while (_totalEnemies > 0 || (_amountN == 0 && _amountF == 0 && _amountB == 0))
         {
             if (_amountN > 0)
             {
                 Debug.Log("Spawning Normal Enemy.");
-                GameObject newgameobject = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
-                newgameobject.GetComponent<EnemyController>().EnemyType = "Normal";
-                newgameobject.GetComponent<EnemyController>().Speed = 2.0f;
-                newgameobject.GetComponent<EnemyController>().HealthPoints = 20;
-                newgameobject.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Length)];
+                GameObject NormalEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                NormalEnemy.GetComponent<EnemyController>().EnemyType = "Normal";
+                NormalEnemy.GetComponent<EnemyController>().Speed = 2.0f;
+                NormalEnemy.GetComponent<EnemyController>().HealthPoints = 20;
+                NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
+                NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Length)];
 
                 _amountN = _amountN - 1;
                 _totalEnemies = _totalEnemies - 1;
             }
             else if (_amountF > 0)
             {
+                Debug.Log("Spawning Fast Enemy.");
+                GameObject FastEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                FastEnemy.GetComponent<EnemyController>().EnemyType = "Fast";
+                FastEnemy.GetComponent<EnemyController>().Speed = 4.0f;
+                FastEnemy.GetComponent<EnemyController>().HealthPoints = 10;
+                FastEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
+                FastEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Length)];
+
                 _amountF = _amountF - 1;
                 _totalEnemies = _totalEnemies - 1;
             }
             else if (_amountB > 0)
             {
+                Debug.Log("Spawning Big Enemy.");
+                GameObject BigEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                BigEnemy.GetComponent<EnemyController>().EnemyType = "Big";
+                BigEnemy.GetComponent<EnemyController>().Speed = 1.0f;
+                BigEnemy.GetComponent<EnemyController>().HealthPoints = 40;
+                BigEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
+                BigEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Length)];
+
                 _amountB = _amountB - 1;
                 _totalEnemies = _totalEnemies - 1;
             }

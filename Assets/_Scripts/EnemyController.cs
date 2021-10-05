@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
     private Rigidbody _rigidbody;
     private string _enemyType;
     private int _healthPoints;
+    private int _enemyDmg;
 
     //Public Variables
     public GameObject Target;
@@ -29,6 +30,7 @@ public class EnemyController : MonoBehaviour
 
     public int HealthPoints { get => _healthPoints; set => _healthPoints = value; }
     public string EnemyType { get => _enemyType; set => _enemyType = value; }
+    public int EnemyDmg { get => _enemyDmg; set => _enemyDmg = value; }
 
     // Start is called before the first frame update
     void Start()
