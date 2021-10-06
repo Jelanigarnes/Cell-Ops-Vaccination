@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour
     private float _spawnDelay = 2.0f;
     private int _numberOfEnemiesToSpawn;
     private Transform _playerRespawnLocation;
+    private int _targetHealths;
 
     // PUBLIC INSTANCE VARIABLES
 
@@ -101,6 +102,7 @@ public class GameController : MonoBehaviour
 
     public int NumberOfEnemiesToSpawn { get => _numberOfEnemiesToSpawn; set => _numberOfEnemiesToSpawn = value; }
     public Transform PlayerRespawnLocation { get => _playerRespawnLocation; set => _playerRespawnLocation = value; }
+    public int TargetHealths { get => _targetHealths; set => _targetHealths = value; }
 
     // Start is called before the first frame update
     void Start()
@@ -160,7 +162,6 @@ public class GameController : MonoBehaviour
         Object.Destroy(Camera);
         Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         _isGamePause = false;
-        Cursor.visible = false;
         StartCoroutine(_createEnemies(5, 3, 1));
         //Enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject.Find("BtnStart").SetActive(false);
