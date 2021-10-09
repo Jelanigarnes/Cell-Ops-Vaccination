@@ -11,6 +11,7 @@ public class GameController : MonoBehaviour
     private bool _isGameOver;
     private bool _isGamePause;
     private GameManager _gameManager;
+    private GameObject _player;
     //[SerializeField]
     private string _playerAbility;
     private Transform _playerRespawnpoint;
@@ -29,9 +30,9 @@ public class GameController : MonoBehaviour
     public Button BackToMainMenuButton;
     public Button ResumeButton;
 
-    [Tooltip("Player Spawn.")]
-    [Header("Player")]
+    [Header("Player Objects")]
     public GameObject PlayerPrefab;
+    public GameObject HelpArrow;
 
     [Tooltip("The amount of enemies in the game.")]
     [Header("Enemies")]
@@ -103,6 +104,7 @@ public class GameController : MonoBehaviour
     public int NumberOfEnemiesToSpawn { get => _numberOfEnemiesToSpawn; set => _numberOfEnemiesToSpawn = value; }
     public Transform PlayerRespawnLocation { get => _playerRespawnLocation; set => _playerRespawnLocation = value; }
     public int TargetHealths { get => _targetHealths; set => _targetHealths = value; }
+    public GameObject Player { get => _player; set => _player = value; }
 
     // Start is called before the first frame update
     void Start()
@@ -160,9 +162,13 @@ public class GameController : MonoBehaviour
     public void StartGame()
     {
         Object.Destroy(Camera);
-        Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        Player = Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
         _isGamePause = false;
         StartCoroutine(_createEnemies(5, 3, 1));
+        foreach(GameObject target in Targets)
+        {
+            target.GetComponent<TargetController>().Health = 100;
+        }
         //Enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject.Find("BtnStart").SetActive(false);
     }
@@ -190,6 +196,15 @@ public class GameController : MonoBehaviour
         MenuTitle.gameObject.SetActive(false);
         BackToMainMenuButton.gameObject.SetActive(false);
         ResumeButton.gameObject.SetActive(false);
+    }
+    /// <summary>
+    /// Is called by Targets when they are being attacked
+    /// </summary>
+    public void Help(GameObject target)
+    {
+        GameObject helpArrow = Instantiate(HelpArrow);
+        helpArrow.GetComponent<TargetPointer>().HelpTarget = target;
+        helpArrow.transform.SetParent(Player.transform);
     }
 
     //IEnumerators

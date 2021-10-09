@@ -798,6 +798,8 @@ MonoBehaviour:
   ResumeButton: {fileID: 511227747}
   PlayerPrefab: {fileID: 5764377792263605621, guid: 91e68a88f3b36154eadfedd2b7ef1edb,
     type: 3}
+  HelpArrow: {fileID: 3179537219961603314, guid: 3cc29d14b671e5d47b96b44f0710fb01,
+    type: 3}
   EnemyPrefab: {fileID: 5621355145277571418, guid: 761f2423a148ca64ebe55cc62f4f2ba0,
     type: 3}
   Enemies: []
@@ -1512,6 +1514,7 @@ GameObject:
   - component: {fileID: 1548516492}
   - component: {fileID: 1548516491}
   - component: {fileID: 1548516490}
+  - component: {fileID: 1548516495}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Target
@@ -1611,6 +1614,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1548516495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1548516489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80372bd81cf403b4c96177e4efab2d14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1697233017
 GameObject:
   m_ObjectHideFlags: 0

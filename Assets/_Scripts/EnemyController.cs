@@ -65,25 +65,26 @@ public class EnemyController : MonoBehaviour
             Agent.isStopped=false;            
         }
     }
-    //COLLISION METHODS BOTH ENTER AND STAY HERE IS WHERE YOU FIX ISSUE #16
-    private void OnCollsionEnter(Collision collision)
-    {
-        Debug.Log("Object collidedEnter: " + collision.gameObject.name);
-    }
 
     private void OnCollisionStay(Collision collision)
     {
-        //Debug.Log("Object collidedstay: " + collision.gameObject.name);
-
-        if (collision.gameObject.tag == "Player")
+        switch (collision.gameObject.tag.ToString())
         {
-            Debug.Log("Pushing away");
-            // Calculate Angle Between the collision point and the player
-            Vector3 away = collision.contacts[0].point - transform.position;
-            // We then get the opposite (-Vector3) and normalize it
-            away = -away.normalized;
+            case "Player":
+                // Calculate Angle Between the collision point and the player
+                Vector3 away = collision.contacts[0].point - this.gameObject.transform.position;
+                // We then get the opposite (-Vector3) and normalize it
+                //away = -away.normalized;
 
-            collision.gameObject.GetComponent<Rigidbody>().AddForce(away * 50.0f);
+                collision.gameObject.GetComponent<Rigidbody>().AddForce(away * 1000.0f);
+                break;
+            case "Target":
+                collision.gameObject.GetComponent<TargetController>().TakeDamage(EnemyDmg);
+                break;
+            default:
+                Debug.Log("No Case for " + collision.gameObject.name);
+                break;
         }
+        
     }
 }
