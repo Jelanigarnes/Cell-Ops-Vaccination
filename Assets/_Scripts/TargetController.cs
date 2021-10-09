@@ -4,18 +4,27 @@ using UnityEngine;
 
 public class TargetController : MonoBehaviour
 {
-    private int _health;
+    public int _health;
     private GameController _gameController;
     private bool _calledForhelp;
+    private int _maxHealth;
 
-    public bool Attacked;
-    public int Health { get => _health; set => _health = value; }
+    public int MaxHealth { 
+        get => _maxHealth;
+        set {
+            _maxHealth = value;
+            if (_health == 0)
+            {
+                _health = _maxHealth;
+            }
+        } 
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         Initialize();
-        Health = _gameController.TargetHealths;
+        _health = MaxHealth;
     }
 
     void Initialize()
@@ -26,23 +35,40 @@ public class TargetController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Health <= 0 && !_gameController.IsGamePause)
+        if (!_gameController.IsGamePause)
         {
-            Object.Destroy(this.gameObject);
-        }
-        if (Attacked && !_calledForhelp)
-        {
-            _isBeingAttacked();
+            if (_health <= 0)
+            {
+                Object.Destroy(this.gameObject);
+            }
+            if (_health < MaxHealth && !_calledForhelp)
+            {
+                _isBeingAttacked();
+            }
         }
     }
+    /// <summary>
+    /// Reduce health by amount.
+    /// </summary>
+    /// <param name="amount"></param>
+    public void TakeDamage(int amount)
+    {
+        _health -= amount;
+        Debug.Log("Taking dmg");
+    }
+    /// <summary>
+    /// Calls for help 
+    /// </summary>
     private void _isBeingAttacked()
     {
         _gameController.Help(this.gameObject);
         _calledForhelp = true;
     }
-    public void TakeDamage(int amount)
+    /// <summary>
+    /// when object is destroyed it will notify the gamecontroller.
+    /// </summary>
+    private void OnDestroy()
     {
-        Health -= amount;
+        _gameController.TargetDied(this.gameObject);
     }
-
 }

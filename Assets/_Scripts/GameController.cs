@@ -18,7 +18,6 @@ public class GameController : MonoBehaviour
     private float _spawnDelay = 2.0f;
     private int _numberOfEnemiesToSpawn;
     private Transform _playerRespawnLocation;
-    private int _targetHealths;
 
     // PUBLIC INSTANCE VARIABLES
 
@@ -69,6 +68,7 @@ public class GameController : MonoBehaviour
             }
         }
     }
+
     public bool IsGamePause
     {
         get
@@ -103,7 +103,6 @@ public class GameController : MonoBehaviour
 
     public int NumberOfEnemiesToSpawn { get => _numberOfEnemiesToSpawn; set => _numberOfEnemiesToSpawn = value; }
     public Transform PlayerRespawnLocation { get => _playerRespawnLocation; set => _playerRespawnLocation = value; }
-    public int TargetHealths { get => _targetHealths; set => _targetHealths = value; }
     public GameObject Player { get => _player; set => _player = value; }
 
     // Start is called before the first frame update
@@ -133,6 +132,67 @@ public class GameController : MonoBehaviour
             _bringUpMenu();          
         }
     }
+    // Use this for initialization
+    void Initialize()
+    {
+        _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        PlayerRespawnpoint = GameObject.FindGameObjectWithTag("Respawn").GetComponent<Transform>();
+        SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
+        Targets.AddRange(GameObject.FindGameObjectsWithTag("Target"));
+        PlayerRespawnLocation = GameObject.FindGameObjectWithTag("Respawn").transform;
+    }
+    // Public METHODS*******************************
+    /// <summary>
+    /// Carrys user back to main menu scene
+    /// </summary>
+    public void BackToMainScreen()
+    {
+        SceneManager.LoadScene("Menu");
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+    /// <summary>
+    /// Resumes game
+    /// </summary>
+    public void Resume()
+    {
+        IsGamePause = false;
+        BringDownMenu();
+    }
+    /// <summary>
+    /// Brings down menu UI
+    /// </summary>
+    public void BringDownMenu()
+    {
+        MenuTitle.gameObject.SetActive(false);
+        BackToMainMenuButton.gameObject.SetActive(false);
+        ResumeButton.gameObject.SetActive(false);
+    }
+    /// <summary>
+    /// Is called by Targets when they are being attacked
+    /// </summary>
+    public void Help(GameObject target)
+    {
+        GameObject helpArrow = Instantiate(HelpArrow, _player.transform);
+        helpArrow.GetComponent<TargetPointer>().HelpTarget = target;
+        //helpArrow.transform.SetParent(Player.transform);
+    }
+    /// <summary>
+    /// Refresh Target list and tells all enemies to find new Target
+    /// </summary>
+    /// <param name="target">Target that died</param>
+    public void TargetDied(GameObject target)
+    {
+        Targets.Remove(target);
+        foreach(GameObject enemy in Enemies)
+        {
+            enemy.GetComponent<EnemyController>().NewTarget(Targets);
+        }
+    }
+    public void EnemyDied(GameObject enemy)
+    {
+        Enemies.Remove(enemy);
+    }
     /// <summary>
     /// Gets and display the time
     /// </summary>
@@ -146,16 +206,6 @@ public class GameController : MonoBehaviour
 
         TimeLable.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, splitseconds); 
     }
-
-    // Use this for initialization
-    void Initialize()
-    {
-        _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        PlayerRespawnpoint = GameObject.FindGameObjectWithTag("Respawn").GetComponent<Transform>();
-        SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
-        Targets.AddRange(GameObject.FindGameObjectsWithTag("Target"));
-        PlayerRespawnLocation = GameObject.FindGameObjectWithTag("Respawn").transform;
-    }
     /// <summary>
     /// Start the game
     /// </summary>
@@ -163,14 +213,19 @@ public class GameController : MonoBehaviour
     {
         Object.Destroy(Camera);
         Player = Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-        _isGamePause = false;
+
+        //Sets level details based on current level. TO add later
         StartCoroutine(_createEnemies(5, 3, 1));
         foreach(GameObject target in Targets)
         {
-            target.GetComponent<TargetController>().Health = 100;
+            target.GetComponent<TargetController>().MaxHealth = 100;
         }
+
+        ////
+      
         //Enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject.Find("BtnStart").SetActive(false);
+        _isGamePause = false;
     }
     // Private METHODS*******************************
     private void _bringUpMenu()
@@ -178,33 +233,6 @@ public class GameController : MonoBehaviour
         MenuTitle.gameObject.SetActive(true);
         BackToMainMenuButton.gameObject.SetActive(true);
         ResumeButton.gameObject.SetActive(true);
-    }
-    // Public METHODS*******************************
-    public void BackToMainScreen()
-    {
-        SceneManager.LoadScene("Menu");
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
-    }
-    public void Resume()
-    {
-        IsGamePause = false;
-        BringDownMenu();
-    }
-    public void BringDownMenu()
-    {
-        MenuTitle.gameObject.SetActive(false);
-        BackToMainMenuButton.gameObject.SetActive(false);
-        ResumeButton.gameObject.SetActive(false);
-    }
-    /// <summary>
-    /// Is called by Targets when they are being attacked
-    /// </summary>
-    public void Help(GameObject target)
-    {
-        GameObject helpArrow = Instantiate(HelpArrow);
-        helpArrow.GetComponent<TargetPointer>().HelpTarget = target;
-        helpArrow.transform.SetParent(Player.transform);
     }
 
     //IEnumerators

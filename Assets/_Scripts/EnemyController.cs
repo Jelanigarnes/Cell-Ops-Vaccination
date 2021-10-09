@@ -38,7 +38,7 @@ public class EnemyController : MonoBehaviour
     {
         Initialize();
         Agent.speed = Speed;
-        Agent.SetDestination(Target.transform.position);
+        SetDestination(Target);
         _rigidbodyConstraints = _rigidbody.constraints;
     }
     void Initialize()
@@ -62,10 +62,42 @@ public class EnemyController : MonoBehaviour
             _rigidbody.constraints = _rigidbodyConstraints;
 
             //resume persute
-            Agent.isStopped=false;            
+            Agent.isStopped=false;
+
+            if (_healthPoints < 0)
+            {
+                Object.Destroy(this.gameObject);
+            }
         }
     }
-
+    /// <summary>
+    /// Finds a new target to attack.
+    /// Will be the closest target
+    /// </summary>
+    /// <param name="Targets">List of targets</param>
+    public void NewTarget(List<GameObject> Targets)
+    {
+        float distanceToClosestTarget = Mathf.Infinity;
+        GameObject closestTarget = null;
+        foreach(GameObject target in Targets)
+        {
+            float distanceToTarget = (target.transform.position - this.transform.position).sqrMagnitude;
+            if(distanceToTarget < distanceToClosestTarget)
+            {
+                distanceToClosestTarget = distanceToTarget;
+                closestTarget = target;
+            }
+        }
+        SetDestination(closestTarget);
+    }
+    /// <summary>
+    /// Sets Enemy Navmeshagent Destination
+    /// </summary>
+    /// <param name="Target">Game Object to set destination</param>
+    private void SetDestination(GameObject Target)
+    {
+        Agent.SetDestination(Target.transform.position);
+    }
     private void OnCollisionStay(Collision collision)
     {
         switch (collision.gameObject.tag.ToString())
@@ -86,5 +118,13 @@ public class EnemyController : MonoBehaviour
                 break;
         }
         
+    }
+    /// <summary>
+    /// Called when object is destroyed
+    /// </summary>
+    private void OnDestroy()
+    {
+        Debug.Log("Enemy Died");
+        _gameController.EnemyDied(this.gameObject);
     }
 }
