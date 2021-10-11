@@ -64,7 +64,8 @@ public class GameController : MonoBehaviour
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
                 PlayerPrefs.Save();
-                Invoke("BackToMainScreen", 5);
+                SceneManager.LoadScene("Menu");
+                //Invoke("BackToMainScreen", 5);
             }
         }
     }
@@ -184,6 +185,10 @@ public class GameController : MonoBehaviour
     public void TargetDied(GameObject target)
     {
         Targets.Remove(target);
+        if (Targets.Count == 0)
+        {
+            IsGameOver = true;
+        }
         foreach(GameObject enemy in Enemies)
         {
             enemy.GetComponent<EnemyController>().NewTarget(Targets);
@@ -218,7 +223,7 @@ public class GameController : MonoBehaviour
         StartCoroutine(_createEnemies(5, 3, 1));
         foreach(GameObject target in Targets)
         {
-            target.GetComponent<TargetController>().MaxHealth = 100;
+            target.GetComponent<TargetController>().MaxHealth = 100000;
         }
 
         ////

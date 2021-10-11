@@ -1,22 +1,35 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TargetController : MonoBehaviour
 {
-    public int _health;
+    private float _health;
     private GameController _gameController;
     private bool _calledForhelp;
-    private int _maxHealth;
+    private float _maxHealth;
+    public GameObject HealthBar;
+    public Slider HealthbarSlider;
 
-    public int MaxHealth { 
+    public float MaxHealth { 
         get => _maxHealth;
         set {
             _maxHealth = value;
-            if (_health == 0)
+            Health = _maxHealth;
+        } 
+    }
+
+    public float Health { 
+        get => _health;
+        set {
+             _health = value;
+            //make sure health can't go over max health
+            if (_health > MaxHealth)
             {
-                _health = _maxHealth;
+                _health = MaxHealth;
             }
+            HealthbarSlider.value = CalculateHealth();
         } 
     }
 
@@ -24,7 +37,6 @@ public class TargetController : MonoBehaviour
     void Start()
     {
         Initialize();
-        _health = MaxHealth;
     }
 
     void Initialize()
@@ -37,25 +49,30 @@ public class TargetController : MonoBehaviour
     {
         if (!_gameController.IsGamePause)
         {
-            if (_health <= 0)
+            if (Health <= 0)
             {
                 Object.Destroy(this.gameObject);
             }
-            if (_health < MaxHealth && !_calledForhelp)
+            if (Health < MaxHealth && !_calledForhelp)
             {
                 _isBeingAttacked();
+                HealthBar.SetActive(true);
             }
         }
     }
     /// <summary>
     /// Reduce health by amount.
     /// </summary>
-    /// <param name="amount"></param>
-    public void TakeDamage(int amount)
+    /// <param name="amount">Damage Amount in float</param>
+    public void TakeDamage(float amount)
     {
-        _health -= amount;
-        Debug.Log("Taking dmg");
+        Health -= amount;
     }
+    public float CalculateHealth()
+    {
+        return Health / MaxHealth;
+    }
+    /////PRIVAT METHODS
     /// <summary>
     /// Calls for help 
     /// </summary>

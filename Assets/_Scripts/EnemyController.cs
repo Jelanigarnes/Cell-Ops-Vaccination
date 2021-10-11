@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody))]
 public class EnemyController : MonoBehaviour
@@ -45,8 +46,7 @@ public class EnemyController : MonoBehaviour
     {
         _gameController = GameObject.Find("GameController").GetComponent<GameController>();
         Agent = GetComponent<NavMeshAgent>();
-        _rigidbody = GetComponent<Rigidbody>();
-    }
+        _rigidbody = GetComponent<Rigidbody>();   }
     // Update is called once per frame
     void Update()
     {
@@ -90,6 +90,7 @@ public class EnemyController : MonoBehaviour
         }
         SetDestination(closestTarget);
     }
+    //// PRIVATE METHODS
     /// <summary>
     /// Sets Enemy Navmeshagent Destination
     /// </summary>
@@ -100,22 +101,18 @@ public class EnemyController : MonoBehaviour
     }
     private void OnCollisionStay(Collision collision)
     {
-        switch (collision.gameObject.tag.ToString())
+        if(collision.gameObject.tag == "Player")
         {
-            case "Player":
-                // Calculate Angle Between the collision point and the player
-                Vector3 away = collision.contacts[0].point - this.gameObject.transform.position;
-                // We then get the opposite (-Vector3) and normalize it
-                //away = -away.normalized;
+            // Calculate Angle Between the collision point and the player
+            Vector3 away = collision.contacts[0].point - this.gameObject.transform.position;
+            // We then get the opposite (-Vector3) and normalize it
+            //away = -away.normalized;
 
-                collision.gameObject.GetComponent<Rigidbody>().AddForce(away * 1000.0f);
-                break;
-            case "Target":
-                collision.gameObject.GetComponent<TargetController>().TakeDamage(EnemyDmg);
-                break;
-            default:
-                Debug.Log("No Case for " + collision.gameObject.name);
-                break;
+            collision.gameObject.GetComponent<Rigidbody>().AddForce(away * 1000.0f);
+        }
+        if(collision.gameObject.tag == "Target")
+        {
+            collision.gameObject.GetComponent<TargetController>().TakeDamage(EnemyDmg);
         }
         
     }
