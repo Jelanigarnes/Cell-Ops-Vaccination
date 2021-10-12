@@ -149,8 +149,6 @@ public class GameController : MonoBehaviour
     public void BackToMainScreen()
     {
         SceneManager.LoadScene("Menu");
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible = true;
     }
     /// <summary>
     /// Resumes game
@@ -158,6 +156,8 @@ public class GameController : MonoBehaviour
     public void Resume()
     {
         IsGamePause = false;
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = false;
         BringDownMenu();
     }
     /// <summary>
@@ -223,7 +223,7 @@ public class GameController : MonoBehaviour
         StartCoroutine(_createEnemies(5, 3, 1));
         foreach(GameObject target in Targets)
         {
-            target.GetComponent<TargetController>().MaxHealth = 100000;
+            target.GetComponent<TargetController>().MaxHealth = 10000;
         }
 
         ////
@@ -231,6 +231,8 @@ public class GameController : MonoBehaviour
         //Enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject.Find("BtnStart").SetActive(false);
         _isGamePause = false;
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = false;
     }
     // Private METHODS*******************************
     private void _bringUpMenu()
@@ -261,7 +263,7 @@ public class GameController : MonoBehaviour
                 GameObject NormalEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                 NormalEnemy.GetComponent<EnemyController>().EnemyType = "Normal";
                 NormalEnemy.GetComponent<EnemyController>().Speed = 2.0f;
-                NormalEnemy.GetComponent<EnemyController>().HealthPoints = 20;
+                NormalEnemy.GetComponent<EnemyController>().Health = 20;
                 NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
                 NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 Enemies.Add(NormalEnemy);
@@ -274,7 +276,7 @@ public class GameController : MonoBehaviour
                     GameObject FastEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                     FastEnemy.GetComponent<EnemyController>().EnemyType = "Fast";
                     FastEnemy.GetComponent<EnemyController>().Speed = 4.0f;
-                    FastEnemy.GetComponent<EnemyController>().HealthPoints = 10;
+                    FastEnemy.GetComponent<EnemyController>().Health = 10;
                     FastEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
                     FastEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 Enemies.Add(FastEnemy);
@@ -287,7 +289,7 @@ public class GameController : MonoBehaviour
                     GameObject BigEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                     BigEnemy.GetComponent<EnemyController>().EnemyType = "Big";
                     BigEnemy.GetComponent<EnemyController>().Speed = 1.0f;
-                    BigEnemy.GetComponent<EnemyController>().HealthPoints = 40;
+                    BigEnemy.GetComponent<EnemyController>().Health = 40;
                     BigEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
                     BigEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 Enemies.Add(BigEnemy);

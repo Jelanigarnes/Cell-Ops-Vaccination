@@ -17,6 +17,7 @@ public class TargetController : MonoBehaviour
         set {
             _maxHealth = value;
             Health = _maxHealth;
+            HealthbarSlider.maxValue = _maxHealth;
         } 
     }
 
@@ -29,7 +30,7 @@ public class TargetController : MonoBehaviour
             {
                 _health = MaxHealth;
             }
-            HealthbarSlider.value = CalculateHealth();
+            HealthbarSlider.value = _health;
         } 
     }
 
@@ -67,10 +68,6 @@ public class TargetController : MonoBehaviour
     public void TakeDamage(float amount)
     {
         Health -= amount;
-    }
-    public float CalculateHealth()
-    {
-        return Health / MaxHealth;
     }
     /////PRIVAT METHODS
     /// <summary>

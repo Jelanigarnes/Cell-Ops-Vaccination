@@ -13,9 +13,12 @@ public class EnemyController : MonoBehaviour
     private float _enemySpeed = 1f;
     private Rigidbody _rigidbody;
     private string _enemyType;
-    private int _healthPoints;
+    private float _health;
+    private float _maxHealth;
     private int _enemyDmg;
     private RigidbodyConstraints _rigidbodyConstraints;
+    public GameObject HealthBar;
+    public Slider HealthbarSlider;
 
     //Public Variables
     public GameObject Target;
@@ -30,9 +33,37 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public int HealthPoints { get => _healthPoints; set => _healthPoints = value; }
+    public float Health { 
+        get => _health;
+        set
+        {
+            _health = value;
+            //make sure health can't go over max health
+            if (_health > MaxHealth)
+            {
+                _health = MaxHealth;
+            }
+            if(_health < MaxHealth)
+            {
+                HealthBar.SetActive(true);
+            }
+            if (_health < 0)
+            {
+                Object.Destroy(this.gameObject);
+            }
+            HealthbarSlider.value = _health;
+        }
+    }
     public string EnemyType { get => _enemyType; set => _enemyType = value; }
     public int EnemyDmg { get => _enemyDmg; set => _enemyDmg = value; }
+    public float MaxHealth { get => _maxHealth; 
+        set
+        {
+            _maxHealth = value;
+            Health = _maxHealth;
+            HealthbarSlider.maxValue = _maxHealth;
+        }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -62,12 +93,7 @@ public class EnemyController : MonoBehaviour
             _rigidbody.constraints = _rigidbodyConstraints;
 
             //resume persute
-            Agent.isStopped=false;
-
-            if (_healthPoints < 0)
-            {
-                Object.Destroy(this.gameObject);
-            }
+            Agent.isStopped=false;            
         }
     }
     /// <summary>
@@ -121,7 +147,6 @@ public class EnemyController : MonoBehaviour
     /// </summary>
     private void OnDestroy()
     {
-        Debug.Log("Enemy Died");
         _gameController.EnemyDied(this.gameObject);
     }
 }
