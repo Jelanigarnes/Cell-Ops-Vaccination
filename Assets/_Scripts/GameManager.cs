@@ -5,11 +5,34 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    private string _abilityChoice;
+    private bool _abilitySelected;
+
     public static GameManager instance = null;
-    private GameObject _gameControllerObject;
-    private GameController _gameController;
 
     public GameSettings GameSettings;
+    public string AbilityChoice
+    {
+        get
+        {
+            return _abilityChoice;
+        }
+        set
+        {
+            _abilityChoice = value;
+        }
+    }
+    public bool AbilitySelected
+    {
+        get
+        {
+            return _abilitySelected;
+        }
+        set
+        {
+            _abilitySelected = value;
+        }
+    }
 
     //Awake is always called before any Start functions
     void Awake()
