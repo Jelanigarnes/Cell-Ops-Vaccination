@@ -81,20 +81,28 @@ public class EnemyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (_gameController.IsGamePause)
+        if (_gameController.IsGamePause || _gameController.IsGameOver)
         {
             Agent.isStopped=true;
+            Agent.ResetPath();
             _rigidbody.constraints = RigidbodyConstraints.FreezePositionX;
-            _rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;
+            _rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;            
         }
         else
         {
+            Agent.SetDestination(Target.transform.position);
             //remove all constraits and reset
             _rigidbody.constraints = _rigidbodyConstraints;
 
             //resume persute
-            Agent.isStopped=false;            
-        }
+            Agent.isStopped=false;
+
+            if (Agent.hasPath)
+            {
+                Agent.destination = Target.transform.position;
+            }
+        }        
+
     }
     /// <summary>
     /// Finds a new target to attack.

@@ -64,7 +64,7 @@ public class GameController : MonoBehaviour
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
                 PlayerPrefs.Save();
-                SceneManager.LoadScene("Menu");
+                Invoke("BackToMainScreen", 11.0f);
                 //Invoke("BackToMainScreen", 5);
             }
         }
@@ -189,9 +189,12 @@ public class GameController : MonoBehaviour
         {
             IsGameOver = true;
         }
-        foreach(GameObject enemy in Enemies)
+        if (!IsGameOver)
         {
-            enemy.GetComponent<EnemyController>().NewTarget(Targets);
+            foreach (GameObject enemy in Enemies)
+            {
+                enemy.GetComponent<EnemyController>().NewTarget(Targets);
+            }
         }
     }
     public void EnemyDied(GameObject enemy)
@@ -223,7 +226,7 @@ public class GameController : MonoBehaviour
         StartCoroutine(_createEnemies(5, 3, 1));
         foreach(GameObject target in Targets)
         {
-            target.GetComponent<TargetController>().MaxHealth = 10000;
+            target.GetComponent<TargetController>().MaxHealth = 1000;
         }
 
         ////
@@ -234,6 +237,7 @@ public class GameController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = false;
     }
+
     // Private METHODS*******************************
     private void _bringUpMenu()
     {
@@ -261,11 +265,11 @@ public class GameController : MonoBehaviour
             if (_amountN > 0)
             {
                 GameObject NormalEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 NormalEnemy.GetComponent<EnemyController>().EnemyType = "Normal";
                 NormalEnemy.GetComponent<EnemyController>().Speed = 2.0f;
                 NormalEnemy.GetComponent<EnemyController>().Health = 20;
-                NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
-                NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
+                NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 1;                
                 Enemies.Add(NormalEnemy);
 
                 _amountN = _amountN - 1;
