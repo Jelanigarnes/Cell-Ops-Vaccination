@@ -10,8 +10,10 @@ public class PlayerController : MonoBehaviour
     private Vector3 _playerVelocity;
     private float _playerSpeed= 3f;
     private Rigidbody _rigidbody;
+    private bool _sprint;
 
     //Public Variables
+    public Camera PlayerCamera;
     public float PlayerSpeed
     {
         get => _playerSpeed;
@@ -21,10 +23,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public bool Sprint { get => _sprint; set => _sprint = value; }
+
     // Start is called before the first frame update
     void Start()
     {
         Initialize();
+        this.transform.position = _gameController.PlayerRespawnLocation.transform.position;
+        Sprint = false;
     }
     /// <summary>
     /// Use this for initialization
@@ -45,6 +51,23 @@ public class PlayerController : MonoBehaviour
             {
                 Ability(_gameController.PlayerAbility);
             }
+            //Activet Sprint
+            if ((Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift) && !Sprint))
+            {
+                Sprint = true;
+                PlayerSpeed *= 2;
+            }
+            if ((Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.RightShift) && Sprint))
+            {
+                PlayerSpeed /= 2;
+                Sprint = false;
+            }
+            //Rotate player to mouse
+            //Vector2 mousePosition = new Vector2(
+            //    Input.GetAxis("Mouse X"),
+            //    Input.GetAxis("Mouse Y")
+            //);
+            //transform.LookAt(mousePosition);
         }
     }
     void FixedUpdate()
@@ -63,6 +86,10 @@ public class PlayerController : MonoBehaviour
         }
     }
     //Private methods
+    private float AngleBetweenTwoPoints(Vector3 a, Vector3 b)
+    {
+        return Mathf.Atan2(a.y - b.y, a.x - b.x) * Mathf.Rad2Deg;
+    }
     private void Ability(string _abilityType)
     {
         switch (_abilityType)
@@ -80,5 +107,9 @@ public class PlayerController : MonoBehaviour
                 Debug.Log("No Ability Written yet.");
                 break;
         }
+    }
+    private void OnCollsionEnter(Collision collision)
+    {
+        Debug.Log("Object collided: " + collision.gameObject.name);
     }
 }
