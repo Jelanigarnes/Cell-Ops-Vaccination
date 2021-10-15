@@ -40,7 +40,8 @@ public class SelectVaccineController : MonoBehaviour
     /// </summary>
     public void Back()
     {
-        SceneManager.LoadScene("Menu");
+        SceneManager.UnloadSceneAsync("Vaccine Select");
+        //SceneManager.LoadScene("Menu");
     }
     /// <summary>
     /// Selects a character and returns user back to main menu
