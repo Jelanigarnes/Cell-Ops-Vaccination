@@ -17,12 +17,13 @@ public class EnemyController : MonoBehaviour
     private float _maxHealth;
     private int _enemyDmg;
     private RigidbodyConstraints _rigidbodyConstraints;
-    public GameObject HealthBar;
-    public Slider HealthbarSlider;
+    private AudioSource _audioSource;
 
     //Public Variables
     public GameObject Target;
     public NavMeshAgent Agent;
+    public GameObject HealthBar;
+    public Slider HealthbarSlider;
 
     public float Speed
     {
@@ -49,6 +50,8 @@ public class EnemyController : MonoBehaviour
             }
             if (_health < 0)
             {
+                _audioSource.volume = 100;
+                _audioSource.Play();
                 Object.Destroy(this.gameObject);
             }
             HealthbarSlider.value = _health;
@@ -77,7 +80,9 @@ public class EnemyController : MonoBehaviour
     {
         _gameController = GameObject.Find("GameController").GetComponent<GameController>();
         Agent = GetComponent<NavMeshAgent>();
-        _rigidbody = GetComponent<Rigidbody>();   }
+        _rigidbody = GetComponent<Rigidbody>();
+        _audioSource = GetComponent<AudioSource>();
+    }
     // Update is called once per frame
     void Update()
     {

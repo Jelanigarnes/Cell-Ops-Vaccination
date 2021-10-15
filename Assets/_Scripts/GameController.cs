@@ -18,6 +18,7 @@ public class GameController : MonoBehaviour
     private float _spawnDelay = 2.0f;
     private int _numberOfEnemiesToSpawn;
     private Transform _playerRespawnLocation;
+    private AudioSource _audioSource;
 
     // PUBLIC INSTANCE VARIABLES
 
@@ -28,6 +29,7 @@ public class GameController : MonoBehaviour
     public Text MenuTitle;
     public Button BackToMainMenuButton;
     public Button ResumeButton;
+    public AudioClip[] Sounds;
 
     [Header("Player Objects")]
     public GameObject PlayerPrefab;
@@ -59,13 +61,14 @@ public class GameController : MonoBehaviour
             if (_isGameOver)
             {
                 IsGamePause = true;
-                //GameOverLable.gameObject.SetActive(true);
                 //GamePlaySound.Stop();                
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+                _audioSource.clip = Sounds[2];
+                _audioSource.Play();
+                _audioSource.loop = false;
                 PlayerPrefs.Save();
-                Invoke("BackToMainScreen", 11.0f);
-                //Invoke("BackToMainScreen", 5);
+                Invoke("BackToMainScreen", 12.0f);
             }
         }
     }
@@ -108,14 +111,18 @@ public class GameController : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {        
+    {       
         Initialize();
         BringDownMenu();
         this.IsGamePause = true;
         this.IsGameOver = false;
         PlayerAbility = _gameManager.AbilityChoice;
+        _audioSource.volume = _gameManager.GameSettings.MusicVolume;
         Cursor.visible = true;
         TimeLable.text = "00:00:00";
+        _audioSource.clip = Sounds[0];
+        _audioSource.Play();
+        _audioSource.loop = true;
     }
 
     // Update is called once per frame
@@ -141,6 +148,7 @@ public class GameController : MonoBehaviour
         SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
         Targets.AddRange(GameObject.FindGameObjectsWithTag("Target"));
         PlayerRespawnLocation = GameObject.FindGameObjectWithTag("Respawn").transform;
+        _audioSource = GetComponent<AudioSource>();
     }
     // Public METHODS*******************************
     /// <summary>
@@ -194,6 +202,10 @@ public class GameController : MonoBehaviour
             foreach (GameObject enemy in Enemies)
             {
                 enemy.GetComponent<EnemyController>().NewTarget(Targets);
+            }
+            if (Targets.Count > 2)
+            {
+                _audioSource.clip = Sounds[1];
             }
         }
     }

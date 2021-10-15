@@ -62,16 +62,17 @@ public class PlayerController : MonoBehaviour
                 PlayerSpeed /= 2;
                 Sprint = false;
             }
+            //DOESN'T ROTATE AS SMOOTH AS IT SHOULD
             //rotation
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = 5.23f;
+            //Vector3 mousePos = Input.mousePosition;
+            //mousePos.z = 5.23f;
 
-            Vector3 objectPos = PlayerCamera.WorldToScreenPoint(transform.position);
-            mousePos.x = mousePos.x - objectPos.x;
-            mousePos.y = mousePos.y - objectPos.y;
+            //Vector3 objectPos = PlayerCamera.WorldToScreenPoint(transform.position);
+            //mousePos.x = mousePos.x - objectPos.x;
+            //mousePos.y = mousePos.y - objectPos.y;
 
-            float angle = Mathf.Atan2(mousePos.y, mousePos.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(new Vector3(0, -angle, 0));
+            //float angle = Mathf.Atan2(mousePos.y, mousePos.x) * Mathf.Rad2Deg;
+            //transform.rotation = Quaternion.Euler(new Vector3(0, -angle, 0));
         }
     }
     void FixedUpdate()
