@@ -49,10 +49,8 @@ public class EnemyController : MonoBehaviour
                 HealthBar.SetActive(true);
             }
             if (_health < 0)
-            {
-                _audioSource.volume = 100;
-                _audioSource.Play();
-                Object.Destroy(this.gameObject);
+            {                
+                StartCoroutine(Die());
             }
             HealthbarSlider.value = _health;
         }
@@ -73,7 +71,7 @@ public class EnemyController : MonoBehaviour
     {
         Initialize();
         Agent.speed = Speed;
-        SetDestination(Target);
+        NewTarget(_gameController.Targets);
         _rigidbodyConstraints = _rigidbody.constraints;
     }
     void Initialize()
@@ -104,7 +102,7 @@ public class EnemyController : MonoBehaviour
 
             if (Agent.hasPath)
             {
-                Agent.destination = Target.transform.position;
+                Agent.SetDestination(Target.transform.position);
             }
         }        
 
@@ -125,6 +123,7 @@ public class EnemyController : MonoBehaviour
             {
                 distanceToClosestTarget = distanceToTarget;
                 closestTarget = target;
+                Target = target;
             }
         }
         SetDestination(closestTarget);
@@ -161,5 +160,14 @@ public class EnemyController : MonoBehaviour
     private void OnDestroy()
     {
         _gameController.EnemyDied(this.gameObject);
+    }
+    IEnumerator Die()
+    {
+        GetComponent<MeshRenderer>().enabled = false;
+        this.GetComponent<Collider>().enabled = false;
+        _audioSource.volume = 100;
+        _audioSource.Play();
+        yield return new WaitForSeconds(_audioSource.clip.length);
+        Object.Destroy(this.gameObject);
     }
 }

@@ -4,16 +4,33 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+
     // Private Instance Variables
     private GameController _gameController;
     private bool _groundedPlayer;
     private Vector3 _playerVelocity;
-    private float _playerSpeed= 3f;
+    private float _playerSpeed= 5.0f;
     private Rigidbody _rigidbody;
     private bool _sprint;
+    private CameraDirection _cameraDirection = CameraDirection.x;
+    private float _cameraHeight = 20f;
+    private float _cameraDistance = 7f;
+    private float _gravity = 14.0f;
+    private float _maxVelocityChange = 10.0f;
+    private AudioSource _audioSource;
+    //Mouse cursor Camera offset effect
+    private Vector2 _playerPosOnScreen;
+    private Vector2 _cursorPosition;
+    private Vector2 _offsetVector;
+    private GameObject _targetObject;
+    //Plane that represents imaginary floor that will be used to calculate Aim target position
+    private Plane _surfacePlane = new Plane();
 
     //Public Variables
     public Camera PlayerCamera;
+    public GameObject targetIndicatorPrefab;
+    public GameObject LaserPrefab;
+    public enum CameraDirection { x, z }
     public float PlayerSpeed
     {
         get => _playerSpeed;
@@ -22,23 +39,33 @@ public class PlayerController : MonoBehaviour
             _playerSpeed = value;
         }
     }
-
     public bool Sprint { get => _sprint; set => _sprint = value; }
 
     // Start is called before the first frame update
     void Start()
     {
         Initialize();
+        _rigidbody.useGravity = false;
+        _rigidbody.freezeRotation = true;
+
         this.transform.position = _gameController.PlayerRespawnLocation.transform.position;
         Sprint = false;
+
+        //Instantiate aim target prefab
+        if (targetIndicatorPrefab)
+        {
+            _targetObject = Instantiate(targetIndicatorPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+        }
     }
     /// <summary>
     /// Use this for initialization
     /// </summary>
     void Initialize()
     {
+        PlayerCamera = GameObject.Find("MainCamera").GetComponent<Camera>();
         _gameController = GameObject.Find("GameController").GetComponent<GameController>();
         _rigidbody = GetComponent<Rigidbody>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -62,17 +89,12 @@ public class PlayerController : MonoBehaviour
                 PlayerSpeed /= 2;
                 Sprint = false;
             }
-            //DOESN'T ROTATE AS SMOOTH AS IT SHOULD
-            //rotation
-            //Vector3 mousePos = Input.mousePosition;
-            //mousePos.z = 5.23f;
-
-            //Vector3 objectPos = PlayerCamera.WorldToScreenPoint(transform.position);
-            //mousePos.x = mousePos.x - objectPos.x;
-            //mousePos.y = mousePos.y - objectPos.y;
-
-            //float angle = Mathf.Atan2(mousePos.y, mousePos.x) * Mathf.Rad2Deg;
-            //transform.rotation = Quaternion.Euler(new Vector3(0, -angle, 0));
+            if (Input.GetButtonDown("Fire"))
+            {
+                _audioSource.Play();
+                GameObject laser = Instantiate(LaserPrefab, transform.position, Quaternion.identity);
+                laser.GetComponent<Rigidbody>().AddForce(transform.forward * 1000f);
+            }
         }
     }
     void FixedUpdate()
@@ -84,16 +106,98 @@ public class PlayerController : MonoBehaviour
                 _playerVelocity.y = 0f;
             }
 
-            //Movement
-             Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-            _rigidbody.MovePosition(transform.position + move * Time.deltaTime * _playerSpeed);
-
+            Movement();
         }
     }
     //Private methods
-    private float AngleBetweenTwoPoints(Vector3 a, Vector3 b)
+    /// <summary>
+    /// Since it was so much to move character,rotate and other camera stuff i decided to make a method about it
+    /// </summary>
+    private void Movement()
     {
-        return Mathf.Atan2(a.y - b.y, a.x - b.x) * Mathf.Rad2Deg;
+        //Setup camera offset
+        Vector3 cameraOffset = Vector3.zero;
+        if (_cameraDirection == CameraDirection.x)
+        {
+            cameraOffset = new Vector3(_cameraDistance, _cameraHeight, 0);
+        }
+        else if (_cameraDirection == CameraDirection.z)
+        {
+            cameraOffset = new Vector3(0, _cameraHeight, _cameraDistance);
+        }
+
+        //if (grounded)
+        //{
+            Vector3 targetVelocity = Vector3.zero;
+            // Calculate how fast we should be moving
+            if (_cameraDirection == CameraDirection.x)
+            {
+                targetVelocity = new Vector3(Input.GetAxis("Vertical") * (_cameraDistance >= 0 ? -1 : 1), 0, Input.GetAxis("Horizontal") * (_cameraDistance >= 0 ? 1 : -1));
+            }
+            else if (_cameraDirection == CameraDirection.z)
+            {
+                targetVelocity = new Vector3(Input.GetAxis("Horizontal") * (_cameraDistance >= 0 ? -1 : 1), 0, Input.GetAxis("Vertical") * (_cameraDistance >= 0 ? -1 : 1));
+            }
+            targetVelocity *= PlayerSpeed;
+
+            // Apply a force that attempts to reach our target velocity
+            Vector3 velocity = _rigidbody.velocity;
+            Vector3 velocityChange = (targetVelocity - velocity);
+            velocityChange.x = Mathf.Clamp(velocityChange.x, -_maxVelocityChange, _maxVelocityChange);
+            velocityChange.z = Mathf.Clamp(velocityChange.z, -_maxVelocityChange, _maxVelocityChange);
+            velocityChange.y = 0;
+            _rigidbody.AddForce(velocityChange, ForceMode.VelocityChange);
+
+            // Jump
+            //if (canJump && Input.GetButton("Jump"))
+            //{
+            //    r.velocity = new Vector3(velocity.x, CalculateJumpVerticalSpeed(), velocity.z);
+            //}
+        //}
+
+        // We apply gravity manually for more tuning control
+        _rigidbody.AddForce(new Vector3(0, -_gravity * _rigidbody.mass, 0));
+
+        //grounded = false;
+
+        //Mouse cursor offset effect
+        _playerPosOnScreen = PlayerCamera.WorldToViewportPoint(transform.position);
+        _cursorPosition = PlayerCamera.ScreenToViewportPoint(Input.mousePosition);
+        _offsetVector = _cursorPosition - _playerPosOnScreen;
+
+        //Camera follow
+        PlayerCamera.transform.position = Vector3.Lerp(PlayerCamera.transform.position, transform.position + cameraOffset, Time.deltaTime * 7.4f);
+        PlayerCamera.transform.LookAt(transform.position + new Vector3(-_offsetVector.y * 2, 0, _offsetVector.x * 2));
+
+        //Aim target position and rotation
+        _targetObject.transform.position = GetAimTargetPos();
+        _targetObject.transform.LookAt(new Vector3(transform.position.x, _targetObject.transform.position.y, transform.position.z));
+
+        //Player rotation
+        transform.LookAt(new Vector3(_targetObject.transform.position.x, transform.position.y, _targetObject.transform.position.z));
+    }
+    Vector3 GetAimTargetPos()
+    {
+        //Update surface plane
+        _surfacePlane.SetNormalAndPosition(Vector3.up, transform.position);
+
+        //Create a ray from the Mouse click position
+        Ray ray = PlayerCamera.ScreenPointToRay(Input.mousePosition);
+
+        //Initialise the enter variable
+        float enter = 0.0f;
+
+        if (_surfacePlane.Raycast(ray, out enter))
+        {
+            //Get the point that is clicked
+            Vector3 hitPoint = ray.GetPoint(enter);
+
+            //Move your cube GameObject to the point where you clicked
+            return hitPoint;
+        }
+
+        //No raycast hit, hide the aim target by moving it far away
+        return new Vector3(-5000, -5000, -5000);
     }
     private void Ability(string _abilityType)
     {

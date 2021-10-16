@@ -30,7 +30,14 @@ public class TargetPointer : MonoBehaviour
         else
         {
             //transform.RotateAround(_gameController.Player.transform.position, _gameController.transform.up, 1);
-            transform.LookAt(HelpTarget.transform);
+            if (HelpTarget == null)
+            {
+                Destroy(this.gameObject);
+            }
+            else
+            {
+                transform.LookAt(HelpTarget.transform);
+            }
         }        
     }
 }
