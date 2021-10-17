@@ -69,6 +69,13 @@ public class TargetController : MonoBehaviour
     {
         Health -= amount;
     }
+    /// <summary>
+    /// Heals up between levels
+    /// </summary>
+    public void Heal()
+    {
+        Health = MaxHealth;
+    }
     /////PRIVAT METHODS
     /// <summary>
     /// Calls for help 

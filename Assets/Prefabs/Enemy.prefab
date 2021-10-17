@@ -154,6 +154,9 @@ MonoBehaviour:
   Agent: {fileID: 0}
   HealthBar: {fileID: 3513628550262925849}
   HealthbarSlider: {fileID: 2062171447913034419}
+  Sounds:
+  - {fileID: 8300000, guid: bb0cd7dd119554e4ea1d77eafdac8640, type: 3}
+  - {fileID: 8300000, guid: fbc5415c495f92c4285825847e1c41fb, type: 3}
 --- !u!82 &6152746866849932018
 AudioSource:
   m_ObjectHideFlags: 0

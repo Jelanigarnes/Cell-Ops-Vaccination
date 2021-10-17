@@ -871,6 +871,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 688750c319ac773448960efaef0d65fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _Level: 0
   Camera: {fileID: 1697233017}
   TimeLable: {fileID: 1272836769}
   MenuTitle: {fileID: 212676585}
@@ -888,6 +889,9 @@ MonoBehaviour:
   EnemyPrefab: {fileID: 1859483144228367800, guid: 761f2423a148ca64ebe55cc62f4f2ba0,
     type: 3}
   Enemies: []
+  NormalEnemies: 0
+  FastEnemies: 0
+  BigEnemies: 0
   Targets: []
   SpawnPoints: []
 --- !u!82 &514514441

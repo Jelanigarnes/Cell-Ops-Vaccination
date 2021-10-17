@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
     private string _abilityChoice;
     private bool _abilitySelected;
+    private float _score;
 
     public static GameManager instance = null;
 
@@ -32,6 +33,12 @@ public class GameManager : MonoBehaviour
         {
             _abilitySelected = value;
         }
+    }
+
+    public float Score 
+    { 
+        get => _score; 
+        set => _score = value; 
     }
 
     //Awake is always called before any Start functions

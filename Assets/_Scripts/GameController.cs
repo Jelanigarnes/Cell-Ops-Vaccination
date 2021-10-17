@@ -7,9 +7,12 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     // Private Instance Variables
+    [SerializeField]
+    private int _Level;
     private float _time=0.0f;
     private bool _isGameOver;
     private bool _isGamePause;
+    private bool _isGameVictory;
     private GameManager _gameManager;
     private GameObject _player;
     //[SerializeField]
@@ -21,7 +24,6 @@ public class GameController : MonoBehaviour
     private AudioSource _audioSource;
 
     // PUBLIC INSTANCE VARIABLES
-
     public GameObject Camera;
 
     [Header("Menu")]
@@ -39,6 +41,9 @@ public class GameController : MonoBehaviour
     [Header("Enemies")]
     public GameObject EnemyPrefab;
     public List<GameObject> Enemies;
+    public int NormalEnemies;
+    public int FastEnemies;
+    public int BigEnemies;
 
     [Tooltip("The amount of Targets in the game.")]
     [Header("Targets")]
@@ -108,6 +113,18 @@ public class GameController : MonoBehaviour
     public int NumberOfEnemiesToSpawn { get => _numberOfEnemiesToSpawn; set => _numberOfEnemiesToSpawn = value; }
     public Transform PlayerRespawnLocation { get => _playerRespawnLocation; set => _playerRespawnLocation = value; }
     public GameObject Player { get => _player; set => _player = value; }
+    public bool IsGameVictory 
+    { 
+        get => _isGameVictory;
+        set {
+            _isGameVictory = value;
+            if (IsGameVictory)
+            {
+                _gameManager.Score = _time;
+                Invoke("BackToMainScreen", 12.0f);
+            }
+        } 
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -208,14 +225,74 @@ public class GameController : MonoBehaviour
             }
         }
     }
+    /// <summary>
+    /// Is called whenever an enemy dies
+    /// </summary>
+    /// <param name="enemy"></param>
     public void EnemyDied(GameObject enemy)
     {
         Enemies.Remove(enemy);
         if (Enemies.Count == 0)
         {
-
+            _Level++;
+            if (_Level > 10)
+            {
+                IsGameVictory = true;
+            }
+            else
+            {
+                _restartLevel();
+            }            
         }
     }
+    /// <summary>
+    /// Start the game
+    /// </summary>
+    public void StartGame()
+    {
+        //Hide the cursor
+        Cursor.visible = false;
+
+        Camera.GetComponent<AudioListener>().enabled = false;
+
+        //Spawns Player
+        Player = Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+
+        //Start Level
+        _Level = 1;
+        NormalEnemies = 5;
+        FastEnemies = 3;
+        BigEnemies = 1;
+        StartCoroutine(_createEnemies(NormalEnemies, FastEnemies,BigEnemies));
+        foreach(GameObject target in Targets)
+        {
+            target.GetComponent<TargetController>().MaxHealth = 1000;
+        }
+
+        ////
+        GameObject.Find("BtnStart").SetActive(false);
+        IsGamePause = false;
+        IsGameOver = false;
+        IsGameVictory = false;
+    }
+
+    // Private METHODS*******************************
+    /// <summary>
+    /// Restarts Next wave of enemies;
+    /// </summary>
+    private void _restartLevel()
+    {
+        foreach(GameObject target in Targets)
+        {
+            target.GetComponent<TargetController>().Heal();
+        }
+        _Level++;
+        NormalEnemies--;
+        FastEnemies++;
+        BigEnemies++;
+        StartCoroutine(_createEnemies(NormalEnemies, FastEnemies, BigEnemies));
+    }
+
     /// <summary>
     /// Gets and display the time
     /// </summary>
@@ -227,33 +304,11 @@ public class GameController : MonoBehaviour
         float splitseconds = Mathf.RoundToInt(_time * 1000);
         splitseconds = (splitseconds % 1000);
 
-        TimeLable.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, splitseconds); 
+        TimeLable.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, splitseconds);
     }
     /// <summary>
-    /// Start the game
+    /// Brings up Game Menu UI
     /// </summary>
-    public void StartGame()
-    {
-        //Hide the cursor
-        Cursor.visible = false;
-        Camera.GetComponent<AudioListener>().enabled = false;
-        //Object.Destroy(Camera); No longer deleting camera
-        Player = Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-
-        //Sets level details based on current level. TO add later
-        StartCoroutine(_createEnemies(1, 1,1));
-        foreach(GameObject target in Targets)
-        {
-            target.GetComponent<TargetController>().MaxHealth = 1000;
-        }
-
-        ////
-        GameObject.Find("BtnStart").SetActive(false);
-        IsGamePause = false;
-        IsGameOver = false;
-    }
-
-    // Private METHODS*******************************
     private void _bringUpMenu()
     {
         MenuTitle.gameObject.SetActive(true);
@@ -284,7 +339,7 @@ public class GameController : MonoBehaviour
                 NormalEnemy.GetComponent<EnemyController>().EnemyType = "Normal";
                 NormalEnemy.GetComponent<EnemyController>().Speed = 2.0f;
                 NormalEnemy.GetComponent<EnemyController>().MaxHealth = 20;
-                NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 1;                
+                NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 3;                
                 Enemies.Add(NormalEnemy);
 
                 _amountN = _amountN - 1;
@@ -309,7 +364,7 @@ public class GameController : MonoBehaviour
                     BigEnemy.GetComponent<EnemyController>().EnemyType = "Big";
                     BigEnemy.GetComponent<EnemyController>().Speed = 1.0f;
                     BigEnemy.GetComponent<EnemyController>().MaxHealth = 40;
-                    BigEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
+                    BigEnemy.GetComponent<EnemyController>().EnemyDmg = 7;
                     BigEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 Enemies.Add(BigEnemy);
 

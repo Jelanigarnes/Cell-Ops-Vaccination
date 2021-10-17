@@ -24,6 +24,7 @@ public class EnemyController : MonoBehaviour
     public NavMeshAgent Agent;
     public GameObject HealthBar;
     public Slider HealthbarSlider;
+    public AudioClip[] Sounds;
 
     public float Speed
     {
@@ -152,6 +153,12 @@ public class EnemyController : MonoBehaviour
         {
             collision.gameObject.GetComponent<TargetController>().TakeDamage(EnemyDmg);
         }
+        if (collision.gameObject.tag == "Laser")
+        {
+            _audioSource.clip = Sounds[0];
+            _audioSource.volume = 100;
+            _audioSource.Play();
+        }
         
     }
     /// <summary>
@@ -165,6 +172,7 @@ public class EnemyController : MonoBehaviour
     {
         GetComponent<MeshRenderer>().enabled = false;
         this.GetComponent<Collider>().enabled = false;
+        _audioSource.clip = Sounds[1];
         _audioSource.volume = 100;
         _audioSource.Play();
         yield return new WaitForSeconds(_audioSource.clip.length);
