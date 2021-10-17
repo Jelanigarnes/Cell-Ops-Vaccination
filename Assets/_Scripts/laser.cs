@@ -23,11 +23,11 @@ public class laser : MonoBehaviour
     {
         
     }
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.tag == "Enemy")
+        if (other.gameObject.tag == "Enemy")
         {
-            collision.gameObject.GetComponent<EnemyController>().Health -= Damage;
+            other.gameObject.GetComponent<EnemyController>().Health -= Damage;
             Destroy(this.gameObject);
         }
     }

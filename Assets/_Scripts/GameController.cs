@@ -186,7 +186,7 @@ public class GameController : MonoBehaviour
         //helpArrow.transform.SetParent(Player.transform);
     }
     /// <summary>
-    /// Refresh Target list and tells all enemies to find new Target
+    /// Refresh Target list and tells all enemies to find new Target and Detects Game Victory
     /// </summary>
     /// <param name="target">Target that died</param>
     public void TargetDied(GameObject target)
@@ -211,6 +211,10 @@ public class GameController : MonoBehaviour
     public void EnemyDied(GameObject enemy)
     {
         Enemies.Remove(enemy);
+        if (Enemies.Count == 0)
+        {
+
+        }
     }
     /// <summary>
     /// Gets and display the time

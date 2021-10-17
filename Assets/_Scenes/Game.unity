@@ -885,7 +885,7 @@ MonoBehaviour:
     type: 3}
   HelpArrow: {fileID: 3179537219961603314, guid: 3cc29d14b671e5d47b96b44f0710fb01,
     type: 3}
-  EnemyPrefab: {fileID: 5621355145277571418, guid: 761f2423a148ca64ebe55cc62f4f2ba0,
+  EnemyPrefab: {fileID: 1859483144228367800, guid: 761f2423a148ca64ebe55cc62f4f2ba0,
     type: 3}
   Enemies: []
   Targets: []
@@ -1623,7 +1623,7 @@ PrefabInstance:
     - target: {fileID: 6816432338511773387, guid: c15ef4fbbef4e6d42b222bd635f49492,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.50000095
+      value: 1.82
       objectReference: {fileID: 0}
     - target: {fileID: 6816432338511773387, guid: c15ef4fbbef4e6d42b222bd635f49492,
         type: 3}

@@ -88,14 +88,14 @@ public class EnemyController : MonoBehaviour
         {
             Agent.isStopped=true;
             Agent.ResetPath();
-            _rigidbody.constraints = RigidbodyConstraints.FreezePositionX;
-            _rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;            
+            _rigidbody.constraints = RigidbodyConstraints.FreezeAll;            
         }
         else
         {
             Agent.SetDestination(Target.transform.position);
             //remove all constraits and reset
-            _rigidbody.constraints = _rigidbodyConstraints;
+            _rigidbody.constraints = RigidbodyConstraints.None;
+            _rigidbody.constraints = RigidbodyConstraints.FreezeRotationX;
 
             //resume persute
             Agent.isStopped=false;
