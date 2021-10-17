@@ -70,7 +70,7 @@ public class MainMenu : MonoBehaviour
     }
     public void CharacterSelect()
     {
-        SceneManager.LoadScene("Vaccine Select");
+        SceneManager.LoadScene("Vaccine Select", LoadSceneMode.Additive);
     }
     /// <summary>
     /// Calls Close Game method in GameManager

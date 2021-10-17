@@ -7,9 +7,12 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
     // Private Instance Variables
+    [SerializeField]
+    private int _Level;
     private float _time=0.0f;
     private bool _isGameOver;
     private bool _isGamePause;
+    private bool _isGameVictory;
     private GameManager _gameManager;
     private GameObject _player;
     //[SerializeField]
@@ -18,9 +21,9 @@ public class GameController : MonoBehaviour
     private float _spawnDelay = 2.0f;
     private int _numberOfEnemiesToSpawn;
     private Transform _playerRespawnLocation;
+    private AudioSource _audioSource;
 
     // PUBLIC INSTANCE VARIABLES
-
     public GameObject Camera;
 
     [Header("Menu")]
@@ -28,6 +31,7 @@ public class GameController : MonoBehaviour
     public Text MenuTitle;
     public Button BackToMainMenuButton;
     public Button ResumeButton;
+    public AudioClip[] Sounds;
 
     [Header("Player Objects")]
     public GameObject PlayerPrefab;
@@ -37,6 +41,9 @@ public class GameController : MonoBehaviour
     [Header("Enemies")]
     public GameObject EnemyPrefab;
     public List<GameObject> Enemies;
+    public int NormalEnemies;
+    public int FastEnemies;
+    public int BigEnemies;
 
     [Tooltip("The amount of Targets in the game.")]
     [Header("Targets")]
@@ -59,13 +66,14 @@ public class GameController : MonoBehaviour
             if (_isGameOver)
             {
                 IsGamePause = true;
-                //GameOverLable.gameObject.SetActive(true);
                 //GamePlaySound.Stop();                
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+                _audioSource.clip = Sounds[2];
+                _audioSource.Play();
+                _audioSource.loop = false;
                 PlayerPrefs.Save();
-                SceneManager.LoadScene("Menu");
-                //Invoke("BackToMainScreen", 5);
+                Invoke("BackToMainScreen", 12.0f);
             }
         }
     }
@@ -105,17 +113,33 @@ public class GameController : MonoBehaviour
     public int NumberOfEnemiesToSpawn { get => _numberOfEnemiesToSpawn; set => _numberOfEnemiesToSpawn = value; }
     public Transform PlayerRespawnLocation { get => _playerRespawnLocation; set => _playerRespawnLocation = value; }
     public GameObject Player { get => _player; set => _player = value; }
+    public bool IsGameVictory 
+    { 
+        get => _isGameVictory;
+        set {
+            _isGameVictory = value;
+            if (IsGameVictory)
+            {
+                _gameManager.Score = _time;
+                Invoke("BackToMainScreen", 12.0f);
+            }
+        } 
+    }
 
     // Start is called before the first frame update
     void Start()
-    {        
+    {       
         Initialize();
         BringDownMenu();
         this.IsGamePause = true;
         this.IsGameOver = false;
         PlayerAbility = _gameManager.AbilityChoice;
+        _audioSource.volume = _gameManager.GameSettings.MusicVolume;
         Cursor.visible = true;
         TimeLable.text = "00:00:00";
+        _audioSource.clip = Sounds[0];
+        _audioSource.Play();
+        _audioSource.loop = true;
     }
 
     // Update is called once per frame
@@ -141,6 +165,7 @@ public class GameController : MonoBehaviour
         SpawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
         Targets.AddRange(GameObject.FindGameObjectsWithTag("Target"));
         PlayerRespawnLocation = GameObject.FindGameObjectWithTag("Respawn").transform;
+        _audioSource = GetComponent<AudioSource>();
     }
     // Public METHODS*******************************
     /// <summary>
@@ -156,7 +181,6 @@ public class GameController : MonoBehaviour
     public void Resume()
     {
         IsGamePause = false;
-        Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = false;
         BringDownMenu();
     }
@@ -179,7 +203,7 @@ public class GameController : MonoBehaviour
         //helpArrow.transform.SetParent(Player.transform);
     }
     /// <summary>
-    /// Refresh Target list and tells all enemies to find new Target
+    /// Refresh Target list and tells all enemies to find new Target and Detects Game Victory
     /// </summary>
     /// <param name="target">Target that died</param>
     public void TargetDied(GameObject target)
@@ -189,15 +213,86 @@ public class GameController : MonoBehaviour
         {
             IsGameOver = true;
         }
-        foreach(GameObject enemy in Enemies)
+        if (!IsGameOver)
         {
-            enemy.GetComponent<EnemyController>().NewTarget(Targets);
+            foreach (GameObject enemy in Enemies)
+            {
+                enemy.GetComponent<EnemyController>().NewTarget(Targets);
+            }
+            if (Targets.Count > 2)
+            {
+                _audioSource.clip = Sounds[1];
+            }
         }
     }
+    /// <summary>
+    /// Is called whenever an enemy dies
+    /// </summary>
+    /// <param name="enemy"></param>
     public void EnemyDied(GameObject enemy)
     {
         Enemies.Remove(enemy);
+        if (Enemies.Count == 0)
+        {
+            _Level++;
+            if (_Level > 10)
+            {
+                IsGameVictory = true;
+            }
+            else
+            {
+                _restartLevel();
+            }            
+        }
     }
+    /// <summary>
+    /// Start the game
+    /// </summary>
+    public void StartGame()
+    {
+        //Hide the cursor
+        Cursor.visible = false;
+
+        Camera.GetComponent<AudioListener>().enabled = false;
+
+        //Spawns Player
+        Player = Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+
+        //Start Level
+        _Level = 1;
+        NormalEnemies = 5;
+        FastEnemies = 3;
+        BigEnemies = 1;
+        StartCoroutine(_createEnemies(NormalEnemies, FastEnemies,BigEnemies));
+        foreach(GameObject target in Targets)
+        {
+            target.GetComponent<TargetController>().MaxHealth = 1000;
+        }
+
+        ////
+        GameObject.Find("BtnStart").SetActive(false);
+        IsGamePause = false;
+        IsGameOver = false;
+        IsGameVictory = false;
+    }
+
+    // Private METHODS*******************************
+    /// <summary>
+    /// Restarts Next wave of enemies;
+    /// </summary>
+    private void _restartLevel()
+    {
+        foreach(GameObject target in Targets)
+        {
+            target.GetComponent<TargetController>().Heal();
+        }
+        _Level++;
+        NormalEnemies--;
+        FastEnemies++;
+        BigEnemies++;
+        StartCoroutine(_createEnemies(NormalEnemies, FastEnemies, BigEnemies));
+    }
+
     /// <summary>
     /// Gets and display the time
     /// </summary>
@@ -209,32 +304,11 @@ public class GameController : MonoBehaviour
         float splitseconds = Mathf.RoundToInt(_time * 1000);
         splitseconds = (splitseconds % 1000);
 
-        TimeLable.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, splitseconds); 
+        TimeLable.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, splitseconds);
     }
     /// <summary>
-    /// Start the game
+    /// Brings up Game Menu UI
     /// </summary>
-    public void StartGame()
-    {
-        Object.Destroy(Camera);
-        Player = Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
-
-        //Sets level details based on current level. TO add later
-        StartCoroutine(_createEnemies(5, 3, 1));
-        foreach(GameObject target in Targets)
-        {
-            target.GetComponent<TargetController>().MaxHealth = 10000;
-        }
-
-        ////
-      
-        //Enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject.Find("BtnStart").SetActive(false);
-        _isGamePause = false;
-        Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = false;
-    }
-    // Private METHODS*******************************
     private void _bringUpMenu()
     {
         MenuTitle.gameObject.SetActive(true);
@@ -261,11 +335,11 @@ public class GameController : MonoBehaviour
             if (_amountN > 0)
             {
                 GameObject NormalEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 NormalEnemy.GetComponent<EnemyController>().EnemyType = "Normal";
                 NormalEnemy.GetComponent<EnemyController>().Speed = 2.0f;
-                NormalEnemy.GetComponent<EnemyController>().Health = 20;
-                NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
-                NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
+                NormalEnemy.GetComponent<EnemyController>().MaxHealth = 20;
+                NormalEnemy.GetComponent<EnemyController>().EnemyDmg = 3;                
                 Enemies.Add(NormalEnemy);
 
                 _amountN = _amountN - 1;
@@ -276,7 +350,7 @@ public class GameController : MonoBehaviour
                     GameObject FastEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                     FastEnemy.GetComponent<EnemyController>().EnemyType = "Fast";
                     FastEnemy.GetComponent<EnemyController>().Speed = 4.0f;
-                    FastEnemy.GetComponent<EnemyController>().Health = 10;
+                    FastEnemy.GetComponent<EnemyController>().MaxHealth = 10;
                     FastEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
                     FastEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 Enemies.Add(FastEnemy);
@@ -289,8 +363,8 @@ public class GameController : MonoBehaviour
                     GameObject BigEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                     BigEnemy.GetComponent<EnemyController>().EnemyType = "Big";
                     BigEnemy.GetComponent<EnemyController>().Speed = 1.0f;
-                    BigEnemy.GetComponent<EnemyController>().Health = 40;
-                    BigEnemy.GetComponent<EnemyController>().EnemyDmg = 1;
+                    BigEnemy.GetComponent<EnemyController>().MaxHealth = 40;
+                    BigEnemy.GetComponent<EnemyController>().EnemyDmg = 7;
                     BigEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 Enemies.Add(BigEnemy);
 

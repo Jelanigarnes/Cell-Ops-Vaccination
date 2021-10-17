@@ -17,12 +17,14 @@ public class EnemyController : MonoBehaviour
     private float _maxHealth;
     private int _enemyDmg;
     private RigidbodyConstraints _rigidbodyConstraints;
-    public GameObject HealthBar;
-    public Slider HealthbarSlider;
+    private AudioSource _audioSource;
 
     //Public Variables
     public GameObject Target;
     public NavMeshAgent Agent;
+    public GameObject HealthBar;
+    public Slider HealthbarSlider;
+    public AudioClip[] Sounds;
 
     public float Speed
     {
@@ -48,8 +50,8 @@ public class EnemyController : MonoBehaviour
                 HealthBar.SetActive(true);
             }
             if (_health < 0)
-            {
-                Object.Destroy(this.gameObject);
+            {                
+                StartCoroutine(Die());
             }
             HealthbarSlider.value = _health;
         }
@@ -70,31 +72,41 @@ public class EnemyController : MonoBehaviour
     {
         Initialize();
         Agent.speed = Speed;
-        SetDestination(Target);
+        NewTarget(_gameController.Targets);
         _rigidbodyConstraints = _rigidbody.constraints;
     }
     void Initialize()
     {
         _gameController = GameObject.Find("GameController").GetComponent<GameController>();
         Agent = GetComponent<NavMeshAgent>();
-        _rigidbody = GetComponent<Rigidbody>();   }
+        _rigidbody = GetComponent<Rigidbody>();
+        _audioSource = GetComponent<AudioSource>();
+    }
     // Update is called once per frame
     void Update()
     {
-        if (_gameController.IsGamePause)
+        if (_gameController.IsGamePause || _gameController.IsGameOver)
         {
             Agent.isStopped=true;
-            _rigidbody.constraints = RigidbodyConstraints.FreezePositionX;
-            _rigidbody.constraints = RigidbodyConstraints.FreezePositionZ;
+            Agent.ResetPath();
+            _rigidbody.constraints = RigidbodyConstraints.FreezeAll;            
         }
         else
         {
+            Agent.SetDestination(Target.transform.position);
             //remove all constraits and reset
-            _rigidbody.constraints = _rigidbodyConstraints;
+            _rigidbody.constraints = RigidbodyConstraints.None;
+            _rigidbody.constraints = RigidbodyConstraints.FreezeRotationX;
 
             //resume persute
-            Agent.isStopped=false;            
-        }
+            Agent.isStopped=false;
+
+            if (Agent.hasPath)
+            {
+                Agent.SetDestination(Target.transform.position);
+            }
+        }        
+
     }
     /// <summary>
     /// Finds a new target to attack.
@@ -112,6 +124,7 @@ public class EnemyController : MonoBehaviour
             {
                 distanceToClosestTarget = distanceToTarget;
                 closestTarget = target;
+                Target = target;
             }
         }
         SetDestination(closestTarget);
@@ -140,6 +153,12 @@ public class EnemyController : MonoBehaviour
         {
             collision.gameObject.GetComponent<TargetController>().TakeDamage(EnemyDmg);
         }
+        if (collision.gameObject.tag == "Laser")
+        {
+            _audioSource.clip = Sounds[0];
+            _audioSource.volume = 100;
+            _audioSource.Play();
+        }
         
     }
     /// <summary>
@@ -148,5 +167,15 @@ public class EnemyController : MonoBehaviour
     private void OnDestroy()
     {
         _gameController.EnemyDied(this.gameObject);
+    }
+    IEnumerator Die()
+    {
+        GetComponent<MeshRenderer>().enabled = false;
+        this.GetComponent<Collider>().enabled = false;
+        _audioSource.clip = Sounds[1];
+        _audioSource.volume = 100;
+        _audioSource.Play();
+        yield return new WaitForSeconds(_audioSource.clip.length);
+        Object.Destroy(this.gameObject);
     }
 }

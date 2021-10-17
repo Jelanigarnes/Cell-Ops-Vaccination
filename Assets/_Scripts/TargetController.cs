@@ -31,6 +31,10 @@ public class TargetController : MonoBehaviour
                 _health = MaxHealth;
             }
             HealthbarSlider.value = _health;
+            if (_health <= 0)
+            {
+                Object.Destroy(this.gameObject);
+            }
         } 
     }
 
@@ -49,11 +53,7 @@ public class TargetController : MonoBehaviour
     void Update()
     {
         if (!_gameController.IsGamePause)
-        {
-            if (Health <= 0)
-            {
-                Object.Destroy(this.gameObject);
-            }
+        {           
             if (Health < MaxHealth && !_calledForhelp)
             {
                 _isBeingAttacked();
@@ -68,6 +68,13 @@ public class TargetController : MonoBehaviour
     public void TakeDamage(float amount)
     {
         Health -= amount;
+    }
+    /// <summary>
+    /// Heals up between levels
+    /// </summary>
+    public void Heal()
+    {
+        Health = MaxHealth;
     }
     /////PRIVAT METHODS
     /// <summary>
