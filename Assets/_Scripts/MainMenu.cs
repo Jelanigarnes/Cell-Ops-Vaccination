@@ -72,6 +72,10 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadScene("Vaccine Select", LoadSceneMode.Additive);
     }
+    public void ClickControls()
+    {
+        SceneManager.LoadScene("Controls", LoadSceneMode.Additive);
+    }
     /// <summary>
     /// Calls Close Game method in GameManager
     /// </summary>

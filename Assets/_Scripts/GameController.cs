@@ -26,9 +26,10 @@ public class GameController : MonoBehaviour
     // PUBLIC INSTANCE VARIABLES
     public GameObject Camera;
 
-    [Header("Menu")]
+    [Header("UI")]
     public Text TimeLable;
     public Text MenuTitle;
+    public Text LevelLabel;
     public Button BackToMainMenuButton;
     public Button ResumeButton;
     public AudioClip[] Sounds;
@@ -39,7 +40,7 @@ public class GameController : MonoBehaviour
 
     [Tooltip("The amount of enemies in the game.")]
     [Header("Enemies")]
-    public GameObject EnemyPrefab;
+    public List<GameObject> EnemyPrefabs;
     public List<GameObject> Enemies;
     public int NormalEnemies;
     public int FastEnemies;
@@ -124,6 +125,16 @@ public class GameController : MonoBehaviour
                 Invoke("BackToMainScreen", 12.0f);
             }
         } 
+    }
+
+    public int Level 
+    { 
+        get => _Level;
+        set
+        {
+            _Level = value;
+            LevelLabel.text = "Level: " + _Level;
+        }
     }
 
     // Start is called before the first frame update
@@ -234,7 +245,7 @@ public class GameController : MonoBehaviour
         Enemies.Remove(enemy);
         if (Enemies.Count == 0)
         {
-            _Level++;
+            Level++;
             if (_Level > 10)
             {
                 IsGameVictory = true;
@@ -259,7 +270,7 @@ public class GameController : MonoBehaviour
         Player = Instantiate(PlayerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
 
         //Start Level
-        _Level = 1;
+        Level = 1;
         NormalEnemies = 5;
         FastEnemies = 3;
         BigEnemies = 1;
@@ -286,7 +297,6 @@ public class GameController : MonoBehaviour
         {
             target.GetComponent<TargetController>().Heal();
         }
-        _Level++;
         NormalEnemies--;
         FastEnemies++;
         BigEnemies++;
@@ -334,7 +344,7 @@ public class GameController : MonoBehaviour
             }
             if (_amountN > 0)
             {
-                GameObject NormalEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                GameObject NormalEnemy = Instantiate(EnemyPrefabs[0], SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                 NormalEnemy.GetComponent<EnemyController>().Target = Targets[Random.Range(0, Targets.Count)];
                 NormalEnemy.GetComponent<EnemyController>().EnemyType = "Normal";
                 NormalEnemy.GetComponent<EnemyController>().Speed = 2.0f;
@@ -347,7 +357,7 @@ public class GameController : MonoBehaviour
             }
             else if (_amountF > 0)
             {
-                    GameObject FastEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                    GameObject FastEnemy = Instantiate(EnemyPrefabs[1], SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                     FastEnemy.GetComponent<EnemyController>().EnemyType = "Fast";
                     FastEnemy.GetComponent<EnemyController>().Speed = 4.0f;
                     FastEnemy.GetComponent<EnemyController>().MaxHealth = 10;
@@ -360,7 +370,7 @@ public class GameController : MonoBehaviour
             }
             else if (_amountB > 0)
             {
-                    GameObject BigEnemy = Instantiate(EnemyPrefab, SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
+                    GameObject BigEnemy = Instantiate(EnemyPrefabs[2], SpawnPoints[Random.Range(0, SpawnPoints.Length)].GetComponent<Transform>().position, Quaternion.identity);
                     BigEnemy.GetComponent<EnemyController>().EnemyType = "Big";
                     BigEnemy.GetComponent<EnemyController>().Speed = 1.0f;
                     BigEnemy.GetComponent<EnemyController>().MaxHealth = 40;
