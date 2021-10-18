@@ -33,6 +33,7 @@ public class GameController : MonoBehaviour
     public Button BackToMainMenuButton;
     public Button ResumeButton;
     public AudioClip[] Sounds;
+    public Texture2D CursorTexture;
 
     [Header("Player Objects")]
     public GameObject PlayerPrefab;
@@ -68,7 +69,7 @@ public class GameController : MonoBehaviour
             {
                 IsGamePause = true;
                 //GamePlaySound.Stop();                
-                Cursor.lockState = CursorLockMode.None;
+                Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
                 _audioSource.clip = Sounds[2];
                 _audioSource.Play();
@@ -90,11 +91,13 @@ public class GameController : MonoBehaviour
             this._isGamePause = value;
             if (_isGamePause)
             {
-                Cursor.lockState = CursorLockMode.None;
+                Player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
             }
             else
             {
+                Player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
                 Cursor.visible = false;
             }
         }
@@ -147,6 +150,7 @@ public class GameController : MonoBehaviour
         PlayerAbility = _gameManager.AbilityChoice;
         _audioSource.volume = _gameManager.GameSettings.MusicVolume;
         Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.Confined;
         TimeLable.text = "00:00:00";
         _audioSource.clip = Sounds[0];
         _audioSource.Play();
@@ -163,7 +167,7 @@ public class GameController : MonoBehaviour
         if (Input.GetKey(KeyCode.Escape))
         {
             IsGamePause = true;
-            Cursor.lockState = CursorLockMode.None;
+            Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
             _bringUpMenu();          
         }
@@ -263,6 +267,9 @@ public class GameController : MonoBehaviour
     {
         //Hide the cursor
         Cursor.visible = false;
+        //Set Cursor
+        //Cursor.SetCursor(CursorTexture, Vector2.zero, CursorMode.Auto);
+        //Cursor.visible = true;
 
         Camera.GetComponent<AudioListener>().enabled = false;
 

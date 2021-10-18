@@ -883,6 +883,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 381ba4751019eaa4a997af9e4082d6b9, type: 3}
   - {fileID: 8300000, guid: e7513ccb2901aa24e9e87acb44b89fbe, type: 3}
   - {fileID: 8300000, guid: 92a34465d60c4dd43b730ef83c7d0e10, type: 3}
+  CursorTexture: {fileID: 2800000, guid: d7022375296967046968ae2134e0d018, type: 3}
   PlayerPrefab: {fileID: 5764377792263605621, guid: 91e68a88f3b36154eadfedd2b7ef1edb,
     type: 3}
   HelpArrow: {fileID: 3179537219961603314, guid: 3cc29d14b671e5d47b96b44f0710fb01,
@@ -1414,7 +1415,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1423,7 +1424,7 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: af4271c9da6237444b5672e48ffe0cd3, type: 3}
-    m_FontSize: 22
+    m_FontSize: 26
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 2
@@ -1661,7 +1662,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

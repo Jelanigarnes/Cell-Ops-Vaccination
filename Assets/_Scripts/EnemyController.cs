@@ -147,7 +147,7 @@ public class EnemyController : MonoBehaviour
             // We then get the opposite (-Vector3) and normalize it
             //away = -away.normalized;
 
-            collision.gameObject.GetComponent<Rigidbody>().AddForce(away * 1000.0f);
+            collision.gameObject.GetComponent<Rigidbody>().AddForce(away * 10000.0f);
         }
         if(collision.gameObject.tag == "Target")
         {

@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private float _gravity = 14.0f;
     private float _maxVelocityChange = 10.0f;
     private AudioSource _audioSource;
+
     //Mouse cursor Camera offset effect
     private Vector2 _playerPosOnScreen;
     private Vector2 _cursorPosition;
@@ -30,6 +31,7 @@ public class PlayerController : MonoBehaviour
     public Camera PlayerCamera;
     public GameObject targetIndicatorPrefab;
     public GameObject LaserPrefab;
+    public Transform WeaponNozel;
     public enum CameraDirection { x, z }
     public float PlayerSpeed
     {
@@ -92,8 +94,11 @@ public class PlayerController : MonoBehaviour
             if (Input.GetButtonDown("Fire"))
             {
                 _audioSource.Play();
-                GameObject laser = Instantiate(LaserPrefab, transform.position, Quaternion.identity);
-                laser.GetComponent<Rigidbody>().AddForce(transform.forward * 1000f);
+                GameObject laser = Instantiate(
+                    LaserPrefab, 
+                    WeaponNozel.position, 
+                    this.transform.rotation);
+                laser.GetComponent<Rigidbody>().AddForce(transform.forward * 8000f);
             }
         }
     }
