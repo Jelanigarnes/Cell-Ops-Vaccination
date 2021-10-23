@@ -7,21 +7,34 @@
 #include <filesystem>
 #include <json.hpp>
 #include <fstream>
+#include <sstream>
 
+// GLM math library
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <GLM/gtx/common.hpp> // for fmod (floating modulus)
 
-#include "IndexBuffer.h"
-#include "VertexBuffer.h"
-#include "VertexArrayObject.h"
-#include "Shader.h"
-#include "Camera.h"
+// Graphics
+#include "Graphics/IndexBuffer.h"
+#include "Graphics/VertexBuffer.h"
+#include "Graphics/VertexArrayObject.h"
+#include "Graphics/Shader.h"
+#include "Graphics/Texture2D.h"
+#include "Graphics/VertexTypes.h"
 
+// Utilities
 #include "Utils/MeshBuilder.h"
 #include "Utils/MeshFactory.h"
 #include "Utils/ObjLoader.h"
-#include "VertexTypes.h"
+#include "Utils/ImGuiHelper.h"
+
+#include "Camera.h"
+#include "Utils/ResourceManager/ResourceManager.h"
+#include "Utils/FileHelpers.h"
+#include "Utils/JsonGlmHelpers.h"
+#include "Utils/StringUtils.h"
 
 #define LOG_GL_NOTIFICATIONS
 
@@ -102,6 +115,27 @@ bool initGLAD() {
 	}
 	return true;
 }
+
+void keyboard() {
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+
+	}
+}
 int main() {
 	Logger::Init(); // We'll borrow the logger from the toolkit, but we need to initialize it
 
@@ -154,6 +188,8 @@ int main() {
 	///// Game loop /////
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+
+		keyboard();
 
 		// Calculate the time since our last frame (dt)
 		double thisFrame = glfwGetTime();
