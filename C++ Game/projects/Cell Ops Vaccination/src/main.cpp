@@ -547,7 +547,45 @@ bool DrawLightImGui(const char* title, Light& light) {
 //////////////////////////////////////////////////////
 ////////////////// END OF NEW ////////////////////////
 //////////////////////////////////////////////////////
-
+GLfloat posY = 0.0f;
+GLfloat posX = -1.5f;
+GLboolean activateAbility = false;
+GLboolean isButtonPressed = false;
+/// <summary>
+/// Gets Keyboard Input
+/// </summary>
+void keyboard() {
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+		posX += 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+		posX -= 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+		posY -= 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+		posY += 0.1f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+		if (isButtonPressed) {
+			activateAbility = !activateAbility;
+		}
+		isButtonPressed = true;
+	}
+	else {
+		isButtonPressed = false;
+	}
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+		if (isButtonPressed) {
+			activateAbility = !activateAbility;
+		}
+		isButtonPressed = true;
+	}
+	else {
+		isButtonPressed = false;
+	}
+}
 int main() {
 	Logger::Init(); // We'll borrow the logger from the toolkit, but we need to initialize it
 
@@ -596,13 +634,14 @@ int main() {
 		Guid GameEnemy1Mesh = ResourceManager::CreateMesh("models/Game enemy.obj");
 		Guid FastEnemyMesh = ResourceManager::CreateMesh("models/Fast enemy.obj");
 		Guid LargeEnemyMesh = ResourceManager::CreateMesh("models/enemy_large.obj");
+		/*Guid LargeEnemyMesh = ResourceManager::CreateMesh("models/enemy_large_textured.obj");*/
 
 		//Textures
 		Guid boxTexture = ResourceManager::CreateTexture("textures/Lungs_Floor_Asset_Small.png");
 		Guid whitecellTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
-		Guid gameEnemyTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
-		Guid fastEnemyTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
-		Guid largeEnemyTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
+		Guid gameEnemyTex = ResourceManager::CreateTexture("textures/tempEnemyCell.png");
+		Guid fastEnemyTex = ResourceManager::CreateTexture("textures/tempEnemyCell.png");
+		Guid largeEnemyTex = ResourceManager::CreateTexture("textures/Large_Enemy_Textured.png");
 
 		// Save the asset manifest for all the resources we just loaded
 		ResourceManager::SaveManifest("manifest.json");
@@ -698,7 +737,7 @@ int main() {
 		whitecell.Scale = glm::vec3(0.5f, 0.5f, 0.5f);
 		whitecell.Mesh = ResourceManager::GetMesh(whitecellMesh);
 		whitecell.Material = whitecellMaterial;
-		whitecell.Rotation.z = 180.0f;
+		whitecell.Rotation.x = 90.0f;
 		whitecell.Name = "Whitecell";
 		scene->Objects.push_back(whitecell);
 
@@ -727,7 +766,7 @@ int main() {
 
 	///// Game loop /////
 	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
+		glfwPollEvents();		
 		ImGuiHelper::StartFrame();
 
 		// Calculate the time since our last frame (dt)
@@ -753,16 +792,16 @@ int main() {
 				LargeEnemy = scene->FindObjectByName("Large Enemy");
 			}
 			ImGui::Separator();
-		}
-
-		// Rotate our models around the z axis at 90 deg per second
-		/*if (isRotating) {
-			whitecell1->Rotation += glm::vec3(0.0f, 0.0f, dt * 90.0f);
-			whitecell2->Rotation -= glm::vec3(0.0f, 0.0f, dt * 90.0f);
-		}*/
+		}		
 
 		// Clear the color and depth buffers
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		keyboard();
+
+		//Move Player
+		whitecell->Position = glm::vec3(posX, posY, 1.0f);
+
 
 		// Grab shorthands to the camera and shader from the scene
 		Shader::Sptr shader = scene->BaseShader;
@@ -842,26 +881,3 @@ int main() {
 	Logger::Uninitialize();
 	return 0;
 }
-/// <summary>
-/// Gets Keyboard Input
-/// </summary>
-//void keyboard() {
-//	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-//
-//	}
-//	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-//
-//	}
-//	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-//
-//	}
-//	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-//
-//	}
-//	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-//
-//	}
-//	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-//
-//	}
-//}
