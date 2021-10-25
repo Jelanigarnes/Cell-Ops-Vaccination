@@ -593,7 +593,7 @@ int main() {
 			});
 		Guid whitecellMesh = ResourceManager::CreateMesh("models/whitecell.obj");
 		Guid boxTexture = ResourceManager::CreateTexture("textures/Lungs_Floor_Asset_Small.png");
-		Guid whitecellTex = ResourceManager::CreateTexture("textures/monkey-uvMap.png");
+		Guid whitecellTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
 
 		// Save the asset manifest for all the resources we just loaded
 		ResourceManager::SaveManifest("manifest.json");
