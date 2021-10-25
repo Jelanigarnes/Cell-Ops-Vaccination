@@ -670,24 +670,27 @@ int main() {
 
 
 		RenderObject GameEnemy1 = RenderObject();
-		GameEnemy1.Position = glm::vec3(1.5f, 0.0f, 1.0f);
+		GameEnemy1.Position = glm::vec3(1.5f, 5.0f, 1.0f);
+		GameEnemy1.Scale = glm::vec3(0.5f, 0.5f, 0.5f);
 		GameEnemy1.Mesh = ResourceManager::GetMesh(GameEnemy1Mesh);
-		GameEnemy1.Material = whitecellMaterial;
+		GameEnemy1.Material = GameEnemy1Material;
 		GameEnemy1.Name = "GameEnemy 1";
 		scene->Objects.push_back(GameEnemy1);
 
 		RenderObject FastEnemy = RenderObject();
-		FastEnemy.Position = glm::vec3(4.5f, 0.0f, 3.0f);
+		FastEnemy.Position = glm::vec3(4.5f, 5.0f, 1.0f);
+		FastEnemy.Scale = glm::vec3(0.5f, 0.5f, 0.5f);
 		FastEnemy.Mesh = ResourceManager::GetMesh(FastEnemyMesh);
-		FastEnemy.Material = whitecellMaterial;
+		FastEnemy.Material = FastEnemyMaterial;
 		FastEnemy.Name = "Fast Enemy";
 		scene->Objects.push_back(FastEnemy);
 
 		RenderObject LargeEnemy = RenderObject();
-		LargeEnemy.Position = glm::vec3(-4.5f, 0.0f, 3.0f);
+		LargeEnemy.Position = glm::vec3(-4.5f, 5.0f, 3.0f);
+		LargeEnemy.Scale = glm::vec3(1.0f, 1.0f, 1.0f);
 		LargeEnemy.Mesh = ResourceManager::GetMesh(LargeEnemyMesh);
-		LargeEnemy.Material = whitecellMaterial;
-		LargeEnemy.Name = "Fast Enemy";
+		LargeEnemy.Material = LargeEnemyMaterial;
+		LargeEnemy.Name = "Large Enemy";
 		scene->Objects.push_back(LargeEnemy);
 
 		RenderObject whitecell = RenderObject();
@@ -706,8 +709,10 @@ int main() {
 	// Post-load setup
 	SetupShaderAndLights(scene->BaseShader, scene->Lights.data(), scene->Lights.size());
 
-	RenderObject* whitecell1 = scene->FindObjectByName("Whitecell 1");
-	RenderObject* whitecell2 = scene->FindObjectByName("Whitecell 2");
+	RenderObject* whitecell = scene->FindObjectByName("Whitecell");
+	RenderObject* GameEnemy1 = scene->FindObjectByName("GameEnemy 1");
+	RenderObject* FastEnemy = scene->FindObjectByName("Fast Enemy");
+	RenderObject* LargeEnemy = scene->FindObjectByName("Large Enemy");
 
 	// We'll use this to allow editing the save/load path
 	// via ImGui, note the reserve to allocate extra space
@@ -742,8 +747,10 @@ int main() {
 				SetupShaderAndLights(scene->BaseShader, scene->Lights.data(), scene->Lights.size());
 
 				// Re-fetch the monkeys so we can do a behaviour for them
-				whitecell1 = scene->FindObjectByName("Whitecell 1");
-				whitecell2 = scene->FindObjectByName("Whitecell 2");
+				whitecell = scene->FindObjectByName("Whitecell 1");
+				GameEnemy1 = scene->FindObjectByName("GameEnemy 1");
+				FastEnemy = scene->FindObjectByName("Fast Enemy");
+				LargeEnemy = scene->FindObjectByName("Large Enemy");
 			}
 			ImGui::Separator();
 		}
