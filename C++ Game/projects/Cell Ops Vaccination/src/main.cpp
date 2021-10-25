@@ -592,7 +592,7 @@ int main() {
 			{ ShaderPartType::Fragment, "shaders/frag_blinn_phong_textured.glsl" }
 			});
 		Guid whitecellMesh = ResourceManager::CreateMesh("models/whitecell.obj");
-		Guid boxTexture = ResourceManager::CreateTexture("textures/box-diffuse.png");
+		Guid boxTexture = ResourceManager::CreateTexture("textures/Lungs_Floor_Asset_Small.png");
 		Guid whitecellTex = ResourceManager::CreateTexture("textures/monkey-uvMap.png");
 
 		// Save the asset manifest for all the resources we just loaded
@@ -630,7 +630,7 @@ int main() {
 
 		// Set up the scene's camera
 		scene->Camera = Camera::Create();
-		scene->Camera->SetPosition(glm::vec3(0, 4, 4));
+		scene->Camera->SetPosition(glm::vec3(0, 0, 8));
 		scene->Camera->LookAt(glm::vec3(0.0f));
 
 		// Set up all our sample objects
