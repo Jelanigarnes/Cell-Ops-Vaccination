@@ -547,6 +547,8 @@ bool DrawLightImGui(const char* title, Light& light) {
 //////////////////////////////////////////////////////
 ////////////////// END OF NEW ////////////////////////
 //////////////////////////////////////////////////////
+
+GLdouble xpos, ypos,zpos;
 GLfloat posY = 0.0f;
 GLfloat posX = -1.5f;
 GLboolean activateAbility = false;
@@ -555,6 +557,9 @@ GLboolean isButtonPressed = false;
 /// Gets Keyboard Input
 /// </summary>
 void keyboard() {
+	if (glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT)) {
+		//fire		
+	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
 		posX += 0.1f;
 	}
@@ -796,11 +801,12 @@ int main() {
 
 		// Clear the color and depth buffers
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		glfwGetCursorPos(window, &xpos, &ypos,&zpos);
 		keyboard();
 
 		//Move Player
 		whitecell->Position = glm::vec3(posX, posY, 1.0f);
+		whitecell->Rotation = glm::vec3(0.0f, 0.0f , zpos);
 
 
 		// Grab shorthands to the camera and shader from the scene
