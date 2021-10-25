@@ -591,9 +591,18 @@ int main() {
 			{ ShaderPartType::Vertex, "shaders/vertex_shader.glsl" },
 			{ ShaderPartType::Fragment, "shaders/frag_blinn_phong_textured.glsl" }
 			});
+		//Models
 		Guid whitecellMesh = ResourceManager::CreateMesh("models/whitecell.obj");
+		Guid GameEnemy1Mesh = ResourceManager::CreateMesh("models/Game enemy.obj");
+		Guid FastEnemyMesh = ResourceManager::CreateMesh("models/Fast enemy.obj");
+		Guid LargeEnemyMesh = ResourceManager::CreateMesh("models/enemy_large.obj");
+
+		//Textures
 		Guid boxTexture = ResourceManager::CreateTexture("textures/Lungs_Floor_Asset_Small.png");
-		Guid whitecellTex = ResourceManager::CreateTexture("textures/monkey-uvMap.png");
+		Guid whitecellTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
+		Guid gameEnemyTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
+		Guid fastEnemyTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
+		Guid largeEnemyTex = ResourceManager::CreateTexture("textures/tempWhiteCell.jpg");
 
 		// Save the asset manifest for all the resources we just loaded
 		ResourceManager::SaveManifest("manifest.json");
@@ -617,6 +626,24 @@ int main() {
 		whitecellMaterial->Shininess = 1.0f;
 		scene->Materials[whitecellMaterial->GetGUID()] = whitecellMaterial;
 
+		MaterialInfo::Sptr GameEnemy1Material = std::make_shared<MaterialInfo>();
+		GameEnemy1Material->Shader = scene->BaseShader;
+		GameEnemy1Material->Texture = ResourceManager::GetTexture(gameEnemyTex);
+		GameEnemy1Material->Shininess = 1.0f;
+		scene->Materials[GameEnemy1Material->GetGUID()] = GameEnemy1Material;
+
+		MaterialInfo::Sptr FastEnemyMaterial = std::make_shared<MaterialInfo>();
+		FastEnemyMaterial->Shader = scene->BaseShader;
+		FastEnemyMaterial->Texture = ResourceManager::GetTexture(fastEnemyTex);
+		FastEnemyMaterial->Shininess = 1.0f;
+		scene->Materials[FastEnemyMaterial->GetGUID()] = FastEnemyMaterial;
+
+		MaterialInfo::Sptr LargeEnemyMaterial = std::make_shared<MaterialInfo>();
+		LargeEnemyMaterial->Shader = scene->BaseShader;
+		LargeEnemyMaterial->Texture = ResourceManager::GetTexture(largeEnemyTex);
+		LargeEnemyMaterial->Shininess = 1.0f;
+		scene->Materials[LargeEnemyMaterial->GetGUID()] = LargeEnemyMaterial;
+
 		// Create some lights for our scene
 		scene->Lights.resize(3);
 		scene->Lights[0].Position = glm::vec3(0.0f, 1.0f, 3.0f);
@@ -630,39 +657,47 @@ int main() {
 
 		// Set up the scene's camera
 		scene->Camera = Camera::Create();
-		scene->Camera->SetPosition(glm::vec3(0, 0, 8));
+		scene->Camera->SetPosition(glm::vec3(0, 0, 10));
 		scene->Camera->LookAt(glm::vec3(0.0f));
 
 		// Set up all our sample objects
 		RenderObject plane = RenderObject();
-		plane.MeshBuilderParams.push_back(MeshBuilderParam::CreatePlane(ZERO, UNIT_Z, UNIT_X, glm::vec2(10.0f)));
+		plane.MeshBuilderParams.push_back(MeshBuilderParam::CreatePlane(ZERO, UNIT_Z, UNIT_X, glm::vec2(20.0f)));
 		plane.GenerateMesh();
 		plane.Name = "Plane";
 		plane.Material = boxMaterial;
 		scene->Objects.push_back(plane);
 
-		RenderObject square = RenderObject();
-		square.MeshBuilderParams.push_back(MeshBuilderParam::CreatePlane(ZERO, UNIT_Z, UNIT_X, glm::vec2(0.5f)));
-		square.GenerateMesh();
-		square.Position = glm::vec3(0.0f, 0.0f, 2.0f);
-		square.Name = "Square";
-		square.Material = boxMaterial;
-		scene->Objects.push_back(square);
 
-		RenderObject whitecell1 = RenderObject();
-		whitecell1.Position = glm::vec3(1.5f, 0.0f, 1.0f);
-		whitecell1.Mesh = ResourceManager::GetMesh(whitecellMesh);
-		whitecell1.Material = whitecellMaterial;
-		whitecell1.Name = "Whitecell 1";
-		scene->Objects.push_back(whitecell1);
+		RenderObject GameEnemy1 = RenderObject();
+		GameEnemy1.Position = glm::vec3(1.5f, 0.0f, 1.0f);
+		GameEnemy1.Mesh = ResourceManager::GetMesh(GameEnemy1Mesh);
+		GameEnemy1.Material = whitecellMaterial;
+		GameEnemy1.Name = "GameEnemy 1";
+		scene->Objects.push_back(GameEnemy1);
 
-		RenderObject whitecell2 = RenderObject();
-		whitecell2.Position = glm::vec3(-1.5f, 0.0f, 1.0f);
-		whitecell2.Mesh = ResourceManager::GetMesh(whitecellMesh);
-		whitecell2.Material = whitecellMaterial;
-		whitecell2.Rotation.z = 180.0f;
-		whitecell2.Name = "Whitecell 2";
-		scene->Objects.push_back(whitecell2);
+		RenderObject FastEnemy = RenderObject();
+		FastEnemy.Position = glm::vec3(4.5f, 0.0f, 3.0f);
+		FastEnemy.Mesh = ResourceManager::GetMesh(FastEnemyMesh);
+		FastEnemy.Material = whitecellMaterial;
+		FastEnemy.Name = "Fast Enemy";
+		scene->Objects.push_back(FastEnemy);
+
+		RenderObject LargeEnemy = RenderObject();
+		LargeEnemy.Position = glm::vec3(-4.5f, 0.0f, 3.0f);
+		LargeEnemy.Mesh = ResourceManager::GetMesh(LargeEnemyMesh);
+		LargeEnemy.Material = whitecellMaterial;
+		LargeEnemy.Name = "Fast Enemy";
+		scene->Objects.push_back(LargeEnemy);
+
+		RenderObject whitecell = RenderObject();
+		whitecell.Position = glm::vec3(-1.5f, 0.0f, 1.0f);
+		whitecell.Scale = glm::vec3(0.5f, 0.5f, 0.5f);
+		whitecell.Mesh = ResourceManager::GetMesh(whitecellMesh);
+		whitecell.Material = whitecellMaterial;
+		whitecell.Rotation.z = 180.0f;
+		whitecell.Name = "Whitecell";
+		scene->Objects.push_back(whitecell);
 
 		// Save the scene to a JSON file
 		scene->Save("scene.json");
