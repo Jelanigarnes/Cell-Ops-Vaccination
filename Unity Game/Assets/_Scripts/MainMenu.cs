@@ -37,6 +37,7 @@ public class MainMenu : MonoBehaviour
     void Update()
     {
         Settings.transform.Rotate(0, 0, Time.deltaTime * 15);
+        
     }
     // PUBLIC METHODS
     /// <summary>

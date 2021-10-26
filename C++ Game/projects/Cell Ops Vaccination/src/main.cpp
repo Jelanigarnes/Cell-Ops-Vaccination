@@ -808,8 +808,6 @@ int main() {
 		//Move Player
 		whitecell->Position = glm::vec3(posX, posY, 1.0f);
 		//Rotate player to mouse TODO
-		glm::vec3 pos = glm::vec3(xpos, ypos, 0.0f);
-		glm::vec3 un = glm::unProject(pos, View * Model, Projection, viewport);
 		whitecell->Rotation = glm::vec3(0.0f, 0.0f , zpos);
 
 		// Grab shorthands to the camera and shader from the scene
