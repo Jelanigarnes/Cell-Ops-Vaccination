@@ -28,12 +28,10 @@ public class GameController : MonoBehaviour
 
     [Header("UI")]
     public Text TimeLable;
-    public Text MenuTitle;
     public Text LevelLabel;
-    public Button BackToMainMenuButton;
-    public Button ResumeButton;
     public AudioClip[] Sounds;
     public Texture2D CursorTexture;
+    public GameObject PauseMenu;
 
     [Header("Player Objects")]
     public GameObject PlayerPrefab;
@@ -91,7 +89,11 @@ public class GameController : MonoBehaviour
             this._isGamePause = value;
             if (_isGamePause)
             {
-                Player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                if(GameObject.Find("Player"))
+                {
+                    Player.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+                }
+                
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
             }
@@ -204,9 +206,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void BringDownMenu()
     {
-        MenuTitle.gameObject.SetActive(false);
-        BackToMainMenuButton.gameObject.SetActive(false);
-        ResumeButton.gameObject.SetActive(false);
+        PauseMenu.SetActive(false);
     }
     /// <summary>
     /// Is called by Targets when they are being attacked
@@ -328,9 +328,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void _bringUpMenu()
     {
-        MenuTitle.gameObject.SetActive(true);
-        BackToMainMenuButton.gameObject.SetActive(true);
-        ResumeButton.gameObject.SetActive(true);
+        PauseMenu.SetActive(true);
     }
 
     //IEnumerators

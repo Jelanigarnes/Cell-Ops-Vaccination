@@ -8,9 +8,13 @@ using UnityEngine.UI;
 public class SelectVaccineController : MonoBehaviour
 {
     private GameManager _gameManager;
+    private string _ability;
 
     // PUBLIC INSTANCE VARIABLES
     public AudioSource CharacterSelectSound;
+    public Button Continue;
+
+    public string Ability { get => _ability; set => _ability = value; }
 
     //[Header("Buttons")]
     //public Button Pfizer;
@@ -20,6 +24,10 @@ public class SelectVaccineController : MonoBehaviour
         Initialize();
         Cursor.visible = true;
         CharacterSelectSound.volume = _gameManager.GameSettings.MusicVolume;
+        if (!_gameManager.AbilitySelected)
+        {
+            Continue.interactable = false;
+        }
     }
     /// <summary>
     /// Initialize
@@ -28,12 +36,19 @@ public class SelectVaccineController : MonoBehaviour
     void Initialize()
     {
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        Continue = GameObject.Find("BtnContinue").GetComponent<Button>();
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+    public void Conintue()
+    {
+        _gameManager.AbilityChoice = Ability;
+        _gameManager.AbilitySelected = true;
+        SceneManager.UnloadSceneAsync("Vaccine Select");
     }
     /// <summary>
     /// Goes back to Menu Scene
@@ -46,10 +61,10 @@ public class SelectVaccineController : MonoBehaviour
     /// <summary>
     /// Selects a character and returns user back to main menu
     /// </summary>
-    public void CharacerSelect(string ability)
+    /// <param name="ability">Players Ability. WARNING Case sensitive</param>
+    public void AbilitySelect(string ability)
     {
-        _gameManager.AbilityChoice = ability;
-        _gameManager.AbilitySelected = true;
-        Back();
+        Ability = ability;
+        Continue.interactable = true;
     }
 }
