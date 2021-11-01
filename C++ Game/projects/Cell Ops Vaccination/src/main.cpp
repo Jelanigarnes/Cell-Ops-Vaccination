@@ -51,6 +51,7 @@
 #include "Gameplay/Components/RenderComponent.h"
 #include "Gameplay/Components/MaterialSwapBehaviour.h"
 #include "Gameplay/Components/PlayerBehaviour.h"
+#include "Gameplay/Components/EnemyBehaviour.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -241,6 +242,7 @@ int main() {
 	ComponentManager::RegisterType<JumpBehaviour>();
 	ComponentManager::RegisterType<MaterialSwapBehaviour>();
 	ComponentManager::RegisterType<PlayerBehaviour>();
+	ComponentManager::RegisterType<EnemyBehaviour>();
 
 	// GL states, we'll enable depth testing and backface fulling
 	glEnable(GL_DEPTH_TEST);
@@ -402,12 +404,16 @@ int main() {
 			LargeEnemy->SetPostion(glm::vec3(10.0f, 0.0f, 0.0));
 			LargeEnemy->SetRotation(glm::vec3(0.0, 0.0, 0.0));
 
-			//LargeEnemy->
+			LargeEnemy->Add<EnemyBehaviour>();
 
 			// Create and attach a rendere for the enemy
 			RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
 			renderer->SetMesh(LargeEnemyMesh);
 			renderer->SetMaterial(LargeEnemyMaterial);
+
+			// Add a dynamic rigid body to this monkey
+			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(ConvexMeshCollider::Create());
 
 			// We'll add a behaviour that will interact with our trigger volumes
 			MaterialSwapBehaviour::Sptr triggerInteraction = LargeEnemy->Add<MaterialSwapBehaviour>();
