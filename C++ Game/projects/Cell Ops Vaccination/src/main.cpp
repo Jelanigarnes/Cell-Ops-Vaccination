@@ -327,9 +327,9 @@ int main() {
 
 		// Create some lights for our scene
 		scene->Lights.resize(3);
-		scene->Lights[0].Position = glm::vec3(0.0f, 1.0f, 3.0f);
-		scene->Lights[0].Color = glm::vec3(0.5f, 0.0f, 0.7f);
-		scene->Lights[0].Range = 10.0f;
+		scene->Lights[0].Position = glm::vec3(0.0f, 1.0f, 50.0f);
+		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+		scene->Lights[0].Range = 1000.0f;
 
 		scene->Lights[1].Position = glm::vec3(1.0f, 0.0f, 3.0f);
 		scene->Lights[1].Color = glm::vec3(0.2f, 0.8f, 0.1f);
@@ -382,7 +382,7 @@ int main() {
 			//monkey1->Add<JumpBehaviour>();
 			WhiteCell->Add<PlayerBehaviour>();
 
-			// Create and attach a renderer for the monkey
+			// Create and attach a renderer for the white
 			RenderComponent::Sptr renderer = WhiteCell->Add<RenderComponent>();
 			renderer->SetMesh(WhiteCellMesh);
 			renderer->SetMaterial(WhiteCellMaterial);
@@ -396,6 +396,23 @@ int main() {
 			MaterialSwapBehaviour::Sptr triggerInteraction = WhiteCell->Add<MaterialSwapBehaviour>();
 			triggerInteraction->EnterMaterial = WhiteCellMaterial;
 			triggerInteraction->ExitMaterial = WhiteCellMaterial;
+		}
+		GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy"); {
+			//Set Position in the scene
+			LargeEnemy->SetPostion(glm::vec3(10.0f, 0.0f, 0.0));
+			LargeEnemy->SetRotation(glm::vec3(0.0, 0.0, 0.0));
+
+			//LargeEnemy->
+
+			// Create and attach a rendere for the enemy
+			RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
+			renderer->SetMesh(LargeEnemyMesh);
+			renderer->SetMaterial(LargeEnemyMaterial);
+
+			// We'll add a behaviour that will interact with our trigger volumes
+			MaterialSwapBehaviour::Sptr triggerInteraction = LargeEnemy->Add<MaterialSwapBehaviour>();
+			triggerInteraction->EnterMaterial = LargeEnemyMaterial;
+			triggerInteraction->ExitMaterial = LargeEnemyMaterial;
 		}
 
 		// Save the asset manifest for all the resources we just loaded
