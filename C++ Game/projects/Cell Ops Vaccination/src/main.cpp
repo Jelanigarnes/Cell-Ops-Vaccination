@@ -269,16 +269,16 @@ int main() {
 
 		//Models
 		MeshResource::Sptr WhiteCellMesh = ResourceManager::CreateAsset<MeshResource>("models/whitecell.obj");
-		MeshResource::Sptr GameEnemy1Mesh = ResourceManager::CreateAsset<MeshResource>("models/Game enemy.obj");
-		MeshResource::Sptr FastEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Fast enemy.obj");
-		MeshResource::Sptr LargeEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/enemy_large.obj");
+		MeshResource::Sptr GameEnemy1Mesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Normal Enemy.obj");
+		MeshResource::Sptr FastEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Fast Enemy.obj");
+		MeshResource::Sptr LargeEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Large Enemy.obj");
 
 		//Textures
 		Texture2D::Sptr boxTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lungs_Floor_Asset_Small.png");
 		Texture2D::Sptr WhiteCellTex = ResourceManager::CreateAsset<Texture2D>("textures/tempWhiteCell.jpg");
 		Texture2D::Sptr GameEnemyTex = ResourceManager::CreateAsset<Texture2D>("textures/tempEnemyCell.png");
 		Texture2D::Sptr FastEnemyTex = ResourceManager::CreateAsset<Texture2D>("textures/tempEnemyCell.png");
-		Texture2D::Sptr LargeEnemyTex = ResourceManager::CreateAsset<Texture2D>("textures/Large_Enemy_Textured.png");
+		Texture2D::Sptr LargeEnemyTex = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Large Enemy Textured.png");
 
 		// Create an empty scene
 		scene = std::make_shared<Scene>();
