@@ -46,7 +46,6 @@
 // Components
 #include "Gameplay/Components/IComponent.h"
 #include "Gameplay/Components/Camera.h"
-#include "Gameplay/Components/RotatingBehaviour.h"
 #include "Gameplay/Components/JumpBehaviour.h"
 #include "Gameplay/Components/RenderComponent.h"
 #include "Gameplay/Components/MaterialSwapBehaviour.h"
@@ -238,7 +237,6 @@ int main() {
 	ComponentManager::RegisterType<RenderComponent>();
 	ComponentManager::RegisterType<RigidBody>();
 	ComponentManager::RegisterType<TriggerVolume>();
-	ComponentManager::RegisterType<RotatingBehaviour>();
 	ComponentManager::RegisterType<JumpBehaviour>();
 	ComponentManager::RegisterType<MaterialSwapBehaviour>();
 	ComponentManager::RegisterType<PlayerBehaviour>();
@@ -349,6 +347,7 @@ int main() {
 		{
 			camera->SetPostion(glm::vec3(0, 1, 60));
 			camera->LookAt(glm::vec3(0.0f));
+			camera->SetRotation(glm::vec3(0.0f, 0.0f,0.0f));
 
 			Camera::Sptr cam = camera->Add<Camera>();
 
@@ -363,7 +362,7 @@ int main() {
 			plane->SetScale(glm::vec3(100.0F));
 
 			//Rotate it horizontally
-			plane->SetRotation(glm::vec3(0.0, 0.0, 90.0));
+			plane->SetRotation(glm::vec3(0.0, 0.0, 0.0));
 
 			// Create and attach a RenderComponent to the object to draw our mesh
 			RenderComponent::Sptr renderer = plane->Add<RenderComponent>();
@@ -377,11 +376,10 @@ int main() {
 		GameObject::Sptr WhiteCell = scene->CreateGameObject("WhiteCell");
 		{
 			// Set position in the scene
-			WhiteCell->SetPostion(glm::vec3(0.0f, 0.0f, 0.0f));
+			WhiteCell->SetPostion(glm::vec3(0.0f, 0.0f, 20.0f));
 			WhiteCell->SetRotation(glm::vec3(0.0, 0.0, 0.0));
 
 			// Add some behaviour that relies on the physics body
-			//monkey1->Add<JumpBehaviour>();
 			WhiteCell->Add<PlayerBehaviour>();
 
 			// Create and attach a renderer for the white
@@ -393,33 +391,32 @@ int main() {
 			RigidBody::Sptr physics = WhiteCell->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->AddCollider(ConvexMeshCollider::Create());
 
-
-			// We'll add a behaviour that will interact with our trigger volumes
-			MaterialSwapBehaviour::Sptr triggerInteraction = WhiteCell->Add<MaterialSwapBehaviour>();
-			triggerInteraction->EnterMaterial = WhiteCellMaterial;
-			triggerInteraction->ExitMaterial = WhiteCellMaterial;
 		}
-		GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy"); {
-			//Set Position in the scene
-			LargeEnemy->SetPostion(glm::vec3(10.0f, 0.0f, 0.0));
-			LargeEnemy->SetRotation(glm::vec3(0.0, 0.0, 0.0));
+		//GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy"); {
+		//	//Set Position in the scene
+		//	LargeEnemy->SetPostion(glm::vec3(10.0f, 0.0f, 10.0));
+		//	LargeEnemy->SetRotation(glm::vec3(0.0, 0.0, 0.0));
 
-			LargeEnemy->Add<EnemyBehaviour>();
+		//	EnemyBehaviour::Sptr LargeEnemyType = LargeEnemy->Add<EnemyBehaviour>();
+		//	LargeEnemyType->EnemyType = "Large Enemy";
+		//	LargeEnemyType->_maxHealth = 20.0f;
+		//	LargeEnemyType->_speed = 2.0f;
+		//	
 
-			// Create and attach a rendere for the enemy
-			RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
-			renderer->SetMesh(LargeEnemyMesh);
-			renderer->SetMaterial(LargeEnemyMaterial);
+		//	// Create and attach a rendere for the enemy
+		//	RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
+		//	renderer->SetMesh(LargeEnemyMesh);
+		//	renderer->SetMaterial(LargeEnemyMaterial);
 
-			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-			physics->AddCollider(ConvexMeshCollider::Create());
+		//	// Add a dynamic rigid body to this monkey
+		//	RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+		//	physics->AddCollider(ConvexMeshCollider::Create());
 
-			// We'll add a behaviour that will interact with our trigger volumes
-			MaterialSwapBehaviour::Sptr triggerInteraction = LargeEnemy->Add<MaterialSwapBehaviour>();
-			triggerInteraction->EnterMaterial = LargeEnemyMaterial;
-			triggerInteraction->ExitMaterial = LargeEnemyMaterial;
-		}
+		//	// We'll add a behaviour that will interact with our trigger volumes
+		//	/*MaterialSwapBehaviour::Sptr triggerInteraction = LargeEnemy->Add<MaterialSwapBehaviour>();
+		//	triggerInteraction->EnterMaterial = LargeEnemyMaterial;
+		//	triggerInteraction->ExitMaterial = LargeEnemyMaterial;*/
+		//}
 
 		// Save the asset manifest for all the resources we just loaded
 		ResourceManager::SaveManifest("manifest.json");

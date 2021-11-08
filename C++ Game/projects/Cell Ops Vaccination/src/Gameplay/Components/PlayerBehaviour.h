@@ -2,6 +2,8 @@
 #include "IComponent.h"
 #include "Gameplay/Physics/RigidBody.h"
 
+struct GLFWwindow;
+
 /// <summary>
 /// hopefully this moves 
 /// </summary>
@@ -24,8 +26,12 @@ public:
 
 protected:
 	float _speed;
-	float _posX;
-	float _posY;
+
+	glm::vec2 _mouseSensitivity;
+	glm::dvec2 _prevMousePos;
+	glm::vec2 _currentRot;
+	bool _isMousePressed = false;
+	GLFWwindow* _window;
 
 	Gameplay::Physics::RigidBody::Sptr _body;
 };
