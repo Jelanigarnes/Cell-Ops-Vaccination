@@ -97,7 +97,7 @@ void GlDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsi
 // Stores our GLFW window in a global variable for now
 GLFWwindow* window;
 // The current size of our window in pixels
-glm::ivec2 windowSize = glm::ivec2(1000, 1000);
+glm::ivec2 windowSize = glm::ivec2(800, 800);
 // The title of our GLFW window
 std::string windowTitle = "Cell Ops Vaccination";
 
@@ -345,7 +345,7 @@ int main() {
 		// Set up the scene's camera
 		GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
 		{
-			camera->SetPostion(glm::vec3(0, 1, 60));
+			camera->SetPostion(glm::vec3(0, 1, 40));
 			camera->LookAt(glm::vec3(0.0f));
 			camera->SetRotation(glm::vec3(0.0f, 0.0f,0.0f));
 

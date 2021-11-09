@@ -26,6 +26,7 @@ public:
 
 protected:
 	float _speed;
+	float _rotZ;
 
 	glm::vec2 _mouseSensitivity;
 	glm::dvec2 _prevMousePos;
