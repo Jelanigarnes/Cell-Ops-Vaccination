@@ -203,31 +203,6 @@ bool DrawLightImGui(const Scene::Sptr& scene, const char* title, int ix) {
 	ImGui::PopID();
 	return result;
 }
-
-void SpawnEnemies(int Amount, MeshResource::Sptr LargeEnemyMesh, Material::Sptr LargeEnemyMaterial) {
-	for (int i = 0; i < Amount; i++) {
-		GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy"); {
-			//Set Position in the scene
-			LargeEnemy->SetPostion(glm::vec3(10.0f, 0.0f, 10.0));
-			LargeEnemy->SetRotation(glm::vec3(0.0, 0.0, 0.0));
-
-			EnemyBehaviour::Sptr LargeEnemyType = LargeEnemy->Add<EnemyBehaviour>();
-			LargeEnemyType->EnemyType = "Large Enemy";
-			LargeEnemyType->_maxHealth = 20.0f;
-			LargeEnemyType->_speed = 2.0f;
-
-
-			// Create and attach a rendere for the enemy
-			RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
-			renderer->SetMesh(LargeEnemyMesh);
-			renderer->SetMaterial(LargeEnemyMaterial);
-
-			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-			physics->AddCollider(ConvexMeshCollider::Create());
-		}
-	}
-}
 int main() {
 	Logger::Init(); // We'll borrow the logger from the toolkit, but we need to initialize it
 
@@ -416,7 +391,29 @@ int main() {
 			physics->AddCollider(ConvexMeshCollider::Create());
 
 		}
+		for (int i = 0; i < 2; i++) {
+			std::string EnemyName = "LargeEnemy " + i;
+			GameObject::Sptr LargeEnemy = scene->CreateGameObject(EnemyName); {
+				//Set Position in the scene
+				LargeEnemy->SetPostion(glm::vec3(float(10.0f*i), 0.0f, 10.0));
+				LargeEnemy->SetRotation(glm::vec3(0.0, 0.0, 0.0));
 
+				EnemyBehaviour::Sptr LargeEnemyType = LargeEnemy->Add<EnemyBehaviour>();
+				LargeEnemyType->EnemyType = "Large Enemy";
+				LargeEnemyType->_maxHealth = 20.0f;
+				LargeEnemyType->_speed = 2.0f;
+
+
+				// Create and attach a rendere for the enemy
+				RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
+				renderer->SetMesh(LargeEnemyMesh);
+				renderer->SetMaterial(LargeEnemyMaterial);
+
+				// Add a dynamic rigid body to this monkey
+				RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+				physics->AddCollider(ConvexMeshCollider::Create());
+			}
+		}
 		// Save the asset manifest for all the resources we just loaded
 		ResourceManager::SaveManifest("manifest.json");
 		// Save the scene to a JSON file

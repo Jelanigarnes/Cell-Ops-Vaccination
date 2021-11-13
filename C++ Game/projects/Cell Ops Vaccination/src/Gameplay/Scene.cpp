@@ -86,7 +86,7 @@ namespace Gameplay {
 	}
 
 	void Scene::DoPhysics(float dt) {
-		if (GamePause) {
+		if (!GamePause) {
 			ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
 				body->PhysicsPreStep(dt);
 			});
