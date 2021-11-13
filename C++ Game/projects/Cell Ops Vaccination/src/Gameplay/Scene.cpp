@@ -15,6 +15,7 @@ namespace Gameplay {
 		Objects(std::vector<GameObject::Sptr>()),
 		Lights(std::vector<Light>()),
 		IsPlaying(false),
+		GamePause(true),
 		MainCamera(nullptr),
 		BaseShader(nullptr),
 		_isAwake(false),
@@ -33,6 +34,7 @@ namespace Gameplay {
 	void Scene::SetPhysicsDebugDrawMode(BulletDebugMode mode) {
 		_bulletDebugDraw->setDebugMode((btIDebugDraw::DebugDrawModes)mode);
 	}
+
 
 	GameObject::Sptr Scene::CreateGameObject(const std::string& name)
 	{
@@ -84,7 +86,7 @@ namespace Gameplay {
 	}
 
 	void Scene::DoPhysics(float dt) {
-		if (IsPlaying) {
+		if (GamePause) {
 			ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
 				body->PhysicsPreStep(dt);
 			});
@@ -109,11 +111,11 @@ namespace Gameplay {
 
 
 	void Scene::Update(float dt) {
-		if (IsPlaying) {
+		//if (GamePause) {
 			for (auto& obj : Objects) {
 				obj->Update(dt);
 			}
-		}
+		//}
 	}
 
 	void Scene::SetShaderLight(int index, bool update /*= true*/) {
