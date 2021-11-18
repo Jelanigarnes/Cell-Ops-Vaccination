@@ -380,17 +380,17 @@ void CreateScene() {
 		planeMesh->GenerateMesh();
 
 		// Set up the scene's camera For Debugging
-		//GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
-		//{
-		//	camera->SetPostion(glm::vec3(5.0f));
-		//	camera->LookAt(glm::vec3(0.0f));
+		GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
+		{
+			camera->SetPostion(glm::vec3(5.0f));
+			camera->LookAt(glm::vec3(0.0f));
 
-		//	camera->Add<SimpleCameraControl>();
+			camera->Add<SimpleCameraControl>();
 
-		//	Camera::Sptr cam = camera->Add<Camera>();
-		//	// Make sure that the camera is set as the scene's main camera!
-		//	scene->MainCamera = cam;
-		//}
+			Camera::Sptr cam = camera->Add<Camera>();
+			// Make sure that the camera is set as the scene's main camera!
+			scene->MainCamera = cam;
+		}
 		//GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
 		//{
 		//	// Add a render component
