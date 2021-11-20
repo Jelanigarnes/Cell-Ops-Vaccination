@@ -277,7 +277,7 @@ void CreateScene() {
 
 		/////////////////////////////////////////// MESHES ////////////////////////////////////////////////
 		// Load in the meshes
-		MeshResource::Sptr WhiteCellMesh = ResourceManager::CreateAsset<MeshResource>("models/Finished_cell.obj");
+		MeshResource::Sptr PlayerMesh = ResourceManager::CreateAsset<MeshResource>("models/Player.obj");
 		MeshResource::Sptr LargeEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Large Enemy.obj");
 		MeshResource::Sptr FastEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Fast Enemy.obj");
 		MeshResource::Sptr NormalEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Normal Enemy.obj");
@@ -287,7 +287,7 @@ void CreateScene() {
 		/////////////////////////////////////////// TEXTURES ////////////////////////////////////////////////
 		// Load in some textures
 		Texture2D::Sptr    boxTexture = ResourceManager::CreateAsset<Texture2D>("textures/box-diffuse.png");
-		Texture2D::Sptr    WhiteCellTexture = ResourceManager::CreateAsset<Texture2D>("textures/tempWhiteCell.jpg");
+		Texture2D::Sptr    PlayerTexture = ResourceManager::CreateAsset<Texture2D>("textures/tempWhiteCell.jpg");
 		Texture2D::Sptr    LargeEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Large Enemy Textured.png");
 		Texture2D::Sptr    FastEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Fast Enemy Textured.png");
 		Texture2D::Sptr    NormalEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Normal Enemy Textured.png");
@@ -319,11 +319,11 @@ void CreateScene() {
 			boxMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
-		Material::Sptr WhiteCellMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		Material::Sptr PlayerMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			WhiteCellMaterial->Name = "WhiteCellMaterial";
-			WhiteCellMaterial->Set("u_Material.Diffuse", WhiteCellTexture);
-			WhiteCellMaterial->Set("u_Material.Shininess", 0.1f);
+			PlayerMaterial->Name = "PlayerMaterial";
+			PlayerMaterial->Set("u_Material.Diffuse", PlayerTexture);
+			PlayerMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
 		Material::Sptr LargeEnemyMaterial = ResourceManager::CreateAsset<Material>(basicShader);
@@ -379,7 +379,7 @@ void CreateScene() {
 		planeMesh->AddParam(MeshBuilderParam::CreatePlane(ZERO, UNIT_Z, UNIT_X, glm::vec2(1.0f)));
 		planeMesh->GenerateMesh();
 
-		// Set up the scene's camera For Debugging
+		 //Set up the scene's camera For Debugging
 		GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
 		{
 			camera->SetPostion(glm::vec3(5.0f));
@@ -391,31 +391,35 @@ void CreateScene() {
 			// Make sure that the camera is set as the scene's main camera!
 			scene->MainCamera = cam;
 		}
-		//GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
-		//{
-		//	// Add a render component
-		//	RenderComponent::Sptr renderer = camera->Add<RenderComponent>();
-		//	/*renderer->SetMesh(WhiteCellMesh);
-		//	renderer->SetMaterial(WhiteCellMaterial);*/
-		//	renderer->SetMesh(LargeEnemyMesh);
-		//	renderer->SetMaterial(LargeEnemyMaterial);
-		//	
-		//	camera->SetPostion(glm::vec3(0.0f,0.0f,100.0f));
-		//	camera->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-		//	//camera->LookAt(glm::vec3(0.0f));
-		//	
-		//	camera->Add<PlayerBehaviour>();
-		//	camera->Add<JumpBehaviour>();
+		GameObject::Sptr Player = scene->CreateGameObject("Player");
+		{
+			// Add a render component
+			RenderComponent::Sptr renderer = Player->Add<RenderComponent>();
 
-		//	Camera::Sptr cam = camera->Add<Camera>();
-		//	// Make sure that the camera is set as the scene's main camera!
-		//	scene->MainCamera = cam;
+			renderer->SetMesh(PlayerMesh);
+			renderer->SetMaterial(PlayerMaterial);
+			
+			Player->SetPostion(glm::vec3(0.0f,0.0f,10.0f));
+			Player->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+			//camera->LookAt(glm::vec3(0.0f));
+			
+			Player->Add<PlayerBehaviour>();
+			Player->Add<JumpBehaviour>();
+
+			//Camera::Sptr cam = Player->Add<Camera>();
+			// Make sure that the camera is set as the scene's main camera!
+			//scene->MainCamera = cam;
 
 
-		//	// Add a dynamic rigid body to this monkey
-		//	RigidBody::Sptr physics = camera->Add<RigidBody>(RigidBodyType::Dynamic);
-		//	physics->AddCollider(ConvexMeshCollider::Create());
-		//}
+			// Add a dynamic rigid body to this monkey
+			RigidBody::Sptr physics = Player->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(ConvexMeshCollider::Create());
+			/*ICollider::Sptr box = BoxCollider::Create();
+			box->SetScale(glm::vec3(2.0f));
+			box->SetPosition(glm::vec3(4.0f, 0.0f, -5.0f));
+			box->SetRotation(glm::vec3(0.0f, -25.0f, 0.0f));
+			physics->AddCollider(box);*/
+		}
 
 		//GameObject::Sptr WhiteCell = scene->CreateGameObject("WhiteCell"); {
 		//	// Add a render component

@@ -83,5 +83,5 @@ void PlayerBehaviour::Update(float deltaTime) {
 		else
 			GetGameObject()->GetScene()->IsPlaying = true;
 	}
-	GetGameObject()->SetRotation(glm::vec3(0.0f, 0.0f, _rotZ));
+	GetGameObject()->SetRotation(glm::vec3(90.0f, 0.0f, _rotZ));
 }
