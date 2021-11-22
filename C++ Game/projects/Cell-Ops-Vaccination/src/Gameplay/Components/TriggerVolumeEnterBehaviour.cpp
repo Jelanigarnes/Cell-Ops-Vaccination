@@ -1,6 +1,7 @@
 #include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/ComponentManager.h"
 #include "Gameplay/GameObject.h"
+#include <Gameplay/Components/EnemyBehaviour.h>
 
 TriggerVolumeEnterBehaviour::TriggerVolumeEnterBehaviour() :
 	IComponent()
@@ -12,6 +13,9 @@ void TriggerVolumeEnterBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<G
 {
 	LOG_INFO("Body has entered our trigger volume: {}", body->GetGameObject()->Name);
 	_playerInTrigger = true;
+	if (body->GetGameObject()->Name == "LargeEnemy") {
+		body->GetGameObject()->Get<EnemyBehaviour>()->TakeDamage();
+	}
 }
 
 void TriggerVolumeEnterBehaviour::OnTriggerVolumeLeaving(const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {

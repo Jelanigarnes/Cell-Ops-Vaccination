@@ -1,6 +1,7 @@
 #include "PlayerBehaviour.h"
 #include <GLFW/glfw3.h>
 #include "Utils/ImGuiHelper.h"
+#include "Gameplay/Components/ComponentManager.h"
 
 
 
@@ -12,11 +13,7 @@ PlayerBehaviour::~PlayerBehaviour() = default;
 
 void PlayerBehaviour::Awake()
 {
-	_window = GetGameObject()->GetScene()->Window;
-	//_body = GetComponent<Gameplay::Physics::RigidBody>();
-	/*if (_body == nullptr) {
-		IsEnabled = false;
-	}*/
+	
 }
 
 void PlayerBehaviour::RenderImGui() {
@@ -38,7 +35,12 @@ PlayerBehaviour::Sptr PlayerBehaviour::FromJson(const nlohmann::json & blob) {
 
 void PlayerBehaviour::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
 {
-	LOG_INFO("Entered trigger: {}", trigger->GetGameObject()->Name);
+	LOG_INFO("Player Entered trigger: {}", trigger->GetGameObject()->Name);
+}
+
+void PlayerBehaviour::OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
+{
+	LOG_INFO("Player Left trigger: {}", trigger->GetGameObject()->Name);
 }
 
 

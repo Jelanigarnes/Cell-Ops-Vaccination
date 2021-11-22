@@ -4,10 +4,8 @@
 #include "Gameplay/Scene.h"
 #include "Gameplay/Physics/TriggerVolume.h"
 
-struct GLFWwindow;
-
 /// <summary>
-/// hopefully this moves 
+/// Player Behaviour Class
 /// </summary>
 class PlayerBehaviour :public Gameplay::IComponent
 {
@@ -17,18 +15,15 @@ public:
 	PlayerBehaviour();
 	virtual ~PlayerBehaviour();
 
-	virtual void OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
 	virtual void Awake() override;
 	virtual void Update(float deltaTime) override;
-
-public:
+	virtual void OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
+	virtual void OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
 	virtual void RenderImGui() override;
-	MAKE_TYPENAME(PlayerBehaviour);
 	virtual nlohmann::json ToJson() const override;
 	static PlayerBehaviour::Sptr FromJson(const nlohmann::json& blob);
+	MAKE_TYPENAME(PlayerBehaviour);
 
 protected:
-	GLFWwindow* _window;
-
-	//Gameplay::Physics::RigidBody::Sptr _body;
+	
 };

@@ -1,7 +1,5 @@
 #include "EnemyBehaviour.h"
 #include <GLFW/glfw3.h>
-#include "Gameplay/GameObject.h"
-#include "Gameplay/Scene.h"
 #include "Utils/ImGuiHelper.h"
 
 void EnemyBehaviour::Awake()
@@ -13,8 +11,6 @@ void EnemyBehaviour::Awake()
 	_health = _maxHealth;
 }
 void EnemyBehaviour::RenderImGui() {
-	LABEL_LEFT(ImGui::DragFloat, "posX", &_posX, 1.0f);
-	LABEL_LEFT(ImGui::DragFloat, "posY", &_posY, 1.0f);
 	LABEL_LEFT(ImGui::DragFloat, "Speed", &_speed, 1.0f);
 	LABEL_LEFT(ImGui::DragFloat, "Health", &_health, 1.0f);
 	LABEL_LEFT(ImGui::DragFloat, "MaxHealth", &_maxHealth, 1.0f);
@@ -22,8 +18,6 @@ void EnemyBehaviour::RenderImGui() {
 
 nlohmann::json EnemyBehaviour::ToJson() const {
 	return {
-		{ "posX", _posX },
-		{"posY", _posY},
 		{"speed",_speed},
 		{"health",_health},
 		{"maxHealth",_maxHealth},
@@ -33,8 +27,6 @@ nlohmann::json EnemyBehaviour::ToJson() const {
 
 EnemyBehaviour::EnemyBehaviour() :
 	IComponent(),
-	_posX(0.0f),
-	_posY(0.0f),
 	_speed(0.0f),
 	_health(0.0f),
 	_maxHealth(0.0f),
@@ -46,8 +38,6 @@ EnemyBehaviour::~EnemyBehaviour() = default;
 
 EnemyBehaviour::Sptr EnemyBehaviour::FromJson(const nlohmann::json & blob) {
 	EnemyBehaviour::Sptr result = std::make_shared<EnemyBehaviour>();
-	result->_posX = blob["posX"];
-	result->_posY = blob["posY"];
 	result->_health = blob["Health"];
 	result->_maxHealth = blob["MaxHealth"];
 	result->EnemyType = blob["EnemyType"];
@@ -66,7 +56,11 @@ void EnemyBehaviour::NewTarget()
 {
 	// TODO: Add your implementation code here.
 }
-void EnemyBehaviour::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>&trigger)
+
+void EnemyBehaviour::TakeDamage()
 {
-	LOG_INFO("Entered trigger: {}", trigger->GetGameObject()->Name);
+	_health = _health - 1;
+	if (_health <= 0) {
+		GetGameObject()->GetScene()->RemoveGameObject(GetGameObject()->SelfRef());
+	}
 }

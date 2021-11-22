@@ -409,25 +409,10 @@ void CreateScene() {
 			TriggerVolume::Sptr volume = Player->Add<TriggerVolume>();
 			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
 			volume->AddCollider(collider);
+
+			Player->Add<TriggerVolumeEnterBehaviour>();
 		}
 
-		//GameObject::Sptr WhiteCell = scene->CreateGameObject("WhiteCell"); {
-		//	// Add a render component
-		//	RenderComponent::Sptr renderer = WhiteCell->Add<RenderComponent>();
-		//	renderer->SetMesh(WhiteCellMesh);
-		//	renderer->SetMaterial(WhiteCellMaterial);
-
-		//	WhiteCell->SetPostion(glm::vec3(0.0, 0.0, 10.0f));
-
-		//	WhiteCell->Add<PlayerBehaviour>();
-		//	WhiteCell->Add<JumpBehaviour>();
-
-		//	// Add a dynamic rigid body to this monkey
-		//	RigidBody::Sptr physics = WhiteCell->Add<RigidBody>(RigidBodyType::Dynamic);
-		//	physics->AddCollider(ConvexMeshCollider::Create());
-		//}
-
-		// Set up all our sample objects
 		GameObject::Sptr Level = scene->CreateGameObject("Level");
 		{
 
@@ -453,30 +438,37 @@ void CreateScene() {
 			RigidBody::Sptr physics = Target->Add<RigidBody>(/*static by default*/);
 			physics->AddCollider(ConvexMeshCollider::Create());
 
+			TriggerVolume::Sptr volume = Target->Add<TriggerVolume>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			volume->AddCollider(collider);
+
+			Target->Add<TriggerVolumeEnterBehaviour>();
 		}
-		//GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy");
-		//{
-		//	// Set and rotation position in the scene
-		//	LargeEnemy->SetPostion(glm::vec3(30.0f, 1.0f, 10.0f));			
+		GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy");
+		{
+			// Set and rotation position in the scene
+			LargeEnemy->SetPostion(glm::vec3(30.0f, 1.0f, 10.0f));			
 
-		//	// Add a render component
-		//	RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
-		//	renderer->SetMesh(LargeEnemyMesh);
-		//	renderer->SetMaterial(LargeEnemyMaterial);
+			// Add a render component
+			RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
+			renderer->SetMesh(LargeEnemyMesh);
+			renderer->SetMaterial(LargeEnemyMaterial);
 
-		//	//LargeEnemy->Add<EnemyBehaviour>();
+			LargeEnemy->Add<EnemyBehaviour>();
+			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
+			LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 50;
 
-		//	// This is an example of attaching a component and setting some parameters
-		//	//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
-		//	//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
+			// This is an example of attaching a component and setting some parameters
+			//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
+			//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
 
-		//	// Add a dynamic rigid body to this monkey
-		//	RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-		//	ICollider::Sptr box = BoxCollider::Create();
-		//	box->SetScale(glm::vec3(2.0f));
-		//	box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-		//	physics->AddCollider(box);			
-		//}
+			// Add a dynamic rigid body to this monkey
+			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+			ICollider::Sptr box = BoxCollider::Create();
+			box->SetScale(glm::vec3(2.0f));
+			box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+			physics->AddCollider(box);			
+		}
 		//
 		//GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
 		//{

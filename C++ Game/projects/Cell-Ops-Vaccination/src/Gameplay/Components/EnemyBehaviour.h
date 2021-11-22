@@ -18,14 +18,12 @@ public:
 public:
 	virtual void RenderImGui() override;
 	virtual void Update(float deltaTime) override;
-	virtual void OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
+	void TakeDamage();
 	MAKE_TYPENAME(EnemyBehaviour);
 	virtual nlohmann::json ToJson() const override;
 	static EnemyBehaviour::Sptr FromJson(const nlohmann::json& blob);
 
 protected:
-	float _posX;
-	float _posY;
 	float _health;
 	float _dmg;
 
