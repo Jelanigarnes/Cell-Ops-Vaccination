@@ -36,6 +36,7 @@ PlayerBehaviour::Sptr PlayerBehaviour::FromJson(const nlohmann::json & blob) {
 	return result;
 }
 
+
 void PlayerBehaviour::Update(float deltaTime) {
 
 	if (glfwGetKey(GetGameObject()->GetScene()->Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
