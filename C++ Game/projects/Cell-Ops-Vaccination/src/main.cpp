@@ -363,7 +363,7 @@ void CreateScene() {
 
 
 		// Create some lights for our scene
-		scene->Lights.resize(3);
+		/*scene->Lights.resize(3);
 		scene->Lights[0].Position = glm::vec3(0.0f, 1.0f, 3.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
 		scene->Lights[0].Range = 100.0f;
@@ -372,7 +372,7 @@ void CreateScene() {
 		scene->Lights[1].Color = glm::vec3(0.2f, 0.8f, 0.1f);
 
 		scene->Lights[2].Position = glm::vec3(0.0f, 1.0f, 3.0f);
-		scene->Lights[2].Color = glm::vec3(1.0f, 0.2f, 0.1f);
+		scene->Lights[2].Color = glm::vec3(1.0f, 0.2f, 0.1f);*/
 
 		// We'll create a mesh that is a simple plane that we can resize later
 		MeshResource::Sptr planeMesh = ResourceManager::CreateAsset<MeshResource>();
@@ -399,26 +399,25 @@ void CreateScene() {
 			renderer->SetMesh(PlayerMesh);
 			renderer->SetMaterial(PlayerMaterial);
 			
-			Player->SetPostion(glm::vec3(0.0f,0.0f,10.0f));
-			Player->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-			//camera->LookAt(glm::vec3(0.0f));
+			//Player->SetPostion(glm::vec3(5.0f));
+			//Player->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+			//Player->LookAt(glm::vec3(0.0f));
 			
 			Player->Add<PlayerBehaviour>();
-			Player->Add<JumpBehaviour>();
-
-			//Camera::Sptr cam = Player->Add<Camera>();
-			// Make sure that the camera is set as the scene's main camera!
-			//scene->MainCamera = cam;
+			//Player->Add<JumpBehaviour>();
 
 
 			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = Player->Add<RigidBody>(RigidBodyType::Dynamic);
-			physics->AddCollider(ConvexMeshCollider::Create());
+			/*RigidBody::Sptr physics = Player->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(ConvexMeshCollider::Create());*/
 			/*ICollider::Sptr box = BoxCollider::Create();
 			box->SetScale(glm::vec3(2.0f));
 			box->SetPosition(glm::vec3(4.0f, 0.0f, -5.0f));
 			box->SetRotation(glm::vec3(0.0f, -25.0f, 0.0f));
 			physics->AddCollider(box);*/
+			// Add a dynamic rigid body to this monkey
+			RigidBody::Sptr physics = Player->Add<RigidBody>(/*static by default*/);
+			physics->AddCollider(ConvexMeshCollider::Create());
 		}
 
 		//GameObject::Sptr WhiteCell = scene->CreateGameObject("WhiteCell"); {
@@ -460,81 +459,81 @@ void CreateScene() {
 			renderer->SetMaterial(LungMaterial);
 
 			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = Target->Add<RigidBody>(RigidBodyType::Dynamic);
+			RigidBody::Sptr physics = Target->Add<RigidBody>(/*static by default*/);
 			physics->AddCollider(ConvexMeshCollider::Create());
 
 		}
-		GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy");
-		{
-			// Set and rotation position in the scene
-			LargeEnemy->SetPostion(glm::vec3(30.0f, 1.0f, 10.0f));			
+		//GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy");
+		//{
+		//	// Set and rotation position in the scene
+		//	LargeEnemy->SetPostion(glm::vec3(30.0f, 1.0f, 10.0f));			
 
-			// Add a render component
-			RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
-			renderer->SetMesh(LargeEnemyMesh);
-			renderer->SetMaterial(LargeEnemyMaterial);
+		//	// Add a render component
+		//	RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
+		//	renderer->SetMesh(LargeEnemyMesh);
+		//	renderer->SetMaterial(LargeEnemyMaterial);
 
-			//LargeEnemy->Add<EnemyBehaviour>();
+		//	//LargeEnemy->Add<EnemyBehaviour>();
 
-			// This is an example of attaching a component and setting some parameters
-			//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
-			//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
+		//	// This is an example of attaching a component and setting some parameters
+		//	//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
+		//	//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
 
-			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-			ICollider::Sptr box = BoxCollider::Create();
-			box->SetScale(glm::vec3(2.0f));
-			box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-			physics->AddCollider(box);			
-		}
-		
-		GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
-		{
-			// Set and rotation position in the scene
-			FastEnemy->SetPostion(glm::vec3(10.0f, 1.0f, 10.0f));
+		//	// Add a dynamic rigid body to this monkey
+		//	RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+		//	ICollider::Sptr box = BoxCollider::Create();
+		//	box->SetScale(glm::vec3(2.0f));
+		//	box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+		//	physics->AddCollider(box);			
+		//}
+		//
+		//GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
+		//{
+		//	// Set and rotation position in the scene
+		//	FastEnemy->SetPostion(glm::vec3(10.0f, 1.0f, 10.0f));
 
-			// Add a render component
-			RenderComponent::Sptr renderer = FastEnemy->Add<RenderComponent>();
-			renderer->SetMesh(FastEnemyMesh);
-			renderer->SetMaterial(FastEnemyMaterial);
+		//	// Add a render component
+		//	RenderComponent::Sptr renderer = FastEnemy->Add<RenderComponent>();
+		//	renderer->SetMesh(FastEnemyMesh);
+		//	renderer->SetMaterial(FastEnemyMaterial);
 
-			//LargeEnemy->Add<EnemyBehaviour>();
+		//	//LargeEnemy->Add<EnemyBehaviour>();
 
-			// This is an example of attaching a component and setting some parameters
-			//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
-			//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
+		//	// This is an example of attaching a component and setting some parameters
+		//	//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
+		//	//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
 
-			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = FastEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-			ICollider::Sptr box = BoxCollider::Create();
-			box->SetScale(glm::vec3(2.0f));
-			box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-			physics->AddCollider(box);
-		}
+		//	// Add a dynamic rigid body to this monkey
+		//	RigidBody::Sptr physics = FastEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+		//	ICollider::Sptr box = BoxCollider::Create();
+		//	box->SetScale(glm::vec3(2.0f));
+		//	box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+		//	physics->AddCollider(box);
+		//}
 
-		GameObject::Sptr NormalEnemy = scene->CreateGameObject("NormalEnemy");
-		{
-			// Set and rotation position in the scene
-			NormalEnemy->SetPostion(glm::vec3(20.0f, 1.0f, 10.0f));
+		//GameObject::Sptr NormalEnemy = scene->CreateGameObject("NormalEnemy");
+		//{
+		//	// Set and rotation position in the scene
+		//	NormalEnemy->SetPostion(glm::vec3(20.0f, 1.0f, 10.0f));
 
-			// Add a render component
-			RenderComponent::Sptr renderer = NormalEnemy->Add<RenderComponent>();
-			renderer->SetMesh(NormalEnemyMesh);
-			renderer->SetMaterial(NormalEnemyMaterial);
+		//	// Add a render component
+		//	RenderComponent::Sptr renderer = NormalEnemy->Add<RenderComponent>();
+		//	renderer->SetMesh(NormalEnemyMesh);
+		//	renderer->SetMaterial(NormalEnemyMaterial);
 
-			//LargeEnemy->Add<EnemyBehaviour>();
+		//	//LargeEnemy->Add<EnemyBehaviour>();
 
-			// This is an example of attaching a component and setting some parameters
-			//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
-			//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
+		//	// This is an example of attaching a component and setting some parameters
+		//	//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
+		//	//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
 
-			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = NormalEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-			ICollider::Sptr box = BoxCollider::Create();
-			box->SetScale(glm::vec3(2.0f));
-			box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-			physics->AddCollider(box);
-		}
+		//	// Add a dynamic rigid body to this monkey
+		//	RigidBody::Sptr physics = NormalEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+		//	ICollider::Sptr box = BoxCollider::Create();
+		//	box->SetScale(glm::vec3(2.0f));
+		//	box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
+		//	physics->AddCollider(box);
+		//}
 
 		// Call scene awake to start up all of our components
 		scene->Window = window;
