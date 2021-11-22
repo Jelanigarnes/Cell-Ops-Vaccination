@@ -1,6 +1,8 @@
 #pragma once
 #include "IComponent.h"
 #include "Gameplay/Physics/RigidBody.h"
+#include "Gameplay/GameObject.h"
+#include "Gameplay/Scene.h"
 
 struct GLFWwindow;
 
@@ -25,14 +27,6 @@ public:
 	static PlayerBehaviour::Sptr FromJson(const nlohmann::json& blob);
 
 protected:
-	float _speed;
-	float _shiftMultipler;
-	float _rotZ;
-	/*glm::vec2 _mouseSensitivity;
-	glm::vec3 _moveSpeeds;
-	glm::dvec2 _prevMousePos;
-	glm::vec2 _currentRot;
-	bool _isMousePressed = false;*/
 	GLFWwindow* _window;
 
 	Gameplay::Physics::RigidBody::Sptr _body;
