@@ -13,10 +13,10 @@ PlayerBehaviour::~PlayerBehaviour() = default;
 void PlayerBehaviour::Awake()
 {
 	_window = GetGameObject()->GetScene()->Window;
-	_body = GetComponent<Gameplay::Physics::RigidBody>();
-	if (_body == nullptr) {
+	//_body = GetComponent<Gameplay::Physics::RigidBody>();
+	/*if (_body == nullptr) {
 		IsEnabled = false;
-	}
+	}*/
 }
 
 void PlayerBehaviour::RenderImGui() {
@@ -34,6 +34,11 @@ PlayerBehaviour::Sptr PlayerBehaviour::FromJson(const nlohmann::json & blob) {
 	PlayerBehaviour::Sptr result = std::make_shared<PlayerBehaviour>();
 	
 	return result;
+}
+
+void PlayerBehaviour::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
+{
+	LOG_INFO("Entered trigger: {}", trigger->GetGameObject()->Name);
 }
 
 

@@ -399,25 +399,16 @@ void CreateScene() {
 			renderer->SetMesh(PlayerMesh);
 			renderer->SetMaterial(PlayerMaterial);
 			
-			//Player->SetPostion(glm::vec3(5.0f));
-			//Player->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
-			//Player->LookAt(glm::vec3(0.0f));
+			Player->SetPostion(glm::vec3(100.0f));
 			
 			Player->Add<PlayerBehaviour>();
-			//Player->Add<JumpBehaviour>();
+			
 
-
-			// Add a dynamic rigid body to this monkey
-			/*RigidBody::Sptr physics = Player->Add<RigidBody>(RigidBodyType::Dynamic);
-			physics->AddCollider(ConvexMeshCollider::Create());*/
-			/*ICollider::Sptr box = BoxCollider::Create();
-			box->SetScale(glm::vec3(2.0f));
-			box->SetPosition(glm::vec3(4.0f, 0.0f, -5.0f));
-			box->SetRotation(glm::vec3(0.0f, -25.0f, 0.0f));
-			physics->AddCollider(box);*/
-			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = Player->Add<RigidBody>(/*static by default*/);
-			physics->AddCollider(ConvexMeshCollider::Create());
+			//RigidBody::Sptr physics = Player->Add<RigidBody>(/*static by default*/);
+			//physics->AddCollider(ConvexMeshCollider::Create());
+			TriggerVolume::Sptr volume = Player->Add<TriggerVolume>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			volume->AddCollider(collider);
 		}
 
 		//GameObject::Sptr WhiteCell = scene->CreateGameObject("WhiteCell"); {

@@ -1,8 +1,8 @@
 #pragma once
 #include "IComponent.h"
-#include "Gameplay/Physics/RigidBody.h"
 #include "Gameplay/GameObject.h"
 #include "Gameplay/Scene.h"
+#include "Gameplay/Physics/TriggerVolume.h"
 
 struct GLFWwindow;
 
@@ -17,6 +17,7 @@ public:
 	PlayerBehaviour();
 	virtual ~PlayerBehaviour();
 
+	virtual void OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
 	virtual void Awake() override;
 	virtual void Update(float deltaTime) override;
 
@@ -29,5 +30,5 @@ public:
 protected:
 	GLFWwindow* _window;
 
-	Gameplay::Physics::RigidBody::Sptr _body;
+	//Gameplay::Physics::RigidBody::Sptr _body;
 };
