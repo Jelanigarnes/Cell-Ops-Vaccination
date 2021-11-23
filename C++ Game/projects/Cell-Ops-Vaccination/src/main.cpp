@@ -61,7 +61,7 @@
 #include "Gameplay/Physics/Colliders/ConvexMeshCollider.h"
 #include "Gameplay/Physics/TriggerVolume.h"
 #include "Graphics/DebugDraw.h"
-#include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
+//#include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/SimpleCameraControl.h"
 #include "Gameplay/Physics/Colliders/CylinderCollider.h"
 
@@ -291,7 +291,7 @@ void CreateScene() {
 		Texture2D::Sptr    LargeEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Large Enemy Textured.png");
 		Texture2D::Sptr    FastEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Fast Enemy Textured.png");
 		Texture2D::Sptr    NormalEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Normal Enemy Textured.png");
-		Texture2D::Sptr		LevelTexture = ResourceManager::CreateAsset<Texture2D>("textures/Vein Floor Textured.png");
+		Texture2D::Sptr		LevelTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lungs_Floor_Asset_Small.png");
 		Texture2D::Sptr		LungTexture = ResourceManager::CreateAsset<Texture2D>("textures/LungTexture.jpg");
 
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
@@ -374,11 +374,6 @@ void CreateScene() {
 		scene->Lights[2].Position = glm::vec3(0.0f, 1.0f, 3.0f);
 		scene->Lights[2].Color = glm::vec3(1.0f, 0.2f, 0.1f);*/
 
-		// We'll create a mesh that is a simple plane that we can resize later
-		MeshResource::Sptr planeMesh = ResourceManager::CreateAsset<MeshResource>();
-		planeMesh->AddParam(MeshBuilderParam::CreatePlane(ZERO, UNIT_Z, UNIT_X, glm::vec2(1.0f)));
-		planeMesh->GenerateMesh();
-
 		 //Set up the scene's camera For Debugging
 		GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
 		{
@@ -409,21 +404,27 @@ void CreateScene() {
 			TriggerVolume::Sptr volume = Player->Add<TriggerVolume>();
 			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
 			volume->AddCollider(collider);
-
-			Player->Add<TriggerVolumeEnterBehaviour>();
 		}
 
 		GameObject::Sptr Level = scene->CreateGameObject("Level");
 		{
 
-			// Create and attach a RenderComponent to the object to draw our mesh
-			RenderComponent::Sptr renderer = Level->Add<RenderComponent>();
-			renderer->SetMesh(LevelMesh);
+			// Make a big tiled mesh
+			MeshResource::Sptr tiledMesh = ResourceManager::CreateAsset<MeshResource>();
+			tiledMesh->AddParam(MeshBuilderParam::CreatePlane(ZERO, UNIT_Z, UNIT_X, glm::vec2(100.0f), glm::vec2(20.0f)));
+			tiledMesh->GenerateMesh();
+
+			RenderComponent::Sptr renderer =Level->Add<RenderComponent>();
+			renderer->SetMesh(tiledMesh);
 			renderer->SetMaterial(LevelMaterial);
 
-			// Attach a plane collider that extends infinitely along the X/Y axis
+			//// Attach a plane collider that extends infinitely along the X/Y axis
+			//RigidBody::Sptr physics = Level->Add<RigidBody>(/*static by default*/);
+			//physics->AddCollider(ConvexMeshCollider::Create());
+
+			// Attach a plane collider that extends infinitely along the X / Y axis
 			RigidBody::Sptr physics = Level->Add<RigidBody>(/*static by default*/);
-			physics->AddCollider(ConvexMeshCollider::Create());
+			physics->AddCollider(BoxCollider::Create(glm::vec3(50.0f, 50.0f, 1.0f)))->SetPosition({ 0,0,-1 });
 		}
 		GameObject::Sptr Target = scene->CreateGameObject("Target");
 		{
@@ -442,12 +443,11 @@ void CreateScene() {
 			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
 			volume->AddCollider(collider);
 
-			Target->Add<TriggerVolumeEnterBehaviour>();
 		}
 		GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy");
 		{
 			// Set and rotation position in the scene
-			LargeEnemy->SetPostion(glm::vec3(30.0f, 1.0f, 10.0f));			
+			LargeEnemy->SetPostion(glm::vec3(30.0f, 10.0f, 10.0f));			
 
 			// Add a render component
 			RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
@@ -457,10 +457,6 @@ void CreateScene() {
 			LargeEnemy->Add<EnemyBehaviour>();
 			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
 			LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 50;
-
-			// This is an example of attaching a component and setting some parameters
-			//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
-			//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
 
 			// Add a dynamic rigid body to this monkey
 			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
@@ -565,7 +561,7 @@ int main() {
 	ComponentManager::RegisterType<TriggerVolume>();
 	ComponentManager::RegisterType<JumpBehaviour>();
 	ComponentManager::RegisterType<MaterialSwapBehaviour>();
-	ComponentManager::RegisterType<TriggerVolumeEnterBehaviour>();
+	//ComponentManager::RegisterType<TriggerVolumeEnterBehaviour>();
 	ComponentManager::RegisterType<SimpleCameraControl>();
 	ComponentManager::RegisterType<PlayerBehaviour>();
 	ComponentManager::RegisterType<EnemyBehaviour>();

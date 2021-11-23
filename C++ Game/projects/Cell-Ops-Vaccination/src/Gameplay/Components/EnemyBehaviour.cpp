@@ -51,10 +51,19 @@ void EnemyBehaviour::Update(float deltaTime)
 	GetGameObject()->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	//GetGameObject()->SetPostion(glm::vec3(10.0f, 0.0f, 0.0));
 }
+void EnemyBehaviour::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
+{
+	TakeDamage();
+	_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, 1.0f));
+}
 // After destroying target look for new one
 void EnemyBehaviour::NewTarget()
 {
 	// TODO: Add your implementation code here.
+}
+
+void EnemyBehaviour::OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
+{
 }
 
 void EnemyBehaviour::TakeDamage()

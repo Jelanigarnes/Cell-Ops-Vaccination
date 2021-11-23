@@ -3,7 +3,6 @@
 #include "Gameplay/Physics/RigidBody.h"
 #include "Gameplay/GameObject.h"
 #include "Gameplay/Scene.h"
-#include "Gameplay/Physics/TriggerVolume.h"
 
 class EnemyBehaviour :public Gameplay::IComponent
 {
@@ -18,6 +17,8 @@ public:
 public:
 	virtual void RenderImGui() override;
 	virtual void Update(float deltaTime) override;
+	virtual void OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
+	virtual void OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
 	void TakeDamage();
 	MAKE_TYPENAME(EnemyBehaviour);
 	virtual nlohmann::json ToJson() const override;
