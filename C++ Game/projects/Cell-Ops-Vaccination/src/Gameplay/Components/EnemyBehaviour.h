@@ -1,6 +1,6 @@
 #pragma once
 #include "IComponent.h"
-#include "Gameplay/Physics/RigidBody.h"
+//#include "Gameplay/Physics/RigidBody.h"
 #include "Gameplay/GameObject.h"
 #include "Gameplay/Scene.h"
 
@@ -28,7 +28,7 @@ protected:
 	float _health;
 	float _dmg;
 
-	Gameplay::Physics::RigidBody::Sptr _body;
+	//Gameplay::Physics::RigidBody::Sptr _body;
 public:
 	float _maxHealth;
 	float _speed;

@@ -18,7 +18,8 @@ namespace Gameplay {
 		_objects(std::vector<GameObject::Sptr>()),
 		_deletionQueue(std::vector<std::weak_ptr<GameObject>>()),
 		Lights(std::vector<Light>()),
-		IsPlaying(false),
+		IsPlaying(true),
+		IsPaused(false),
 		MainCamera(nullptr),
 		DefaultMaterial(nullptr),
 		_isAwake(false),
@@ -143,27 +144,35 @@ namespace Gameplay {
 		});
 
 		if (IsPlaying) {
+				_physicsWorld->stepSimulation(dt, 15);
 
-			_physicsWorld->stepSimulation(dt, 15);
-
-			ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
-				body->PhysicsPostStep(dt);
-			});
-			ComponentManager::Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
-				body->PhysicsPostStep(dt);
-			});
-			if (_bulletDebugDraw->getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-				_physicsWorld->debugDrawWorld();
-				DebugDrawer::Get().FlushAll();
-			}
+				ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
+					body->PhysicsPostStep(dt);
+					});
+				ComponentManager::Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
+					body->PhysicsPostStep(dt);
+					});
+				if (_bulletDebugDraw->getDebugMode() != btIDebugDraw::DBG_NoDebug) {
+					_physicsWorld->debugDrawWorld();
+					DebugDrawer::Get().FlushAll();
+				}
 		}
 	}
 
 	void Scene::Update(float dt) {
 		_FlushDeleteQueue();
 		if (IsPlaying) {
-			for (auto& obj : _objects) {
-				obj->Update(dt);
+			if (!IsPaused) {
+				for (auto& obj : _objects) {
+					obj->Update(dt);
+				}
+			}
+			if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+				if (IsPaused) {
+					IsPaused = false;
+				}
+				else
+					IsPaused = true;
 			}
 		}
 		_FlushDeleteQueue();

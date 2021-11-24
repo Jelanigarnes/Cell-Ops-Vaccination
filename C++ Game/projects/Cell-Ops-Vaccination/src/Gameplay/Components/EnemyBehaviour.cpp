@@ -4,10 +4,10 @@
 
 void EnemyBehaviour::Awake()
 {
-	_body = GetComponent<Gameplay::Physics::RigidBody>();
-	if (_body == nullptr) {
+	//_body = GetComponent<Gameplay::Physics::RigidBody>();
+	/*if (_body == nullptr) {
 		IsEnabled = false;
-	}
+	}*/
 	_health = _maxHealth;
 }
 void EnemyBehaviour::RenderImGui() {
@@ -54,7 +54,7 @@ void EnemyBehaviour::Update(float deltaTime)
 void EnemyBehaviour::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
 {
 	TakeDamage();
-	_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, 1.0f));
+	//_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, 1.0f));
 }
 // After destroying target look for new one
 void EnemyBehaviour::NewTarget()

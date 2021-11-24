@@ -61,7 +61,6 @@
 #include "Gameplay/Physics/Colliders/ConvexMeshCollider.h"
 #include "Gameplay/Physics/TriggerVolume.h"
 #include "Graphics/DebugDraw.h"
-//#include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/SimpleCameraControl.h"
 #include "Gameplay/Physics/Colliders/CylinderCollider.h"
 
@@ -399,8 +398,6 @@ void CreateScene() {
 			Player->Add<PlayerBehaviour>();
 			
 
-			//RigidBody::Sptr physics = Player->Add<RigidBody>(/*static by default*/);
-			//physics->AddCollider(ConvexMeshCollider::Create());
 			TriggerVolume::Sptr volume = Player->Add<TriggerVolume>();
 			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
 			volume->AddCollider(collider);
@@ -417,10 +414,6 @@ void CreateScene() {
 			RenderComponent::Sptr renderer =Level->Add<RenderComponent>();
 			renderer->SetMesh(tiledMesh);
 			renderer->SetMaterial(LevelMaterial);
-
-			//// Attach a plane collider that extends infinitely along the X/Y axis
-			//RigidBody::Sptr physics = Level->Add<RigidBody>(/*static by default*/);
-			//physics->AddCollider(ConvexMeshCollider::Create());
 
 			// Attach a plane collider that extends infinitely along the X / Y axis
 			RigidBody::Sptr physics = Level->Add<RigidBody>(/*static by default*/);
@@ -459,11 +452,12 @@ void CreateScene() {
 			LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 50;
 
 			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-			ICollider::Sptr box = BoxCollider::Create();
+			/*ICollider::Sptr box = BoxCollider::Create();
 			box->SetScale(glm::vec3(2.0f));
-			box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-			physics->AddCollider(box);			
+			box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));*/
+			TriggerVolume::Sptr volume = LargeEnemy->Add<TriggerVolume>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			volume->AddCollider(collider);
 		}
 		//
 		//GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
