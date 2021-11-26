@@ -285,11 +285,10 @@ void CreateScene() {
 
 		/////////////////////////////////////////// TEXTURES ////////////////////////////////////////////////
 		// Load in some textures
-		Texture2D::Sptr    boxTexture = ResourceManager::CreateAsset<Texture2D>("textures/box-diffuse.png");
 		Texture2D::Sptr    PlayerTexture = ResourceManager::CreateAsset<Texture2D>("textures/tempWhiteCell.jpg");
-		Texture2D::Sptr    LargeEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Large Enemy Textured.png");
-		Texture2D::Sptr    FastEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Fast Enemy Textured.png");
-		Texture2D::Sptr    NormalEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lower Poly Normal Enemy Textured.png");
+		Texture2D::Sptr    LargeEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Large Enemy.png");
+		Texture2D::Sptr    FastEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Fast Enemy.png");
+		Texture2D::Sptr    NormalEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Normal Enemy.png");
 		Texture2D::Sptr		LevelTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lungs_Floor_Asset_Small.png");
 		Texture2D::Sptr		LungTexture = ResourceManager::CreateAsset<Texture2D>("textures/LungTexture.jpg");
 
@@ -311,12 +310,6 @@ void CreateScene() {
 
 		// Create our materials
 		// This will be our box material, with no environment reflections
-		Material::Sptr boxMaterial = ResourceManager::CreateAsset<Material>(basicShader);
-		{
-			boxMaterial->Name = "Box";
-			boxMaterial->Set("u_Material.Diffuse", boxTexture);
-			boxMaterial->Set("u_Material.Shininess", 0.1f);
-		}
 
 		Material::Sptr PlayerMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
@@ -451,62 +444,48 @@ void CreateScene() {
 			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
 			LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 50;
 
-			// Add a dynamic rigid body to this monkey
-			/*ICollider::Sptr box = BoxCollider::Create();
-			box->SetScale(glm::vec3(2.0f));
-			box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));*/
 			TriggerVolume::Sptr volume = LargeEnemy->Add<TriggerVolume>();
 			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
 			volume->AddCollider(collider);
 		}
-		//
-		//GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
-		//{
-		//	// Set and rotation position in the scene
-		//	FastEnemy->SetPostion(glm::vec3(10.0f, 1.0f, 10.0f));
+		
+		GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
+		{
+			// Set and rotation position in the scene
+			FastEnemy->SetPostion(glm::vec3(10.0f, 10.0f, 10.0f));
 
-		//	// Add a render component
-		//	RenderComponent::Sptr renderer = FastEnemy->Add<RenderComponent>();
-		//	renderer->SetMesh(FastEnemyMesh);
-		//	renderer->SetMaterial(FastEnemyMaterial);
+			// Add a render component
+			RenderComponent::Sptr renderer = FastEnemy->Add<RenderComponent>();
+			renderer->SetMesh(FastEnemyMesh);
+			renderer->SetMaterial(FastEnemyMaterial);
 
-		//	//LargeEnemy->Add<EnemyBehaviour>();
+			FastEnemy->Add<EnemyBehaviour>();
+			FastEnemy->Get<EnemyBehaviour>()->EnemyType = "Fast Enemy";
+			FastEnemy->Get<EnemyBehaviour>()->_maxHealth = 10;
 
-		//	// This is an example of attaching a component and setting some parameters
-		//	//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
-		//	//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
+			TriggerVolume::Sptr volume = FastEnemy->Add<TriggerVolume>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			volume->AddCollider(collider);
+		}
 
-		//	// Add a dynamic rigid body to this monkey
-		//	RigidBody::Sptr physics = FastEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-		//	ICollider::Sptr box = BoxCollider::Create();
-		//	box->SetScale(glm::vec3(2.0f));
-		//	box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-		//	physics->AddCollider(box);
-		//}
+		GameObject::Sptr NormalEnemy = scene->CreateGameObject("NormalEnemy");
+		{
+			// Set and rotation position in the scene
+			NormalEnemy->SetPostion(glm::vec3(20.0f, 10.0f, 10.0f));
 
-		//GameObject::Sptr NormalEnemy = scene->CreateGameObject("NormalEnemy");
-		//{
-		//	// Set and rotation position in the scene
-		//	NormalEnemy->SetPostion(glm::vec3(20.0f, 1.0f, 10.0f));
+			// Add a render component
+			RenderComponent::Sptr renderer = NormalEnemy->Add<RenderComponent>();
+			renderer->SetMesh(NormalEnemyMesh);
+			renderer->SetMaterial(NormalEnemyMaterial);
 
-		//	// Add a render component
-		//	RenderComponent::Sptr renderer = NormalEnemy->Add<RenderComponent>();
-		//	renderer->SetMesh(NormalEnemyMesh);
-		//	renderer->SetMaterial(NormalEnemyMaterial);
+			NormalEnemy->Add<EnemyBehaviour>();
+			NormalEnemy->Get<EnemyBehaviour>()->EnemyType = "Normal Enemy";
+			NormalEnemy->Get<EnemyBehaviour>()->_maxHealth = 30;
 
-		//	//LargeEnemy->Add<EnemyBehaviour>();
-
-		//	// This is an example of attaching a component and setting some parameters
-		//	//RotatingBehaviour::Sptr behaviour = monkey2->Add<RotatingBehaviour>();
-		//	//behaviour->RotationSpeed = glm::vec3(0.0f, 0.0f, -90.0f);
-
-		//	// Add a dynamic rigid body to this monkey
-		//	RigidBody::Sptr physics = NormalEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-		//	ICollider::Sptr box = BoxCollider::Create();
-		//	box->SetScale(glm::vec3(2.0f));
-		//	box->SetPosition(glm::vec3(0.0f, 0.0f, 1.0f));
-		//	physics->AddCollider(box);
-		//}
+			TriggerVolume::Sptr volume = NormalEnemy->Add<TriggerVolume>();
+			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
+			volume->AddCollider(collider);
+		}
 
 		// Call scene awake to start up all of our components
 		scene->Window = window;
