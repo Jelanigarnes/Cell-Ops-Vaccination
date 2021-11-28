@@ -27,6 +27,8 @@
 #include "Graphics/Texture2D.h"
 #include "Graphics/TextureCube.h"
 #include "Graphics/VertexTypes.h"
+#include "Graphics/Font.h"
+#include "Graphics/GuiBatcher.h"
 
 // Utilities
 #include "Utils/MeshBuilder.h"
@@ -44,7 +46,7 @@
 #include "Gameplay/GameObject.h"
 #include "Gameplay/Scene.h"
 
-// Components
+/// Components
 #include "Gameplay/Components/IComponent.h"
 #include "Gameplay/Components/Camera.h"
 #include "Gameplay/Components/JumpBehaviour.h"
@@ -61,8 +63,16 @@
 #include "Gameplay/Physics/Colliders/ConvexMeshCollider.h"
 #include "Gameplay/Physics/TriggerVolume.h"
 #include "Graphics/DebugDraw.h"
+#include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/SimpleCameraControl.h"
 #include "Gameplay/Physics/Colliders/CylinderCollider.h"
+
+// GUI
+#include "Gameplay/Components/GUI/RectTransform.h"
+#include "Gameplay/Components/GUI/GuiPanel.h"
+#include "Gameplay/Components/GUI/GuiText.h"
+#include "Gameplay/InputEngine.h"
+
 
 //#define LOG_GL_NOTIFICATIONS
 
@@ -138,6 +148,11 @@ bool initGLFW() {
 
 	// Set our window resized callback
 	glfwSetWindowSizeCallback(window, GlfwWindowResizedCallback);
+
+	// Pass the window to the input engine and let it initialize itself
+	InputEngine::Init(window);
+
+	GuiBatcher::SetWindowSize(windowSize);
 
 	return true;
 }
@@ -282,15 +297,21 @@ void CreateScene() {
 		MeshResource::Sptr NormalEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Normal Enemy.obj");
 		MeshResource::Sptr LevelMesh = ResourceManager::CreateAsset<MeshResource>("models/Game Floor.obj");
 		MeshResource::Sptr LungsTargetMesh = ResourceManager::CreateAsset<MeshResource>("models/LungsTarget.obj");
+		MeshResource::Sptr CellMesh = ResourceManager::CreateAsset<MeshResource>("models/Cell.obj");
+		MeshResource::Sptr Co2Mesh = ResourceManager::CreateAsset<MeshResource>("models/Co2.obj");
+		MeshResource::Sptr OxygenMesh = ResourceManager::CreateAsset<MeshResource>("models/Oxygen.obj");
 
 		/////////////////////////////////////////// TEXTURES ////////////////////////////////////////////////
 		// Load in some textures
-		Texture2D::Sptr    PlayerTexture = ResourceManager::CreateAsset<Texture2D>("textures/tempWhiteCell.jpg");
-		Texture2D::Sptr    LargeEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Large Enemy.png");
-		Texture2D::Sptr    FastEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Fast Enemy.png");
-		Texture2D::Sptr    NormalEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Normal Enemy.png");
+		Texture2D::Sptr		PlayerTexture = ResourceManager::CreateAsset<Texture2D>("textures/tempWhiteCell.jpg");
+		Texture2D::Sptr		LargeEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Large Enemy.png");
+		Texture2D::Sptr		FastEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Fast Enemy.png");
+		Texture2D::Sptr		NormalEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Normal Enemy.png");
 		Texture2D::Sptr		LevelTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lungs_Floor_Asset_Small.png");
 		Texture2D::Sptr		LungTexture = ResourceManager::CreateAsset<Texture2D>("textures/LungTexture.jpg");
+		Texture2D::Sptr		CellTexture = ResourceManager::CreateAsset<Texture2D>("textures/Cell.png");
+		Texture2D::Sptr		Co2Texture = ResourceManager::CreateAsset<Texture2D>("textures/Co2.png");
+		Texture2D::Sptr		OxygenTexture = ResourceManager::CreateAsset<Texture2D>("textures/Oxygen.png");
 
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
 		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/ocean.jpg");
@@ -353,14 +374,75 @@ void CreateScene() {
 			LungMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
+		Material::Sptr CellMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			CellMaterial->Name = "CellMateriall";
+			CellMaterial->Set("u_Material.Diffuse", CellTexture);
+			CellMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr Co2Material = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			Co2Material->Name = "Co2Material";
+			Co2Material->Set("u_Material.Diffuse", Co2Texture);
+			Co2Material->Set("u_Material.Shininess", 0.1f);
+		}
+
+		Material::Sptr OxygenMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			OxygenMaterial->Name = "OxygenMaterial";
+			OxygenMaterial->Set("u_Material.Diffuse", OxygenTexture);
+			OxygenMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+
+		/////////////// MAP MATERIALS ////////////////////
+
+		/*Material::Sptr displacementTest = ResourceManager::CreateAsset<Material>(displacementShader);
+		{
+			Texture2D::Sptr displacementMap = ResourceManager::CreateAsset<Texture2D>("textures/displacement_map.png");
+			Texture2D::Sptr normalMap = ResourceManager::CreateAsset<Texture2D>("textures/normal_map.png");
+			Texture2D::Sptr diffuseMap = ResourceManager::CreateAsset<Texture2D>("textures/bricks_diffuse.png");
+
+			displacementTest->Name = "Displacement Map";
+			displacementTest->Set("u_Material.Diffuse", diffuseMap);
+			displacementTest->Set("s_Heightmap", displacementMap);
+			displacementTest->Set("s_NormalMap", normalMap);
+			displacementTest->Set("u_Material.Shininess", 0.5f);
+			displacementTest->Set("u_Scale", 0.1f);
+		}
+
+		Material::Sptr normalmapMat = ResourceManager::CreateAsset<Material>(tangentSpaceMapping);
+		{
+			Texture2D::Sptr normalMap = ResourceManager::CreateAsset<Texture2D>("textures/normal_map.png");
+			Texture2D::Sptr diffuseMap = ResourceManager::CreateAsset<Texture2D>("textures/bricks_diffuse.png");
+
+			normalmapMat->Name = "Tangent Space Normal Map";
+			normalmapMat->Set("u_Material.Diffuse", diffuseMap);
+			normalmapMat->Set("s_NormalMap", normalMap);
+			normalmapMat->Set("u_Material.Shininess", 0.5f);
+			normalmapMat->Set("u_Scale", 0.1f);
+		}
+
+		Material::Sptr multiTextureMat = ResourceManager::CreateAsset<Material>(multiTextureShader);
+		{
+			Texture2D::Sptr sand = ResourceManager::CreateAsset<Texture2D>("textures/terrain/sand.png");
+			Texture2D::Sptr grass = ResourceManager::CreateAsset<Texture2D>("textures/terrain/grass.png");
+
+			multiTextureMat->Name = "Multitexturing";
+			multiTextureMat->Set("u_Material.DiffuseA", sand);
+			multiTextureMat->Set("u_Material.DiffuseB", grass);
+			multiTextureMat->Set("u_Material.Shininess", 0.5f);
+			multiTextureMat->Set("u_Scale", 0.1f);
+		}*/
+
 
 		// Create some lights for our scene
-		/*scene->Lights.resize(3);
-		scene->Lights[0].Position = glm::vec3(0.0f, 1.0f, 3.0f);
+		scene->Lights.resize(3);
+		scene->Lights[0].Position = glm::vec3(50.0f, 10.0f, 10.0f);
 		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
 		scene->Lights[0].Range = 100.0f;
 
-		scene->Lights[1].Position = glm::vec3(1.0f, 0.0f, 3.0f);
+		/*scene->Lights[1].Position = glm::vec3(1.0f, 0.0f, 3.0f);
 		scene->Lights[1].Color = glm::vec3(0.2f, 0.8f, 0.1f);
 
 		scene->Lights[2].Position = glm::vec3(0.0f, 1.0f, 3.0f);
@@ -391,9 +473,10 @@ void CreateScene() {
 			Player->Add<PlayerBehaviour>();
 			
 
-			TriggerVolume::Sptr volume = Player->Add<TriggerVolume>();
+			TriggerVolume::Sptr trigger = Player->Add<TriggerVolume>();
 			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
-			volume->AddCollider(collider);
+			//trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			trigger->AddCollider(collider);
 		}
 
 		GameObject::Sptr Level = scene->CreateGameObject("Level");
@@ -440,13 +523,14 @@ void CreateScene() {
 			renderer->SetMesh(LargeEnemyMesh);
 			renderer->SetMaterial(LargeEnemyMaterial);
 
-			LargeEnemy->Add<EnemyBehaviour>();
-			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
-			LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 50;
 
 			TriggerVolume::Sptr volume = LargeEnemy->Add<TriggerVolume>();
 			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
 			volume->AddCollider(collider);
+
+			LargeEnemy->Add<EnemyBehaviour>();
+			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
+			LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 50;
 		}
 		
 		GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
@@ -486,6 +570,70 @@ void CreateScene() {
 			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
 			volume->AddCollider(collider);
 		}
+		GameObject::Sptr Cell = scene->CreateGameObject("Cell");
+		{
+			Cell->SetPostion(glm::vec3(40.0f, 10.0f, 10.0f));
+
+
+			// Add a render component
+			RenderComponent::Sptr renderer = Cell->Add<RenderComponent>();
+			renderer->SetMesh(CellMesh);
+			renderer->SetMaterial(CellMaterial);
+
+		}
+		GameObject::Sptr Co2 = scene->CreateGameObject("Co2");
+		{
+			Co2->SetPostion(glm::vec3(50.0f, 10.0f, 10.0f));
+
+
+			// Add a render component
+			RenderComponent::Sptr renderer = Co2->Add<RenderComponent>();
+			renderer->SetMesh(Co2Mesh);
+			renderer->SetMaterial(Co2Material);
+		}
+		GameObject::Sptr Oxygen = scene->CreateGameObject("Oxygen");
+		{
+			Oxygen->SetPostion(glm::vec3(60.0f, 10.0f, 10.0f));
+
+
+			// Add a render component
+			RenderComponent::Sptr renderer = Oxygen->Add<RenderComponent>();
+			renderer->SetMesh(OxygenMesh);
+			renderer->SetMaterial(OxygenMaterial);
+
+		}
+		/////////////////////////// UI //////////////////////////////
+		//If when you uncomment this code remmeber to uncomment RenderGUI at line 955(proably pushed up or down by time of reading this but its around there 
+		/*GameObject::Sptr canvas = scene->CreateGameObject("UI Canvas");
+		{
+			RectTransform::Sptr transform = canvas->Add<RectTransform>();
+			transform->SetMin({ 16, 16 });
+			transform->SetMax({ 256, 256 });
+
+			GuiPanel::Sptr canPanel = canvas->Add<GuiPanel>();
+
+			GameObject::Sptr subPanel = scene->CreateGameObject("Sub Item");
+			{
+				RectTransform::Sptr transform = subPanel->Add<RectTransform>();
+				transform->SetMin({ 10, 10 });
+				transform->SetMax({ 128, 128 });
+
+				GuiPanel::Sptr panel = subPanel->Add<GuiPanel>();
+				panel->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+				Font::Sptr font = ResourceManager::CreateAsset<Font>("fonts/Roboto-Medium.ttf", 16.0f);
+				font->Bake();
+
+				GuiText::Sptr text = subPanel->Add<GuiText>();
+				text->SetText("Hello world!");
+				text->SetFont(font);
+			}
+
+			canvas->AddChild(subPanel);
+		}*/
+
+		/*GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
+		GuiBatcher::SetDefaultBorderRadius(8);*/
 
 		// Call scene awake to start up all of our components
 		scene->Window = window;
@@ -534,16 +682,21 @@ int main() {
 	ComponentManager::RegisterType<TriggerVolume>();
 	ComponentManager::RegisterType<JumpBehaviour>();
 	ComponentManager::RegisterType<MaterialSwapBehaviour>();
-	//ComponentManager::RegisterType<TriggerVolumeEnterBehaviour>();
+	ComponentManager::RegisterType<TriggerVolumeEnterBehaviour>();
 	ComponentManager::RegisterType<SimpleCameraControl>();
 	ComponentManager::RegisterType<PlayerBehaviour>();
 	ComponentManager::RegisterType<EnemyBehaviour>();
+
+	ComponentManager::RegisterType<RectTransform>();
+	ComponentManager::RegisterType<GuiPanel>();
+	ComponentManager::RegisterType<GuiText>();
 
 	// GL states, we'll enable depth testing and backface fulling
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
 
 	// Structure for our frame-level uniforms, matches layout from
 	// fragments/frame_uniforms.glsl
@@ -719,6 +872,10 @@ int main() {
 		TextureCube::Sptr environment = scene->GetSkyboxTexture();
 		if (environment) environment->Bind(0);
 
+		// Make sure depth testing and culling are re-enabled
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+
 		// Here we'll bind all the UBOs to their corresponding slots
 		scene->PreRender();
 		frameUniforms->Bind(FRAME_UBO_BINDING);
@@ -778,6 +935,37 @@ int main() {
 		// Use our cubemap to draw our skybox
 		scene->DrawSkybox();
 
+		// Disable culling
+		glDisable(GL_CULL_FACE);
+		// Disable depth testing, we're going to use order-dependant layering
+		glDisable(GL_DEPTH_TEST);
+		// Disable depth writing
+		glDepthMask(GL_FALSE);
+
+		// Enable alpha blending
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Enable the scissor test;
+		glEnable(GL_SCISSOR_TEST);
+
+		// Our projection matrix will be our entire window for now
+		glm::mat4 proj = glm::ortho(0.0f, (float)windowSize.x, (float)windowSize.y, 0.0f, -1.0f, 1.0f);
+		GuiBatcher::SetProjection(proj);
+
+		// Iterate over and render all the GUI objects
+		//scene->RenderGUI();
+
+		// Flush the Gui Batch renderer
+		GuiBatcher::Flush();
+
+		// Disable alpha blending
+		glDisable(GL_BLEND);
+		// Disable scissor testing
+		glDisable(GL_SCISSOR_TEST);
+		// Re-enable depth writing
+		glDepthMask(GL_TRUE);
+
 		// End our ImGui window
 		ImGui::End();
 
@@ -785,6 +973,7 @@ int main() {
 
 		lastFrame = thisFrame;
 		ImGuiHelper::EndFrame();
+		InputEngine::EndFrame();
 		glfwSwapBuffers(window);
 	}
 
