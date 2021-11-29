@@ -298,6 +298,7 @@ void CreateScene() {
 		MeshResource::Sptr LevelMesh = ResourceManager::CreateAsset<MeshResource>("models/Game Floor.obj");
 		MeshResource::Sptr LungsTargetMesh = ResourceManager::CreateAsset<MeshResource>("models/LungsTarget.obj");
 		MeshResource::Sptr CellMesh = ResourceManager::CreateAsset<MeshResource>("models/Cell.obj");
+		MeshResource::Sptr Cell2Mesh = ResourceManager::CreateAsset<MeshResource>("models/Cell2.obj");
 		MeshResource::Sptr Co2Mesh = ResourceManager::CreateAsset<MeshResource>("models/Co2.obj");
 		MeshResource::Sptr OxygenMesh = ResourceManager::CreateAsset<MeshResource>("models/Oxygen.obj");
 
@@ -310,6 +311,7 @@ void CreateScene() {
 		Texture2D::Sptr		LevelTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lungs_Floor_Asset_Small.png");
 		Texture2D::Sptr		LungTexture = ResourceManager::CreateAsset<Texture2D>("textures/LungTexture.jpg");
 		Texture2D::Sptr		CellTexture = ResourceManager::CreateAsset<Texture2D>("textures/Cell.png");
+		Texture2D::Sptr		Cell2Texture = ResourceManager::CreateAsset<Texture2D>("textures/Cell2.png");
 		Texture2D::Sptr		Co2Texture = ResourceManager::CreateAsset<Texture2D>("textures/Co2.png");
 		Texture2D::Sptr		OxygenTexture = ResourceManager::CreateAsset<Texture2D>("textures/Oxygen.png");
 
@@ -378,6 +380,12 @@ void CreateScene() {
 		{
 			CellMaterial->Name = "CellMateriall";
 			CellMaterial->Set("u_Material.Diffuse", CellTexture);
+			CellMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+		Material::Sptr Cell2Material = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			CellMaterial->Name = "Cell2Materiall";
+			CellMaterial->Set("u_Material.Diffuse", Cell2Texture);
 			CellMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
@@ -579,6 +587,17 @@ void CreateScene() {
 			RenderComponent::Sptr renderer = Cell->Add<RenderComponent>();
 			renderer->SetMesh(CellMesh);
 			renderer->SetMaterial(CellMaterial);
+
+		}
+		GameObject::Sptr Cell2 = scene->CreateGameObject("Cell2");
+		{
+			Cell2->SetPostion(glm::vec3(40.0f, 20.0f, 10.0f));
+
+
+			// Add a render component
+			RenderComponent::Sptr renderer = Cell2->Add<RenderComponent>();
+			renderer->SetMesh(Cell2Mesh);
+			renderer->SetMaterial(Cell2Material);
 
 		}
 		GameObject::Sptr Co2 = scene->CreateGameObject("Co2");
