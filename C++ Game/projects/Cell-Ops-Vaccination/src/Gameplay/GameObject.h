@@ -14,7 +14,7 @@
 #include "Utils/ResourceManager/IResource.h"
 
 namespace Gameplay {
-	// Predeclaration for Scene
+// Predeclaration for Scene
 	class Scene;
 
 	namespace Physics {
@@ -214,7 +214,7 @@ namespace Gameplay {
 		/// <summary>
 		/// Allows components to render GUI elements to the screen
 		/// </summary>
-		void RenderGUI();
+		void RenderGUI(); 
 
 		/// <summary>
 		/// Returns a pointer to the scene that this GameObject belongs to

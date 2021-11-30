@@ -531,10 +531,13 @@ void CreateScene() {
 			renderer->SetMesh(LargeEnemyMesh);
 			renderer->SetMaterial(LargeEnemyMaterial);
 
+			// Add a dynamic rigid body to this monkey
+			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(ConvexMeshCollider::Create());
 
-			TriggerVolume::Sptr volume = LargeEnemy->Add<TriggerVolume>();
-			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
-			volume->AddCollider(collider);
+
+			TriggerVolume::Sptr trigger = LargeEnemy->Add<TriggerVolume>();
+			trigger->AddCollider(BoxCollider::Create());
 
 			LargeEnemy->Add<EnemyBehaviour>();
 			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
@@ -551,13 +554,17 @@ void CreateScene() {
 			renderer->SetMesh(FastEnemyMesh);
 			renderer->SetMaterial(FastEnemyMaterial);
 
+			// Add a dynamic rigid body to this monkey
+			RigidBody::Sptr physics = FastEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(ConvexMeshCollider::Create());
+
+
+			TriggerVolume::Sptr trigger = FastEnemy->Add<TriggerVolume>();
+			trigger->AddCollider(BoxCollider::Create());
+
 			FastEnemy->Add<EnemyBehaviour>();
 			FastEnemy->Get<EnemyBehaviour>()->EnemyType = "Fast Enemy";
 			FastEnemy->Get<EnemyBehaviour>()->_maxHealth = 10;
-
-			TriggerVolume::Sptr volume = FastEnemy->Add<TriggerVolume>();
-			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
-			volume->AddCollider(collider);
 		}
 
 		GameObject::Sptr NormalEnemy = scene->CreateGameObject("NormalEnemy");
@@ -570,13 +577,17 @@ void CreateScene() {
 			renderer->SetMesh(NormalEnemyMesh);
 			renderer->SetMaterial(NormalEnemyMaterial);
 
+			// Add a dynamic rigid body to this monkey
+			RigidBody::Sptr physics = NormalEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(ConvexMeshCollider::Create());
+
+
+			TriggerVolume::Sptr trigger = NormalEnemy->Add<TriggerVolume>();
+			trigger->AddCollider(BoxCollider::Create());
+
 			NormalEnemy->Add<EnemyBehaviour>();
 			NormalEnemy->Get<EnemyBehaviour>()->EnemyType = "Normal Enemy";
 			NormalEnemy->Get<EnemyBehaviour>()->_maxHealth = 30;
-
-			TriggerVolume::Sptr volume = NormalEnemy->Add<TriggerVolume>();
-			ConvexMeshCollider::Sptr collider = ConvexMeshCollider::Create();
-			volume->AddCollider(collider);
 		}
 		GameObject::Sptr Cell = scene->CreateGameObject("Cell");
 		{
