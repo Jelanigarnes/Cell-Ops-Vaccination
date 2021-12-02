@@ -302,6 +302,12 @@ void CreateScene() {
 		MeshResource::Sptr Co2Mesh = ResourceManager::CreateAsset<MeshResource>("models/Co2.obj");
 		MeshResource::Sptr OxygenMesh = ResourceManager::CreateAsset<MeshResource>("models/Oxygen.obj");
 
+		MeshResource::Sptr APCMesh = ResourceManager::CreateAsset<MeshResource>("models/APC.obj");
+		MeshResource::Sptr APC2Mesh = ResourceManager::CreateAsset<MeshResource>("models/APC2.obj");
+		MeshResource::Sptr SymbiontMesh = ResourceManager::CreateAsset<MeshResource>("models/Symbiont.obj");
+		MeshResource::Sptr Symbiont2Mesh = ResourceManager::CreateAsset<MeshResource>("models/Symbiont2.obj");
+		MeshResource::Sptr VeinMesh = ResourceManager::CreateAsset<MeshResource>("models/Vein.obj");
+
 		/////////////////////////////////////////// TEXTURES ////////////////////////////////////////////////
 		// Load in some textures
 		Texture2D::Sptr		PlayerTexture = ResourceManager::CreateAsset<Texture2D>("textures/tempWhiteCell.jpg");
@@ -314,6 +320,12 @@ void CreateScene() {
 		Texture2D::Sptr		Cell2Texture = ResourceManager::CreateAsset<Texture2D>("textures/Cell2.png");
 		Texture2D::Sptr		Co2Texture = ResourceManager::CreateAsset<Texture2D>("textures/Co2.png");
 		Texture2D::Sptr		OxygenTexture = ResourceManager::CreateAsset<Texture2D>("textures/Oxygen.png");
+
+		Texture2D::Sptr		APCTexture = ResourceManager::CreateAsset<Texture2D>("textures/APC.png");
+		Texture2D::Sptr		APC2Texture = ResourceManager::CreateAsset<Texture2D>("textures/APC2.png");
+		Texture2D::Sptr		SymbiontTexture = ResourceManager::CreateAsset<Texture2D>("textures/Symbiont.png");
+		Texture2D::Sptr		Symbiont2Texture = ResourceManager::CreateAsset<Texture2D>("textures/Symbiont2.png");
+		Texture2D::Sptr		VeinTexture = ResourceManager::CreateAsset<Texture2D>("textures.Vein.png");
 
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
 		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/ocean.jpg");
@@ -395,12 +407,41 @@ void CreateScene() {
 			Co2Material->Set("u_Material.Diffuse", Co2Texture);
 			Co2Material->Set("u_Material.Shininess", 0.1f);
 		}
-
 		Material::Sptr OxygenMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			OxygenMaterial->Name = "OxygenMaterial";
 			OxygenMaterial->Set("u_Material.Diffuse", OxygenTexture);
 			OxygenMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+		Material::Sptr APCMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			APCMaterial->Name = "APCMaterial";
+			APCMaterial->Set("u_Material.Diffuse", APCTexture);
+			APCMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+		Material::Sptr APC2Material = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			APC2Material->Name = "APC2Material";
+			APC2Material->Set("u_Material.Diffuse", APC2Texture);
+			APC2Material->Set("u_Material.Shininess", 0.1f);
+		}
+		Material::Sptr SymbiontMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			SymbiontMaterial->Name = "SymbiontMaterial";
+			SymbiontMaterial->Set("u_Material.Diffuse", SymbiontTexture);
+			SymbiontMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+		Material::Sptr Symbiont2Material = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			Symbiont2Material->Name = "Symbiont2Material";
+			Symbiont2Material->Set("u_Material.Diffuse", Symbiont2Texture);
+			Symbiont2Material->Set("u_Material.Shininess", 0.1f);
+		}
+		Material::Sptr VeinMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			VeinMaterial->Name = "VeinMaterial";
+			VeinMaterial->Set("u_Material.Diffuse", VeinTexture);
+			VeinMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
 		/////////////// MAP MATERIALS ////////////////////
@@ -460,7 +501,8 @@ void CreateScene() {
 		GameObject::Sptr camera = scene->CreateGameObject("Main Camera");
 		{
 			camera->SetPostion(glm::vec3(5.0f));
-			camera->LookAt(glm::vec3(0.0f));
+			camera->SetRotation(glm::vec3(112.735f, 0.0f, -72.0f));
+			//camera->LookAt(glm::vec3(0.0f));
 
 			camera->Add<SimpleCameraControl>();
 
@@ -537,7 +579,7 @@ void CreateScene() {
 
 
 			TriggerVolume::Sptr trigger = LargeEnemy->Add<TriggerVolume>();
-			trigger->AddCollider(BoxCollider::Create());
+			trigger->AddCollider(ConvexMeshCollider::Create());
 
 			LargeEnemy->Add<EnemyBehaviour>();
 			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
@@ -560,7 +602,7 @@ void CreateScene() {
 
 
 			TriggerVolume::Sptr trigger = FastEnemy->Add<TriggerVolume>();
-			trigger->AddCollider(BoxCollider::Create());
+			trigger->AddCollider(ConvexMeshCollider::Create());
 
 			FastEnemy->Add<EnemyBehaviour>();
 			FastEnemy->Get<EnemyBehaviour>()->EnemyType = "Fast Enemy";
@@ -583,12 +625,15 @@ void CreateScene() {
 
 
 			TriggerVolume::Sptr trigger = NormalEnemy->Add<TriggerVolume>();
-			trigger->AddCollider(BoxCollider::Create());
+			trigger->AddCollider(ConvexMeshCollider::Create());
 
 			NormalEnemy->Add<EnemyBehaviour>();
 			NormalEnemy->Get<EnemyBehaviour>()->EnemyType = "Normal Enemy";
 			NormalEnemy->Get<EnemyBehaviour>()->_maxHealth = 30;
 		}
+
+		//////////////// Background Objects
+
 		GameObject::Sptr Cell = scene->CreateGameObject("Cell");
 		{
 			Cell->SetPostion(glm::vec3(40.0f, 10.0f, 10.0f));
@@ -630,6 +675,50 @@ void CreateScene() {
 			RenderComponent::Sptr renderer = Oxygen->Add<RenderComponent>();
 			renderer->SetMesh(OxygenMesh);
 			renderer->SetMaterial(OxygenMaterial);
+
+		}
+		GameObject::Sptr APC = scene->CreateGameObject("APC");
+		{
+			APC->SetPostion(glm::vec3(70.0f, 10.0f, 10.0f));
+
+
+			// Add a render component
+			RenderComponent::Sptr renderer = APC->Add<RenderComponent>();
+			renderer->SetMesh(APCMesh);
+			renderer->SetMaterial(APCMaterial);
+
+		}
+		GameObject::Sptr APC2 = scene->CreateGameObject("APC2");
+		{
+			APC2->SetPostion(glm::vec3(70.0f, 20.0f, 10.0f));
+
+
+			// Add a render component
+			RenderComponent::Sptr renderer = APC2->Add<RenderComponent>();
+			renderer->SetMesh(APC2Mesh);
+			renderer->SetMaterial(APC2Material);
+
+		}
+		GameObject::Sptr Symbiont = scene->CreateGameObject("Symbiont");
+		{
+			Symbiont->SetPostion(glm::vec3(80.0f, 10.0f, 10.0f));
+
+
+			// Add a render component
+			RenderComponent::Sptr renderer = Symbiont->Add<RenderComponent>();
+			renderer->SetMesh(SymbiontMesh);
+			renderer->SetMaterial(SymbiontMaterial);
+
+		}
+		GameObject::Sptr Symbiont2 = scene->CreateGameObject("Symbiont2");
+		{
+			Symbiont2->SetPostion(glm::vec3(80.0f, 20.0f, 10.0f));
+
+
+			// Add a render component
+			RenderComponent::Sptr renderer = Symbiont2->Add<RenderComponent>();
+			renderer->SetMesh(Symbiont2Mesh);
+			renderer->SetMaterial(Symbiont2Material);
 
 		}
 		/////////////////////////// UI //////////////////////////////
