@@ -563,51 +563,54 @@ void CreateScene() {
 			volume->AddCollider(collider);
 
 		}
-		GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy");
-		{
-			// Set and rotation position in the scene
-			LargeEnemy->SetPostion(glm::vec3(30.0f, 10.0f, 10.0f));			
+		////////////////////////Enemies///////////////////////////////
+		//GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy");
+		//{
+		//	// Set and rotation position in the scene
+		//	LargeEnemy->SetPostion(glm::vec3(30.0f, 10.0f, 10.0f));			
 
-			// Add a render component
-			RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
-			renderer->SetMesh(LargeEnemyMesh);
-			renderer->SetMaterial(LargeEnemyMaterial);
+		//	// Add a render component
+		//	RenderComponent::Sptr renderer = LargeEnemy->Add<RenderComponent>();
+		//	renderer->SetMesh(LargeEnemyMesh);
+		//	renderer->SetMaterial(LargeEnemyMaterial);
 
-			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-			physics->AddCollider(ConvexMeshCollider::Create());
+		//	// Add a dynamic rigid body to this monkey
+		//	RigidBody::Sptr physics = LargeEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+		//	physics->SetMass(0.0f);
+		//	physics->AddCollider(ConvexMeshCollider::Create());
 
 
-			TriggerVolume::Sptr trigger = LargeEnemy->Add<TriggerVolume>();
-			trigger->AddCollider(ConvexMeshCollider::Create());
+		//	TriggerVolume::Sptr trigger = LargeEnemy->Add<TriggerVolume>();
+		//	trigger->AddCollider(ConvexMeshCollider::Create());
 
-			LargeEnemy->Add<EnemyBehaviour>();
-			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
-			LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 50;
-		}
+		//	LargeEnemy->Add<EnemyBehaviour>();
+		//	LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
+		//	LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 50;
+		//}
 		
-		GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
-		{
-			// Set and rotation position in the scene
-			FastEnemy->SetPostion(glm::vec3(10.0f, 10.0f, 10.0f));
+		//GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
+		//{
+		//	// Set and rotation position in the scene
+		//	FastEnemy->SetPostion(glm::vec3(10.0f, 10.0f, 10.0f));
 
-			// Add a render component
-			RenderComponent::Sptr renderer = FastEnemy->Add<RenderComponent>();
-			renderer->SetMesh(FastEnemyMesh);
-			renderer->SetMaterial(FastEnemyMaterial);
+		//	// Add a render component
+		//	RenderComponent::Sptr renderer = FastEnemy->Add<RenderComponent>();
+		//	renderer->SetMesh(FastEnemyMesh);
+		//	renderer->SetMaterial(FastEnemyMaterial);
 
-			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = FastEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
-			physics->AddCollider(ConvexMeshCollider::Create());
+		//	// Add a dynamic rigid body to this monkey
+		//	RigidBody::Sptr physics = FastEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+		//	physics->SetMass(0.0f);
+		//	physics->AddCollider(ConvexMeshCollider::Create());
 
 
-			TriggerVolume::Sptr trigger = FastEnemy->Add<TriggerVolume>();
-			trigger->AddCollider(ConvexMeshCollider::Create());
+		//	TriggerVolume::Sptr trigger = FastEnemy->Add<TriggerVolume>();
+		//	trigger->AddCollider(ConvexMeshCollider::Create());
 
-			FastEnemy->Add<EnemyBehaviour>();
-			FastEnemy->Get<EnemyBehaviour>()->EnemyType = "Fast Enemy";
-			FastEnemy->Get<EnemyBehaviour>()->_maxHealth = 10;
-		}
+		//	FastEnemy->Add<EnemyBehaviour>();
+		//	FastEnemy->Get<EnemyBehaviour>()->EnemyType = "Fast Enemy";
+		//	FastEnemy->Get<EnemyBehaviour>()->_maxHealth = 10;
+		//}
 
 		GameObject::Sptr NormalEnemy = scene->CreateGameObject("NormalEnemy");
 		{
@@ -621,6 +624,7 @@ void CreateScene() {
 
 			// Add a dynamic rigid body to this monkey
 			RigidBody::Sptr physics = NormalEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->SetMass(0.0f);
 			physics->AddCollider(ConvexMeshCollider::Create());
 
 
@@ -974,6 +978,10 @@ int main() {
 		glm::mat4 viewProj = camera->GetViewProjection();
 		DebugDrawer::Get().SetViewProjection(viewProj);
 
+		// Make sure depth testing and culling are re-enabled
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+
 		// Update our worlds physics!
 		scene->DoPhysics(dt);
 
@@ -991,9 +999,6 @@ int main() {
 		TextureCube::Sptr environment = scene->GetSkyboxTexture();
 		if (environment) environment->Bind(0);
 
-		// Make sure depth testing and culling are re-enabled
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
 
 		// Here we'll bind all the UBOs to their corresponding slots
 		scene->PreRender();
