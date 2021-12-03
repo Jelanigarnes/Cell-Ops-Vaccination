@@ -37,6 +37,9 @@ public:
 	std::string EnemyType;
 	Gameplay::GameObject::Sptr Target;
 
+	float lerpTimer = 0;
+	float lerpTimerMax = 5.0f;
+
 	// After destroying target look for new one
 	void NewTarget();
 };

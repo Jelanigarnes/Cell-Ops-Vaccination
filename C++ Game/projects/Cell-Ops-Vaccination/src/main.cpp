@@ -625,11 +625,13 @@ void CreateScene() {
 			// Add a dynamic rigid body to this monkey
 			RigidBody::Sptr physics = Enemy->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->SetMass(0.0f);
-			physics->AddCollider(ConvexMeshCollider::Create());
+			physics->AddCollider(BoxCollider::Create());
 
-
+			//x 1.130
+			//y 1.120
+			//z 1.790
 			TriggerVolume::Sptr trigger = Enemy->Add<TriggerVolume>();
-			trigger->AddCollider(ConvexMeshCollider::Create());
+			trigger->AddCollider(BoxCollider::Create());
 
 			Enemy->Add<EnemyBehaviour>();
 			Enemy->Get<EnemyBehaviour>()->EnemyType = "Normal Enemy";

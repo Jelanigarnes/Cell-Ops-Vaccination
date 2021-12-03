@@ -2,6 +2,13 @@
 #include <GLFW/glfw3.h>
 #include "Utils/ImGuiHelper.h"
 
+// Templated LERP function
+template<typename T>
+T LERP(const T& p0, const T& p1, float t)
+{
+	return (1.0f - t) * p0 + t * p1;
+}
+
 void EnemyBehaviour::Awake()
 {
 	//_body = GetComponent<Gameplay::Physics::RigidBody>();
@@ -50,6 +57,14 @@ void EnemyBehaviour::Update(float deltaTime)
 	//GetGameObject()->LookAt();
 	GetGameObject()->SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
 	//GetGameObject()->SetPostion(glm::vec3(10.0f, 0.0f, 0.0));
+	lerpTimer += deltaTime;
+	if (lerpTimer >= lerpTimerMax) {
+		lerpTimer = 0;
+	}
+	float t;
+	t = lerpTimer / lerpTimerMax;
+
+	GetGameObject()->SetPostion(LERP(glm::vec3(30.0f, 10.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), t));
 }
 void EnemyBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Physics::RigidBody>& body)
 {
