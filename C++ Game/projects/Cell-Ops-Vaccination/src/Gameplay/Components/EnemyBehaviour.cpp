@@ -82,4 +82,5 @@ void EnemyBehaviour::TakeDamage()
 	if (_health <= 0) {
 		GetGameObject()->GetScene()->RemoveGameObject(GetGameObject()->SelfRef());
 	}
+	LOG_INFO("I Took Damage");
 }

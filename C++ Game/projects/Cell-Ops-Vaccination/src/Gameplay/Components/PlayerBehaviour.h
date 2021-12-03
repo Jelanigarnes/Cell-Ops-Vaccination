@@ -17,8 +17,8 @@ public:
 
 	virtual void Awake() override;
 	virtual void Update(float deltaTime) override;
-	virtual void OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
-	virtual void OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger) override;
+	virtual void OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Physics::RigidBody>& body) override;
+	virtual void OnTriggerVolumeLeaving(const std::shared_ptr<Gameplay::Physics::RigidBody>& body) override;
 	virtual void RenderImGui() override;
 	virtual nlohmann::json ToJson() const override;
 	static PlayerBehaviour::Sptr FromJson(const nlohmann::json& blob);

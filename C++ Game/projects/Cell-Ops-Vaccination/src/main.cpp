@@ -612,28 +612,28 @@ void CreateScene() {
 		//	FastEnemy->Get<EnemyBehaviour>()->_maxHealth = 10;
 		//}
 
-		GameObject::Sptr NormalEnemy = scene->CreateGameObject("NormalEnemy");
+		GameObject::Sptr Enemy = scene->CreateGameObject("Enemy");
 		{
 			// Set and rotation position in the scene
-			NormalEnemy->SetPostion(glm::vec3(20.0f, 10.0f, 10.0f));
+			Enemy->SetPostion(glm::vec3(20.0f, 10.0f, 10.0f));
 
 			// Add a render component
-			RenderComponent::Sptr renderer = NormalEnemy->Add<RenderComponent>();
+			RenderComponent::Sptr renderer = Enemy->Add<RenderComponent>();
 			renderer->SetMesh(NormalEnemyMesh);
 			renderer->SetMaterial(NormalEnemyMaterial);
 
 			// Add a dynamic rigid body to this monkey
-			RigidBody::Sptr physics = NormalEnemy->Add<RigidBody>(RigidBodyType::Dynamic);
+			RigidBody::Sptr physics = Enemy->Add<RigidBody>(RigidBodyType::Dynamic);
 			physics->SetMass(0.0f);
 			physics->AddCollider(ConvexMeshCollider::Create());
 
 
-			TriggerVolume::Sptr trigger = NormalEnemy->Add<TriggerVolume>();
+			TriggerVolume::Sptr trigger = Enemy->Add<TriggerVolume>();
 			trigger->AddCollider(ConvexMeshCollider::Create());
 
-			NormalEnemy->Add<EnemyBehaviour>();
-			NormalEnemy->Get<EnemyBehaviour>()->EnemyType = "Normal Enemy";
-			NormalEnemy->Get<EnemyBehaviour>()->_maxHealth = 30;
+			Enemy->Add<EnemyBehaviour>();
+			Enemy->Get<EnemyBehaviour>()->EnemyType = "Normal Enemy";
+			Enemy->Get<EnemyBehaviour>()->_maxHealth = 30;
 		}
 
 		//////////////// Background Objects

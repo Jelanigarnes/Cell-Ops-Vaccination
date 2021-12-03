@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "Utils/ImGuiHelper.h"
 #include "Gameplay/Components/ComponentManager.h"
+#include <Gameplay/Components/EnemyBehaviour.h>
 
 
 
@@ -16,6 +17,18 @@ void PlayerBehaviour::Awake()
 	
 }
 
+void PlayerBehaviour::OnTriggerVolumeLeaving(const std::shared_ptr<Gameplay::Physics::RigidBody>& body)
+{
+	LOG_INFO("Player Left trigger: {}", body->GetGameObject()->Name);
+}
+void PlayerBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Physics::RigidBody>& body)
+{
+	LOG_INFO("Player Entered trigger: {}", body->GetGameObject()->Name);
+	if (body->GetGameObject()->Name == "Enemy") {
+		LOG_INFO("Enemy Take Damage");
+		body->GetGameObject()->Get<EnemyBehaviour>()->TakeDamage();
+	}
+}
 void PlayerBehaviour::RenderImGui() {
 	
 }
@@ -33,18 +46,10 @@ PlayerBehaviour::Sptr PlayerBehaviour::FromJson(const nlohmann::json & blob) {
 	return result;
 }
 
-void PlayerBehaviour::OnEnteredTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
-{
-	LOG_INFO("Player Entered trigger: {}", trigger->GetGameObject()->Name);
-}
-
-void PlayerBehaviour::OnLeavingTrigger(const std::shared_ptr<Gameplay::Physics::TriggerVolume>& trigger)
-{
-	LOG_INFO("Player Left trigger: {}", trigger->GetGameObject()->Name);
-}
-
 
 void PlayerBehaviour::Update(float deltaTime) {
 	GetGameObject()->SetRotation(GetGameObject()->GetScene()->FindObjectByName("Main Camera")->GetRotation());
 	GetGameObject()->SetPostion(GetGameObject()->GetScene()->FindObjectByName("Main Camera")->GetPosition());
 }
+
+
