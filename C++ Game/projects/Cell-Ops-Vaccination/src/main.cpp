@@ -55,6 +55,7 @@
 #include "Gameplay/Components/PlayerBehaviour.h"
 #include "Gameplay/Components/EnemyBehaviour.h"
 #include "Gameplay/Components/TargetBehaviour.h"
+#include "Gameplay/Components/BackgroundObjectsBehaviour.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -298,7 +299,6 @@ void CreateScene() {
 		MeshResource::Sptr FastEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Fast Enemy.obj");
 		MeshResource::Sptr NormalEnemyMesh = ResourceManager::CreateAsset<MeshResource>("models/Lower Poly Normal Enemy.obj");
 
-		//MeshResource::Sptr LevelMesh = ResourceManager::CreateAsset<MeshResource>("models/Game Floor.obj");
 
 		MeshResource::Sptr LungsTargetMesh = ResourceManager::CreateAsset<MeshResource>("models/LungsTarget.obj");
 		MeshResource::Sptr CellMesh = ResourceManager::CreateAsset<MeshResource>("models/Cell.obj");
@@ -323,7 +323,6 @@ void CreateScene() {
 		Texture2D::Sptr	FastEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Fast Enemy.png");
 		Texture2D::Sptr	NormalEnemyTexture = ResourceManager::CreateAsset<Texture2D>("textures/Normal Enemy.png");
 
-		//Texture2D::Sptr		LevelTexture = ResourceManager::CreateAsset<Texture2D>("textures/Lungs_Floor_Asset_Small.png");
 		Texture2D::Sptr	LungTexture = ResourceManager::CreateAsset<Texture2D>("textures/LungTexture.jpg");
 
 		Texture2D::Sptr	CellTexture = ResourceManager::CreateAsset<Texture2D>("textures/Cell.png");
@@ -386,13 +385,6 @@ void CreateScene() {
 			FastEnemyMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
-		/*Material::Sptr LevelMaterial = ResourceManager::CreateAsset<Material>(basicShader);
-		{
-			LevelMaterial->Name = "Levelmaterial";
-			LevelMaterial->Set("u_Material.Diffuse", LevelTexture);
-			LevelMaterial->Set("u_Material.Shininess", 0.1f);
-		}*/
-
 		Material::Sptr LungMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
 			LungMaterial->Name = "LungMaterial";
@@ -408,9 +400,9 @@ void CreateScene() {
 		}
 		Material::Sptr Cell2Material = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			CellMaterial->Name = "Cell2Materiall";
-			CellMaterial->Set("u_Material.Diffuse", Cell2Texture);
-			CellMaterial->Set("u_Material.Shininess", 0.1f);
+			Cell2Material->Name = "Cell2Materiall";
+			Cell2Material->Set("u_Material.Diffuse", Cell2Texture);
+			Cell2Material->Set("u_Material.Shininess", 0.1f);
 		}
 
 		Material::Sptr Co2Material = ResourceManager::CreateAsset<Material>(basicShader);
@@ -457,21 +449,21 @@ void CreateScene() {
 		}
 		Material::Sptr MicrobiotaMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			VeinMaterial->Name = "MicrobiotaMaterial";
-			VeinMaterial->Set("u_Material.Diffuse", MicrobiotaTexture);
-			VeinMaterial->Set("u_Material.Shininess", 0.1f);
+			MicrobiotaMaterial->Name = "MicrobiotaMaterial";
+			MicrobiotaMaterial->Set("u_Material.Diffuse", MicrobiotaTexture);
+			MicrobiotaMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 		Material::Sptr SmokeplaqueMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			VeinMaterial->Name = "SmokeplaqueMaterial";
-			VeinMaterial->Set("u_Material.Diffuse", SmokeplaqueTexture);
-			VeinMaterial->Set("u_Material.Shininess", 0.1f);
+			SmokeplaqueMaterial->Name = "SmokeplaqueMaterial";
+			SmokeplaqueMaterial->Set("u_Material.Diffuse", SmokeplaqueTexture);
+			SmokeplaqueMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 		Material::Sptr YellowMicrobiotaMaterial = ResourceManager::CreateAsset<Material>(basicShader);
 		{
-			VeinMaterial->Name = "YellowMicrobiotaMaterial";
-			VeinMaterial->Set("u_Material.Diffuse", YellowMBiotaTexture);
-			VeinMaterial->Set("u_Material.Shininess", 0.1f);
+			YellowMicrobiotaMaterial->Name = "YellowMicrobiotaMaterial";
+			YellowMicrobiotaMaterial->Set("u_Material.Diffuse", YellowMBiotaTexture);
+			YellowMicrobiotaMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
 		/////////////// MAP MATERIALS ////////////////////
@@ -517,9 +509,6 @@ void CreateScene() {
 
 		// Create some lights for our scene
 		scene->Lights.resize(3);
-		scene->Lights[0].Position = glm::vec3(50.0f, 10.0f, 10.0f);
-		scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
-		scene->Lights[0].Range = 100.0f;
 
 		/*scene->Lights[1].Position = glm::vec3(1.0f, 0.0f, 3.0f);
 		scene->Lights[1].Color = glm::vec3(0.2f, 0.8f, 0.1f);
@@ -578,11 +567,15 @@ void CreateScene() {
 		/////////////////////////TARGETS////////////////////////// 10 max
 		GameObject::Sptr Target = scene->CreateGameObject("Target");
 		{
-			float x = (float)(rand() % 20 + (-10));
-			float y = (float)(rand() % 20 + (-10));
-			float z = (float)(rand() % 20 + (-10));
+			float x = (float)(rand() % 50 + (-25));
+			float y = (float)(rand() % 50 + (-25));
+			float z = (float)(rand() % 50 + (-25));
 			// Set and rotation position in the scene
 			Target->SetPostion(glm::vec3(x, y, z));
+
+			scene->Lights[0].Position = glm::vec3(x, y, z);
+			scene->Lights[0].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+			scene->Lights[0].Range = 100.0f;
 
 			// Add a render component
 			RenderComponent::Sptr renderer = Target->Add<RenderComponent>();
@@ -595,17 +588,21 @@ void CreateScene() {
 			volume->AddCollider(collider);
 
 			Target->Add<TargetBehaviour>();
-			Target->Get<TargetBehaviour>()->MaxHealth = 500;
+			Target->Get<TargetBehaviour>()->MaxHealth = 100;
 
  			scene->Targets.push_back(Target);
 		}
 		GameObject::Sptr Target1 = scene->CreateGameObject("Target1");
 		{
-			float x = (float)(rand() % 20 + (-10));
-			float y = (float)(rand() % 20 + (-10));
-			float z = (float)(rand() % 20 + (-10));
+			float x = (float)(rand() % 50 + (-25));
+			float y = (float)(rand() % 50 + (-25));
+			float z = (float)(rand() % 50 + (-25));
 			// Set and rotation position in the scene
-			Target->SetPostion(glm::vec3(x, y, z));
+			Target1->SetPostion(glm::vec3(x, y, z));
+
+			scene->Lights[1].Position = glm::vec3(x, y, z);
+			scene->Lights[1].Color = glm::vec3(1.0f, 1.0f, 1.0f);
+			scene->Lights[1].Range = 100.0f;
 
 			// Add a render component
 			RenderComponent::Sptr renderer = Target1->Add<RenderComponent>();
@@ -618,7 +615,7 @@ void CreateScene() {
 			volume->AddCollider(collider);
 
 			Target1->Add<TargetBehaviour>();
-			Target1->Get<TargetBehaviour>()->MaxHealth = 500;
+			Target1->Get<TargetBehaviour>()->MaxHealth = 100;
 
 			scene->Targets.push_back(Target1);
 		}
@@ -626,9 +623,9 @@ void CreateScene() {
 		////////////////////////Enemies/////////////////////////////// 25 max
 		GameObject::Sptr LargeEnemy = scene->CreateGameObject("LargeEnemy");
 		{
-			float x = (float)(rand() % 50 + (-25));
-			float y = (float)(rand() % 50 + (-25));
-			float z = (float)(rand() % 50 + (-25));
+			float x = (float)(rand() % 100 + (-50));
+			float y = (float)(rand() % 100 + (-50));
+			float z = (float)(rand() % 100 + (-50));
 			// Set and rotation position in the scene
 			LargeEnemy->SetPostion(glm::vec3(x, y, z));			
 
@@ -654,9 +651,9 @@ void CreateScene() {
 		
 		GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
 		{
-			float x = (float)(rand() % 50 + (-25));
-			float y = (float)(rand() % 50 + (-25));
-			float z = (float)(rand() % 50 + (-25));
+			float x = (float)(rand() % 100 + (-50));
+			float y = (float)(rand() % 100 + (-50));
+			float z = (float)(rand() % 100 + (-50));
 			// Set and rotation position in the scene
 			FastEnemy->SetPostion(glm::vec3(x, y, z));
 
@@ -682,9 +679,9 @@ void CreateScene() {
 
 		GameObject::Sptr Enemy = scene->CreateGameObject("Enemy");
 		{
-			float x = (float)(rand() % 50 + (-25));
-			float y = (float)(rand() % 50 + (-25));
-			float z = (float)(rand() % 50 + (-25));
+			float x = (float)(rand() % 100 + (-50));
+			float y = (float)(rand() % 100 + (-50));
+			float z = (float)(rand() % 100 + (-50));
 			// Set and rotation position in the scene
 			Enemy->SetPostion(glm::vec3(x, y, z));
 
@@ -710,6 +707,8 @@ void CreateScene() {
 
 		//////////////// Background Objects ///// 50 max
 
+		GameObject::Sptr BackgroundObjects = scene->CreateGameObject("BackgroundObjects");
+
 		GameObject::Sptr Cell = scene->CreateGameObject("Cell");
 		{
 			float x = (float)(rand() % 100 + (-50));
@@ -723,6 +722,9 @@ void CreateScene() {
 			renderer->SetMesh(CellMesh);
 			renderer->SetMaterial(CellMaterial);
 
+			Cell->Add<BackgroundObjectsBehaviour>();
+			Cell->Get<BackgroundObjectsBehaviour>()->BezierMode = true;
+			BackgroundObjects->AddChild(Cell);
 		}
 		GameObject::Sptr Cell2 = scene->CreateGameObject("Cell2");
 		{
@@ -737,6 +739,8 @@ void CreateScene() {
 			renderer->SetMesh(Cell2Mesh);
 			renderer->SetMaterial(Cell2Material);
 
+			Cell2->Add<BackgroundObjectsBehaviour>();
+			BackgroundObjects->AddChild(Cell2);
 		}
 		GameObject::Sptr Co2 = scene->CreateGameObject("Co2");
 		{
@@ -750,6 +754,10 @@ void CreateScene() {
 			RenderComponent::Sptr renderer = Co2->Add<RenderComponent>();
 			renderer->SetMesh(Co2Mesh);
 			renderer->SetMaterial(Co2Material);
+
+			Co2->Add<BackgroundObjectsBehaviour>();
+			Co2->Get<BackgroundObjectsBehaviour>()->BezierMode = true;
+			BackgroundObjects->AddChild(Co2);
 		}
 		GameObject::Sptr Oxygen = scene->CreateGameObject("Oxygen");
 		{
@@ -764,6 +772,8 @@ void CreateScene() {
 			renderer->SetMesh(OxygenMesh);
 			renderer->SetMaterial(OxygenMaterial);
 
+			Oxygen->Add<BackgroundObjectsBehaviour>();
+			BackgroundObjects->AddChild(Oxygen);
 		}
 		GameObject::Sptr APC = scene->CreateGameObject("APC");
 		{
@@ -778,6 +788,9 @@ void CreateScene() {
 			renderer->SetMesh(APCMesh);
 			renderer->SetMaterial(APCMaterial);
 
+			APC->Add<BackgroundObjectsBehaviour>();
+			APC->Get<BackgroundObjectsBehaviour>()->BezierMode = true;
+			BackgroundObjects->AddChild(APC);
 		}
 		GameObject::Sptr APC2 = scene->CreateGameObject("APC2");
 		{
@@ -792,6 +805,8 @@ void CreateScene() {
 			renderer->SetMesh(APC2Mesh);
 			renderer->SetMaterial(APC2Material);
 
+			APC2->Add<BackgroundObjectsBehaviour>();
+			BackgroundObjects->AddChild(APC2);
 		}
 		GameObject::Sptr Symbiont = scene->CreateGameObject("Symbiont");
 		{
@@ -806,6 +821,9 @@ void CreateScene() {
 			renderer->SetMesh(SymbiontMesh);
 			renderer->SetMaterial(SymbiontMaterial);
 
+			Symbiont->Add<BackgroundObjectsBehaviour>();
+			Symbiont->Get<BackgroundObjectsBehaviour>()->BezierMode = true;
+			BackgroundObjects->AddChild(Symbiont);
 		}
 		GameObject::Sptr Symbiont2 = scene->CreateGameObject("Symbiont2");
 		{
@@ -820,6 +838,8 @@ void CreateScene() {
 			renderer->SetMesh(Symbiont2Mesh);
 			renderer->SetMaterial(Symbiont2Material);
 
+			Symbiont2->Add<BackgroundObjectsBehaviour>();
+			BackgroundObjects->AddChild(Symbiont2);
 		}
 		GameObject::Sptr Vein = scene->CreateGameObject("Vein");
 		{
@@ -834,6 +854,9 @@ void CreateScene() {
 			renderer->SetMesh(VeinMesh);
 			renderer->SetMaterial(VeinMaterial);
 
+			Vein->Add<BackgroundObjectsBehaviour>();
+			Vein->Get<BackgroundObjectsBehaviour>()->BezierMode = true;
+			BackgroundObjects->AddChild(Vein);
 		}
 		GameObject::Sptr Microbiota = scene->CreateGameObject("Microbiota");
 		{
@@ -848,6 +871,8 @@ void CreateScene() {
 			renderer->SetMesh(MicrobiotaMesh);
 			renderer->SetMaterial(MicrobiotaMaterial);
 
+			Microbiota->Add<BackgroundObjectsBehaviour>();
+			BackgroundObjects->AddChild(Microbiota);
 		}
 		GameObject::Sptr Smokeplaque = scene->CreateGameObject("Smokeplaque");
 		{
@@ -862,6 +887,9 @@ void CreateScene() {
 			renderer->SetMesh(SmokeplaqueMesh);
 			renderer->SetMaterial(SmokeplaqueMaterial);
 
+			Smokeplaque->Add<BackgroundObjectsBehaviour>();
+			Smokeplaque->Get<BackgroundObjectsBehaviour>()->BezierMode = true;
+			BackgroundObjects->AddChild(Smokeplaque);
 		}
 		GameObject::Sptr YellowMicrobiota = scene->CreateGameObject("YellowMicrobiota");
 		{
@@ -876,6 +904,8 @@ void CreateScene() {
 			renderer->SetMesh(YellowMicrobiotaMesh);
 			renderer->SetMaterial(YellowMicrobiotaMaterial);
 
+			YellowMicrobiota->Add<BackgroundObjectsBehaviour>();
+			BackgroundObjects->AddChild(YellowMicrobiota);
 		}
 		/////////////////////////// UI //////////////////////////////
 		//If when you uncomment this code remmeber to uncomment RenderGUI at line 955(proably pushed up or down by time of reading this but its around there 
@@ -966,6 +996,7 @@ int main() {
 	ComponentManager::RegisterType<PlayerBehaviour>();
 	ComponentManager::RegisterType<EnemyBehaviour>();
 	ComponentManager::RegisterType<TargetBehaviour>();
+	ComponentManager::RegisterType<BackgroundObjectsBehaviour>();
 
 	ComponentManager::RegisterType<RectTransform>();
 	ComponentManager::RegisterType<GuiPanel>();

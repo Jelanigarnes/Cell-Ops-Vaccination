@@ -23,10 +23,10 @@ void PlayerBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Phy
 	if (body->GetGameObject()->Name == "Enemy" ||
 		body->GetGameObject()->Name == "FastEnemy" ||
 		body->GetGameObject()->Name == "LargeEnemy") {
-		if (glfwGetKey(_window, GLFW_KEY_Q)|| glfwGetKey(_window, GLFW_KEY_E)) {
+		//if (glfwGetKey(_window, GLFW_KEY_Q) || glfwGetKey(_window, GLFW_KEY_E)) {
 			LOG_INFO("Enemy Take Damage");
 			body->GetGameObject()->Get<EnemyBehaviour>()->TakeDamage();
-		}
+		//}
 	}
 }
 void PlayerBehaviour::RenderImGui() {

@@ -23,6 +23,7 @@ namespace Gameplay {
 		Lights(std::vector<Light>()),
 		IsPlaying(false),
 		IsPaused(true),
+		GameOver(false),
 		MainCamera(nullptr),
 		DefaultMaterial(nullptr),
 		_isAwake(false),
@@ -53,6 +54,8 @@ namespace Gameplay {
 			GameObject::Sptr Target = Targets.at(rand() % Targets.size());
 			return Target;
 		}
+		else
+			GameOver = true;
 		return nullptr;
 	}
 
@@ -187,13 +190,18 @@ namespace Gameplay {
 	}
 
 	void Scene::Update(float dt) {
-		_FlushDeleteQueue();
-		if (IsPlaying) {
-			for (auto& obj : _objects) {
-				obj->Update(dt);
+		if (!GameOver)
+		{
+			_FlushDeleteQueue();
+			if (IsPlaying) {
+				for (auto& obj : _objects) {
+					obj->Update(dt);
+				}
 			}
+			_FlushDeleteQueue();
 		}
-		_FlushDeleteQueue();
+		else
+			exit(0);
 	}
 
 	void Scene::PreRender() {
