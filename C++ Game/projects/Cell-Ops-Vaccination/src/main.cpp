@@ -338,6 +338,9 @@ void CreateScene() {
 		Texture2D::Sptr SmokeplaqueTexture = ResourceManager::CreateAsset<Texture2D>("textures/Smokeplaque.png");
 		Texture2D::Sptr YellowMBiotaTexture = ResourceManager::CreateAsset<Texture2D>("textures/YellowMBiota.png");
 
+		Texture2D::Sptr GameOverTexture = ResourceManager::CreateAsset<Texture2D>("textures/GameOver.png");
+		Texture2D::Sptr TitleTexture = ResourceManager::CreateAsset<Texture2D>("ui assets/menu screen/cell_ops_title_box.png");
+
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
 		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/ocean.jpg");
 		Shader::Sptr      skyboxShader = ResourceManager::CreateAsset<Shader>(std::unordered_map<ShaderPartType, std::string>{
@@ -464,6 +467,12 @@ void CreateScene() {
 			YellowMicrobiotaMaterial->Name = "YellowMicrobiotaMaterial";
 			YellowMicrobiotaMaterial->Set("u_Material.Diffuse", YellowMBiotaTexture);
 			YellowMicrobiotaMaterial->Set("u_Material.Shininess", 0.1f);
+		}
+		Material::Sptr GameOverMaterial = ResourceManager::CreateAsset<Material>(basicShader);
+		{
+			GameOverMaterial->Name = "GameOverMaterial";
+			GameOverMaterial->Set("u_Material.Diffuse", GameOverTexture);
+			GameOverMaterial->Set("u_Material.Shininess", 0.1f);
 		}
 
 		/////////////// MAP MATERIALS ////////////////////
@@ -646,7 +655,9 @@ void CreateScene() {
 			LargeEnemy->Add<EnemyBehaviour>();
 			LargeEnemy->Get<EnemyBehaviour>()->EnemyType = "Large Enemy";
 			LargeEnemy->Get<EnemyBehaviour>()->_maxHealth = 5;
-			LargeEnemy-> Get<EnemyBehaviour>()->_speed = 1;
+			LargeEnemy-> Get<EnemyBehaviour>()->_speed = 0.5f;
+
+			scene->Enemies.push_back(LargeEnemy);
 		}
 		
 		GameObject::Sptr FastEnemy = scene->CreateGameObject("FastEnemy");
@@ -674,7 +685,9 @@ void CreateScene() {
 			FastEnemy->Add<EnemyBehaviour>();
 			FastEnemy->Get<EnemyBehaviour>()->EnemyType = "Fast Enemy";
 			FastEnemy->Get<EnemyBehaviour>()->_maxHealth = 1;
-			FastEnemy->Get<EnemyBehaviour>()->_speed = 5;
+			FastEnemy->Get<EnemyBehaviour>()->_speed = 3;
+
+			scene->Enemies.push_back(FastEnemy);
 		}
 
 		GameObject::Sptr Enemy = scene->CreateGameObject("Enemy");
@@ -702,7 +715,9 @@ void CreateScene() {
 			Enemy->Add<EnemyBehaviour>();
 			Enemy->Get<EnemyBehaviour>()->EnemyType = "Normal Enemy";
 			Enemy->Get<EnemyBehaviour>()->_maxHealth = 3;
-			Enemy->Get<EnemyBehaviour>()->_speed = 3;
+			Enemy->Get<EnemyBehaviour>()->_speed = 1.5f;
+
+			scene->Enemies.push_back(Enemy);
 		}
 
 		//////////////// Background Objects ///// 50 max
@@ -907,38 +922,55 @@ void CreateScene() {
 			YellowMicrobiota->Add<BackgroundObjectsBehaviour>();
 			BackgroundObjects->AddChild(YellowMicrobiota);
 		}
+		//////////////////// GAME OVER ////////////////////////////
+		GameObject::Sptr GameOver = scene->CreateGameObject("GameOver"); {
+			GameOver->SetPostion(glm::vec3(100000.0f));
+			GameOver->SetScale(glm::vec3(15.0f, 15.0f, 1.0f));
+			 //Make a big tiled mesh
+				MeshResource::Sptr tiledMesh = ResourceManager::CreateAsset<MeshResource>();
+			tiledMesh->AddParam(MeshBuilderParam::CreatePlane(ZERO, UNIT_Z, UNIT_X, glm::vec2(1.0f), glm::vec2(1.0f)));
+			tiledMesh->GenerateMesh();
+
+			RenderComponent::Sptr renderer = GameOver->Add<RenderComponent>();
+			renderer->SetMesh(tiledMesh);
+			renderer->SetMaterial(GameOverMaterial);
+		}
 		/////////////////////////// UI //////////////////////////////
-		//If when you uncomment this code remmeber to uncomment RenderGUI at line 955(proably pushed up or down by time of reading this but its around there 
-		/*GameObject::Sptr canvas = scene->CreateGameObject("UI Canvas");
+		GameObject::Sptr canvas = scene->CreateGameObject("UI Canvas");
 		{
 			RectTransform::Sptr transform = canvas->Add<RectTransform>();
 			transform->SetMin({ 16, 16 });
 			transform->SetMax({ 256, 256 });
+			transform->SetPosition(glm::vec2(400.0f));
+			transform->SetSize({ 100,-100 });
 
-			GuiPanel::Sptr canPanel = canvas->Add<GuiPanel>();
+			GuiPanel::Sptr panel = canvas->Add<GuiPanel>();
+			panel->SetTexture(TitleTexture);
 
-			GameObject::Sptr subPanel = scene->CreateGameObject("Sub Item");
+			//GuiPanel::Sptr canPanel = canvas->Add<GuiPanel>();
+
+			/*GameObject::Sptr subPanel = scene->CreateGameObject("Sub Item");
 			{
 				RectTransform::Sptr transform = subPanel->Add<RectTransform>();
 				transform->SetMin({ 10, 10 });
-				transform->SetMax({ 128, 128 });
+				transform->SetMax({ 128, 128 });				
 
 				GuiPanel::Sptr panel = subPanel->Add<GuiPanel>();
-				panel->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+				panel->SetTexture(TitleTexture);
 
-				Font::Sptr font = ResourceManager::CreateAsset<Font>("fonts/Roboto-Medium.ttf", 16.0f);
+				Font::Sptr font = ResourceManager::CreateAsset<Font>("fonts/Font.otf", 16.0f);
 				font->Bake();
 
-				GuiText::Sptr text = subPanel->Add<GuiText>();
-				text->SetText("Hello world!");
-				text->SetFont(font);
-			}
+				GuiText::Sptr GameRoundText = subPanel->Add<GuiText>();
+				GameRoundText->SetText("Round: ");
+				GameRoundText->SetFont(font);
+			}*/
 
-			canvas->AddChild(subPanel);
-		}*/
+			//canvas->AddChild(subPanel);
+		}
 
-		/*GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
-		GuiBatcher::SetDefaultBorderRadius(8);*/
+		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("ui assets/menu screen/cell_ops_title_box.png"));
+		GuiBatcher::SetDefaultBorderRadius(8);
 
 		// Call scene awake to start up all of our components
 		scene->Window = window;
@@ -1092,6 +1124,7 @@ int main() {
 
 				// Toggle state
 				scene->IsPlaying = !scene->IsPlaying;
+				scene->GameStart();
 
 				// If we've gone from playing to not playing, restore the state from before we started playing
 				if (!scene->IsPlaying) {
@@ -1266,7 +1299,7 @@ int main() {
 		GuiBatcher::SetProjection(proj);
 
 		// Iterate over and render all the GUI objects
-		//scene->RenderGUI();
+		scene->RenderGUI();
 
 		// Flush the Gui Batch renderer
 		GuiBatcher::Flush();
