@@ -14,19 +14,19 @@ PlayerBehaviour::~PlayerBehaviour() = default;
 
 void PlayerBehaviour::Awake()
 {
-	
+	_window = GetGameObject()->GetScene()->Window;
 }
 
-void PlayerBehaviour::OnTriggerVolumeLeaving(const std::shared_ptr<Gameplay::Physics::RigidBody>& body)
-{
-	LOG_INFO("Player Left trigger: {}", body->GetGameObject()->Name);
-}
 void PlayerBehaviour::OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Physics::RigidBody>& body)
 {
-	LOG_INFO("Player Entered trigger: {}", body->GetGameObject()->Name);
-	if (body->GetGameObject()->Name == "Enemy") {
-		LOG_INFO("Enemy Take Damage");
-		body->GetGameObject()->Get<EnemyBehaviour>()->TakeDamage();
+	//LOG_INFO("Player Entered trigger: {}", body->GetGameObject()->Name);
+	if (body->GetGameObject()->Name == "Enemy" ||
+		body->GetGameObject()->Name == "FastEnemy" ||
+		body->GetGameObject()->Name == "LargeEnemy") {
+		if (glfwGetKey(_window, GLFW_KEY_Q)|| glfwGetKey(_window, GLFW_KEY_E)) {
+			LOG_INFO("Enemy Take Damage");
+			body->GetGameObject()->Get<EnemyBehaviour>()->TakeDamage();
+		}
 	}
 }
 void PlayerBehaviour::RenderImGui() {
