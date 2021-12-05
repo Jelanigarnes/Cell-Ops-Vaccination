@@ -351,10 +351,15 @@ void CreateScene() {
 		Texture2D::Sptr YellowMBiotaTexture = ResourceManager::CreateAsset<Texture2D>("textures/YellowMBiota.png");
 		// UI Textures
 		Texture2D::Sptr GameOverTexture = ResourceManager::CreateAsset<Texture2D>("textures/GameOver.png");
+		Texture2D::Sptr Health100Texture = ResourceManager::CreateAsset<Texture2D>("ui assets/TargetHealth/Health_100.png");
+		Texture2D::Sptr Health75Texture = ResourceManager::CreateAsset<Texture2D>("ui assets/TargetHealth/Health_75.png");
+		Texture2D::Sptr Health50Texture = ResourceManager::CreateAsset<Texture2D>("ui assets/TargetHealth/Health_50.png");
+		Texture2D::Sptr Health25Texture = ResourceManager::CreateAsset<Texture2D>("ui assets/TargetHealth/Health_25.png");
+		Texture2D::Sptr Health0Texture = ResourceManager::CreateAsset<Texture2D>("ui assets/TargetHealth/Health_0.png");
 		Texture2D::Sptr TitleTexture = ResourceManager::CreateAsset<Texture2D>("ui assets/menu screen/cell_ops_title_box.png");
 
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
-		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/ocean.jpg");
+		TextureCube::Sptr testCubemap = ResourceManager::CreateAsset<TextureCube>("cubemaps/ocean/lung.png");
 		Shader::Sptr      skyboxShader = ResourceManager::CreateAsset<Shader>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/skybox_vert.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/skybox_frag.glsl" }
@@ -930,6 +935,8 @@ void CreateScene() {
 			RenderComponent::Sptr renderer = Pipe->Add<RenderComponent>();
 			renderer->SetMesh(PipeMesh);
 			renderer->SetMaterial(PipeMaterial);
+
+			BackgroundObjects->AddChild(Pipe);
 		}
 		GameObject::Sptr Smokeplaque = scene->CreateGameObject("Smokeplaque");
 		{
@@ -985,12 +992,15 @@ void CreateScene() {
 		{
 
 			Vein->SetPostion(glm::vec3(75.0f, 75.0f, 75.0f));
+			Vein->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
 
 
 			// Add a render component
 			RenderComponent::Sptr renderer = Vein->Add<RenderComponent>();
 			renderer->SetMesh(VeinMesh);
 			renderer->SetMaterial(VeinMaterial);
+
+			BackgroundObjects->AddChild(Vein);
 		}
 		//GameObject::Sptr Vein1 = scene->CreateGameObject("Vein1");
 		//{
@@ -1113,37 +1123,45 @@ void CreateScene() {
 		{
 
 			RectTransform::Sptr transform = Rounds->Add<RectTransform>();
-			transform->SetMin({ 16, 16 });
-			transform->SetMax({ 256, 256 });
-			transform->SetPosition(glm::vec2(400.0f));
-			transform->SetSize({ 100,-100 });
+			transform->SetSize({ 10,10 });
+			transform->SetMin({ -1501, -29 });
+			//transform->SetMax({ 256, 256 });
+			//transform->SetPosition({ 100 ,0});
 
-			Font::Sptr font = ResourceManager::CreateAsset<Font>("fonts/Font.otf", 20.0f);
+			Font::Sptr font = ResourceManager::CreateAsset<Font>("fonts/Font.otf", 25.0f);
 			font->Bake();
 
 			GuiText::Sptr GameRoundText = Rounds->Add<GuiText>();
-			GameRoundText->SetText("Round: ");
+			GameRoundText->SetText("Round: 0");
 			GameRoundText->SetFont(font);
 			GameRoundText->SetColor(glm::vec4(1.0f));
 			
 		}
-		//GameObject::Sptr EnemiesKilled = scene->CreateGameObject("EnemiesKilled");
-		//{
+		GameObject::Sptr EnemiesKilled = scene->CreateGameObject("EnemiesKilled");
+		{
 
-		//	RectTransform::Sptr transform = EnemiesKilled->Add<RectTransform>();
-		//	transform->SetMin({ 10, 10 });
-		//	transform->SetMax({ 128, 128 });
-		//	//transform->SetPosition(glm::vec2(400.0f));
+			RectTransform::Sptr transform = EnemiesKilled->Add<RectTransform>();
+			transform->SetSize({ 10,10 });
+			transform->SetMin({ -119,-39 });
 
-		//	Font::Sptr font = ResourceManager::CreateAsset<Font>("fonts/Font.otf", 16.0f);
-		//	font->Bake();
+			Font::Sptr font = ResourceManager::CreateAsset<Font>("fonts/Font.otf", 25.0f);
+			font->Bake();
 
-		//	GuiText::Sptr EnemiesKilledText = EnemiesKilled->Add<GuiText>();
-		//	EnemiesKilledText->SetText("EnemiesKilled: ");
-		//	EnemiesKilledText->SetFont(font);
-		//	EnemiesKilledText->SetColor(glm::vec4(1.0f));
+			GuiText::Sptr EnemiesKilledText = EnemiesKilled->Add<GuiText>();
+			EnemiesKilledText->SetText("Enemies Killed: 0");
+			EnemiesKilledText->SetFont(font);
+			EnemiesKilledText->SetColor(glm::vec4(1.0f));
 
-		//}
+		}
+		GameObject::Sptr TargetHealth = scene->CreateGameObject("TargetHealth");
+		{
+			RectTransform::Sptr transform = TargetHealth->Add<RectTransform>();
+			transform->SetSize({ 100,-100 });
+
+			GuiPanel::Sptr Health = TargetHealth->Add<GuiPanel>();
+			Health->SetTexture(Health100Texture);
+		}
+		GameObject::Sptr Target1Health = scene->CreateGameObject("Target1Health");
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("ui assets/menu screen/cell_ops_title_box.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
@@ -1299,8 +1317,8 @@ int main() {
 				}
 
 				// Toggle state
-				scene->IsPlaying = !scene->IsPlaying;
 				scene->GameStart();
+				scene->IsPlaying = !scene->IsPlaying;
 
 				// If we've gone from playing to not playing, restore the state from before we started playing
 				if (!scene->IsPlaying) {
