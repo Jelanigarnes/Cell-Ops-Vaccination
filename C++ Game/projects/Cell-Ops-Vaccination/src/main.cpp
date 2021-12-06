@@ -276,6 +276,10 @@ void CreateScene() {
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/breathing.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_animation.glsl" }
 		});
+		Shader::Sptr AnimationShader = ResourceManager::CreateAsset<Shader>(std::unordered_map<ShaderPartType, std::string>{
+			{ ShaderPartType::Vertex, "shaders/vertex_shaders/Morph.glsl" },
+			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_blinn_phong_textured.glsl" }
+		});
 		Shader::Sptr Animation2Shader = ResourceManager::CreateAsset<Shader>(std::unordered_map<ShaderPartType, std::string>{
 			{ ShaderPartType::Vertex, "shaders/vertex_shaders/Morph.glsl" },
 			{ ShaderPartType::Fragment, "shaders/fragment_shaders/frag_animation.glsl" }
