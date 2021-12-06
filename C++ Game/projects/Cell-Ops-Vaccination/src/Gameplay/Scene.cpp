@@ -26,6 +26,7 @@ namespace Gameplay {
 		IsPlaying(false),
 		IsPaused(false),
 		GameOver(false),
+		GameStarted(false),
 		GameRound(0),
 		EnemiesKilled(0),
 		EnemiesThreshold(10),
@@ -178,6 +179,7 @@ namespace Gameplay {
 		std::string RoundText = "Round: ";
 		RoundText += std::to_string(GameRound);
 		RoundUI->Get<GuiText>()->SetText(RoundText);
+		GameStarted = true;
 	}
 
 	void Scene::UpdateUI()
@@ -320,11 +322,10 @@ namespace Gameplay {
 					IsPaused = true;
 			}
 			if (glfwGetKey(_window, GLFW_KEY_ENTER)) {
-				if (IsPlaying)
-					IsPlaying = false;
-				else
+				if (!IsPlaying && !GameStarted)
 				{
 					IsPlaying = true;
+					GameStarted = true;
 					GameStart();
 				}
 			}
