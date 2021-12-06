@@ -57,6 +57,7 @@ namespace Gameplay {
 		GameObject::Sptr RoundUI;
 		bool					   IsPaused;
 		bool GameOver;
+		bool GameStarted;
 		int GameRound;
 		int EnemiesKilled;
 		int EnemiesThreshold;
