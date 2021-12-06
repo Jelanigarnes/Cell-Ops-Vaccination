@@ -8,7 +8,7 @@ void main() {
 	
 
 	vert.x = sin(vert.x * 10.0 + u_Time) * 0.2;
-	vert.y = sin(vert.y * -10.0 + u_Time) * -0.2;
+	//vert.y = sin(vert.y * -10.0 + u_Time) * -0.2;
 	//vert.z = sin(vert.z * 1.0 + u_Time) * 0.01;
 
     //gl_Position = u_ModelViewProjection * vec4(vert, 1.0);
