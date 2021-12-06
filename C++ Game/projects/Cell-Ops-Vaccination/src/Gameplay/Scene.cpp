@@ -150,6 +150,19 @@ namespace Gameplay {
 				GameRound++;
 				UpdateUI();
 				break;
+			case 6:
+				for each (GameObject::Sptr var in Targets)
+				{
+					var->Get<TargetBehaviour>()->MaxHealth += 100;
+					var->Get<TargetBehaviour>()->Heal();
+				}
+				for each (GameObject::Sptr var in Enemies)
+				{
+					var->Get<EnemyBehaviour>()->_speed++;
+				}
+				GameRound++;
+				UpdateUI();
+				break;
 			default:
 				break;
 			}
@@ -305,6 +318,15 @@ namespace Gameplay {
 					IsPaused = false;
 				else
 					IsPaused = true;
+			}
+			if (glfwGetKey(_window, GLFW_KEY_ENTER)) {
+				if (IsPlaying)
+					IsPlaying = false;
+				else
+				{
+					IsPlaying = true;
+					GameStart();
+				}
 			}
 			LevellCheck();
 			_FlushDeleteQueue();
