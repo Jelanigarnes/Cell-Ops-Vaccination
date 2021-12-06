@@ -1,11 +1,11 @@
 #pragma once
 #include "IComponent.h"
-#include "Gameplay/Physics/RigidBody.h"
-
-struct GLFWwindow;
+#include "Gameplay/GameObject.h"
+#include "Gameplay/Scene.h"
+#include "Gameplay/Physics/TriggerVolume.h"
 
 /// <summary>
-/// hopefully this moves 
+/// Player Behaviour Class
 /// </summary>
 class PlayerBehaviour :public Gameplay::IComponent
 {
@@ -17,23 +17,14 @@ public:
 
 	virtual void Awake() override;
 	virtual void Update(float deltaTime) override;
-
-public:
+	virtual void OnTriggerVolumeEntered(const std::shared_ptr<Gameplay::Physics::RigidBody>& body) override;
 	virtual void RenderImGui() override;
-	MAKE_TYPENAME(PlayerBehaviour);
 	virtual nlohmann::json ToJson() const override;
 	static PlayerBehaviour::Sptr FromJson(const nlohmann::json& blob);
+	MAKE_TYPENAME(PlayerBehaviour);
+
+	int EnemiesKilled;
 
 protected:
-	float _speed;
-	float _shiftMultipler;
-	float _rotZ;
-	/*glm::vec2 _mouseSensitivity;
-	glm::vec3 _moveSpeeds;
-	glm::dvec2 _prevMousePos;
-	glm::vec2 _currentRot;
-	bool _isMousePressed = false;*/
 	GLFWwindow* _window;
-
-	Gameplay::Physics::RigidBody::Sptr _body;
 };

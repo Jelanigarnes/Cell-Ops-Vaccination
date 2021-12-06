@@ -32,6 +32,7 @@ namespace Gameplay {
 	/// </summary>
 	class Scene {
 	public:
+
 		typedef std::shared_ptr<Scene> Sptr;
 
 		static const int MAX_LIGHTS = 8;
@@ -45,14 +46,34 @@ namespace Gameplay {
 		// Instead of a "base shader", we can specify a default material
 		std::shared_ptr<Material>  DefaultMaterial;
 
-		GLFWwindow*                Window; // another place that can use improvement
+		GLFWwindow* Window; // another place that can use improvement
 
 		// Whether the application is in "play mode", lets us leverage editors!
 		bool                       IsPlaying;
+		/// Things I added for our game
+		std::vector<GameObject::Sptr> Targets;
+		std::vector<GameObject::Sptr> Enemies;
+		GameObject::Sptr EnemiesKilledUI;
+		GameObject::Sptr RoundUI;
+		bool					   IsPaused;
+		bool GameOver;
+		int GameRound;
+		int EnemiesKilled;
+		int EnemiesThreshold;
+		GLFWwindow* _window;
 
 
 		Scene();
 		~Scene();
+
+
+		/////// METHODS I ADD ////
+		GameObject::Sptr FindTarget();
+		void DeleteTarget(const GameObject::Sptr& object);
+		void LevellCheck();
+		void GameStart();
+		void UpdateUI();
+		///
 
 		void SetPhysicsDebugDrawMode(BulletDebugMode mode);
 
@@ -90,14 +111,14 @@ namespace Gameplay {
 		/// is found
 		/// </summary>
 		/// <param name="name">The name of the object to find</param>
-		GameObject::Sptr FindObjectByName(const std::string name);
+		GameObject::Sptr FindObjectByName(const std::string name) const;
 		/// <summary>
 		/// Searches all render objects in the scene and returns the first
 		/// one who's guid matches the one given, or nullptr if no object
 		/// is found
 		/// </summary>
 		/// <param name="id">The guid of the object to find</param>
-		GameObject::Sptr FindObjectByGUID(Guid id);
+		GameObject::Sptr FindObjectByGUID(Guid id) const;
 
 		/// <summary>
 		/// Sets the ambient light color for this scene
@@ -142,6 +163,11 @@ namespace Gameplay {
 		/// Performs setup before rendering
 		/// </summary>
 		void PreRender();
+
+		/// <summary>
+		/// Draws all GUI objects in the scene
+		/// </summary>
+		void RenderGUI();
 
 		/// <summary>
 		/// Handles setting the shader uniforms for our light structure in our array of lights
@@ -195,17 +221,17 @@ namespace Gameplay {
 
 	protected:
 		// Bullet physics stuff world
-		btDynamicsWorld*          _physicsWorld;
+		btDynamicsWorld* _physicsWorld;
 		// Our bullet physics configuration
-		btCollisionConfiguration* _collisionConfig; 
+		btCollisionConfiguration* _collisionConfig;
 		// Handles dispatching collisions between objects
-		btCollisionDispatcher*    _collisionDispatcher;
+		btCollisionDispatcher* _collisionDispatcher;
 		// Provides rough broadphase (AABB) checks to improve performance
-		btBroadphaseInterface*    _broadphaseInterface;
+		btBroadphaseInterface* _broadphaseInterface;
 		// Resolves contraints (ex: hinge constraints, angle axis, etc...)
-		btConstraintSolver*       _constraintSolver;
+		btConstraintSolver* _constraintSolver;
 		// this is what allows us to get our pairs from the trigger volumes
-		btGhostPairCallback*      _ghostCallback;
+		btGhostPairCallback* _ghostCallback;
 
 		BulletDebugDraw* _bulletDebugDraw;
 

@@ -1,6 +1,8 @@
 #include "Scene.h"
 
 #include <GLFW/glfw3.h>
+#include <locale>
+#include <codecvt>
 
 #include "Utils/FileHelpers.h"
 #include "Utils/GlmBulletConversions.h"
@@ -12,6 +14,9 @@
 #include "Graphics/DebugDraw.h"
 #include "Graphics/TextureCube.h"
 #include "Graphics/VertexArrayObject.h"
+#include <Gameplay/Components/EnemyBehaviour.h>
+#include <Gameplay/Components/TargetBehaviour.h>
+#include <Gameplay/Components/GUI/GuiText.h>
 
 namespace Gameplay {
 	Scene::Scene() :
@@ -19,6 +24,11 @@ namespace Gameplay {
 		_deletionQueue(std::vector<std::weak_ptr<GameObject>>()),
 		Lights(std::vector<Light>()),
 		IsPlaying(false),
+		IsPaused(false),
+		GameOver(false),
+		GameRound(0),
+		EnemiesKilled(0),
+		EnemiesThreshold(10),
 		MainCamera(nullptr),
 		DefaultMaterial(nullptr),
 		_isAwake(false),
@@ -41,6 +51,143 @@ namespace Gameplay {
 	Scene::~Scene() {
 		_objects.clear();
 		_CleanupPhysics();
+	}
+
+	GameObject::Sptr Scene::FindTarget()
+	{
+		if (Targets.size() != 0) {
+			GameObject::Sptr Target = Targets.at(rand() % Targets.size());
+			return Target;
+		}
+		else
+			GameOver = true;
+		return nullptr;
+	}
+
+	void Scene::DeleteTarget(const GameObject::Sptr& object)
+	{
+		std::vector<GameObject::Sptr>::iterator it = std::find(Targets.begin(), Targets.end(), object);
+		if (it != Targets.end())
+		{
+			int index = std::distance(Targets.begin(), it);
+			Targets.erase(Targets.begin() + index);
+			RemoveGameObject(object);
+		}
+		FindObjectByName("Enemy")->Get<EnemyBehaviour>()->NewTarget();
+		FindObjectByName("FastEnemy")->Get<EnemyBehaviour>()->NewTarget();
+		FindObjectByName("LargeEnemy")->Get<EnemyBehaviour>()->NewTarget();
+	}
+
+	void Scene::LevellCheck()
+	{
+		if (EnemiesKilled > EnemiesThreshold) {
+			EnemiesThreshold = EnemiesThreshold + 10;
+			switch (GameRound)
+			{
+			case 1:
+
+				for each (GameObject::Sptr var in Targets)
+				{
+					var->Get<TargetBehaviour>()->MaxHealth += 100;
+					var->Get<TargetBehaviour>()->Heal();
+				}
+				for each (GameObject::Sptr var in Enemies)
+				{
+					var->Get<EnemyBehaviour>()->_speed++;
+				}
+				GameRound++;
+				UpdateUI();
+				break;
+			case 2:
+				for each (GameObject::Sptr var in Targets)
+				{
+					var->Get<TargetBehaviour>()->MaxHealth += 100;
+					var->Get<TargetBehaviour>()->Heal();
+				}
+				for each (GameObject::Sptr var in Enemies)
+				{
+					var->Get<EnemyBehaviour>()->_speed++;
+				}
+				GameRound++;
+				UpdateUI();
+				break;
+			case 3:
+				for each (GameObject::Sptr var in Targets)
+				{
+					var->Get<TargetBehaviour>()->MaxHealth += 100;
+					var->Get<TargetBehaviour>()->Heal();
+				}
+				for each (GameObject::Sptr var in Enemies)
+				{
+					var->Get<EnemyBehaviour>()->_speed++;
+				}
+				GameRound++;
+				UpdateUI();
+				break;
+			case 4:
+				for each (GameObject::Sptr var in Targets)
+				{
+					var->Get<TargetBehaviour>()->MaxHealth += 100;
+					var->Get<TargetBehaviour>()->Heal();
+				}
+				for each (GameObject::Sptr var in Enemies)
+				{
+					var->Get<EnemyBehaviour>()->_speed++;
+				}
+				GameRound++;
+				UpdateUI();
+				break;
+			case 5:
+				for each (GameObject::Sptr var in Targets)
+				{
+					var->Get<TargetBehaviour>()->MaxHealth += 100;
+					var->Get<TargetBehaviour>()->Heal();
+				}
+				for each (GameObject::Sptr var in Enemies)
+				{
+					var->Get<EnemyBehaviour>()->_speed++;
+				}
+				GameRound++;
+				UpdateUI();
+				break;
+			case 6:
+				for each (GameObject::Sptr var in Targets)
+				{
+					var->Get<TargetBehaviour>()->MaxHealth += 100;
+					var->Get<TargetBehaviour>()->Heal();
+				}
+				for each (GameObject::Sptr var in Enemies)
+				{
+					var->Get<EnemyBehaviour>()->_speed++;
+				}
+				GameRound++;
+				UpdateUI();
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	void Scene::GameStart()
+	{
+		RemoveGameObject(FindObjectByName("UI Canvas"));
+		EnemiesKilledUI = FindObjectByName("EnemiesKilled");
+		RoundUI= FindObjectByName("Rounds");
+		GameRound = 1;
+		std::string RoundText = "Round: ";
+		RoundText += std::to_string(GameRound);
+		RoundUI->Get<GuiText>()->SetText(RoundText);
+	}
+
+	void Scene::UpdateUI()
+	{
+		std::string RoundText = "Round: ";
+		RoundText += std::to_string(GameRound);
+		std::string EnemiesText = "Enemies Killed: ";
+		EnemiesText += std::to_string(EnemiesKilled);
+		RoundUI->Get<GuiText>()->SetText(RoundText);
+		EnemiesKilledUI->Get<GuiText>()->SetText(EnemiesText);
 	}
 
 	void Scene::SetPhysicsDebugDrawMode(BulletDebugMode mode) {
@@ -87,17 +234,17 @@ namespace Gameplay {
 		_deletionQueue.push_back(object);
 	}
 
-	GameObject::Sptr Scene::FindObjectByName(const std::string name) {
+	GameObject::Sptr Scene::FindObjectByName(const std::string name) const {
 		auto it = std::find_if(_objects.begin(), _objects.end(), [&](const GameObject::Sptr& obj) {
 			return obj->Name == name;
-		});
+			});
 		return it == _objects.end() ? nullptr : *it;
 	}
 
-	GameObject::Sptr Scene::FindObjectByGUID(Guid id) {
+	GameObject::Sptr Scene::FindObjectByGUID(Guid id) const {
 		auto it = std::find_if(_objects.begin(), _objects.end(), [&](const GameObject::Sptr& obj) {
-			return obj->GUID == id;
-		});
+			return obj->_guid == id;
+			});
 		return it == _objects.end() ? nullptr : *it;
 	}
 
@@ -106,7 +253,7 @@ namespace Gameplay {
 		_lightingUbo->Update();
 	}
 
-	const glm::vec3& Scene::GetAmbientLight() const { 
+	const glm::vec3& Scene::GetAmbientLight() const {
 		return _lightingUbo->GetData().AmbientCol;
 	}
 
@@ -132,45 +279,87 @@ namespace Gameplay {
 		SetupShaderAndLights();
 
 		_isAwake = true;
+
+		_window = Window;
 	}
 
 	void Scene::DoPhysics(float dt) {
 		ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
 			body->PhysicsPreStep(dt);
-		});
+			});
 		ComponentManager::Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
 			body->PhysicsPreStep(dt);
-		});
-
-		if (IsPlaying) {
-
-			_physicsWorld->stepSimulation(dt, 15);
-
-			ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
-				body->PhysicsPostStep(dt);
 			});
-			ComponentManager::Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
-				body->PhysicsPostStep(dt);
-			});
-			if (_bulletDebugDraw->getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-				_physicsWorld->debugDrawWorld();
-				DebugDrawer::Get().FlushAll();
+		if (!GameOver)
+		{
+			if (IsPlaying) {
+
+				_physicsWorld->stepSimulation(dt, 15);
+
+				ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
+					body->PhysicsPostStep(dt);
+					});
+				ComponentManager::Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
+					body->PhysicsPostStep(dt);
+					});
+				if (_bulletDebugDraw->getDebugMode() != btIDebugDraw::DBG_NoDebug) {
+					_physicsWorld->debugDrawWorld();
+					DebugDrawer::Get().FlushAll();
+				}
 			}
 		}
 	}
 
 	void Scene::Update(float dt) {
-		_FlushDeleteQueue();
-		if (IsPlaying) {
-			for (auto& obj : _objects) {
-				obj->Update(dt);
+		if (!GameOver)
+		{
+			if (glfwGetKey(_window, GLFW_KEY_ESCAPE)) {
+				if (IsPaused)
+					IsPaused = false;
+				else
+					IsPaused = true;
 			}
+			if (glfwGetKey(_window, GLFW_KEY_ENTER)) {
+				if (IsPlaying)
+					IsPlaying = false;
+				else
+				{
+					IsPlaying = true;
+					GameStart();
+				}
+			}
+			LevellCheck();
+			_FlushDeleteQueue();
+			if (IsPlaying) {
+				if (!IsPaused) {
+					for (auto& obj : _objects) {
+						obj->Update(dt);
+					}
+				}
+			}
+			_FlushDeleteQueue();
 		}
-		_FlushDeleteQueue();
+		else {
+			FindObjectByName("Main Camera")->SetPostion(glm::vec3(0.0f));
+			FindObjectByName("Main Camera")->SetRotation(glm::vec3(0.0f));
+			FindObjectByName("GameOver")->SetPostion(glm::vec3(0.0f, -0.900f, -6.550f));
+			FindObjectByName("GameOver")->SetRotation(FindObjectByName("Main Camera")->GetRotation());
+			//exit(0);
+		}
 	}
 
 	void Scene::PreRender() {
 		_lightingUbo->Bind(LIGHT_UBO_BINDING);
+	}
+
+	void Scene::RenderGUI()
+	{
+		for (auto& obj : _objects) {
+			// Parents handle rendering for children, so ignore parented objects
+			if (obj->GetParent() == nullptr) {
+				obj->RenderGUI();
+			}
+		}
 	}
 
 	void Scene::SetShaderLight(int index, bool update /*= true*/) {
@@ -221,9 +410,9 @@ namespace Gameplay {
 		if (data.contains("skybox") && data["skybox"].is_object()) {
 			nlohmann::json& blob = data["skybox"].get<nlohmann::json>();
 			result->_skyboxMesh = ResourceManager::Get<MeshResource>(Guid(blob["mesh"]));
-			result->_skyboxShader = ResourceManager::Get<Shader>(Guid(blob["shader"]));
-			result->_skyboxTexture = ResourceManager::Get<TextureCube>(Guid(blob["texture"]));
-			result->_skyboxRotation = glm::mat3_cast(ParseJsonQuat(blob["orientation"]));
+			result->SetSkyboxShader(ResourceManager::Get<Shader>(Guid(blob["shader"])));
+			result->SetSkyboxTexture(ResourceManager::Get<TextureCube>(Guid(blob["texture"])));
+			result->SetSkyboxRotation(glm::mat3_cast(ParseJsonQuat(blob["orientation"])));
 		}
 
 		// Make sure the scene has objects, then load them all in!
@@ -231,8 +420,16 @@ namespace Gameplay {
 		for (auto& object : data["objects"]) {
 			GameObject::Sptr obj = GameObject::FromJson(object);
 			obj->_scene = result.get();
+			obj->_parent.SceneContext = result.get();
 			obj->_selfRef = obj;
 			result->_objects.push_back(obj);
+		}
+
+		// Re-build the parent hierarchy 
+		for (const auto& object : result->_objects) {
+			if (object->GetParent() != nullptr) {
+				object->GetParent()->AddChild(object);
+			}
 		}
 
 		// Make sure the scene has lights, then load all
@@ -243,7 +440,7 @@ namespace Gameplay {
 
 		// Create and load camera config
 		result->MainCamera = ComponentManager::GetComponentByGUID<Camera>(Guid(data["main_camera"]));
-	
+
 		return result;
 	}
 
@@ -371,7 +568,7 @@ namespace Gameplay {
 			_skyboxMesh->Mesh != nullptr &&
 			_skyboxTexture != nullptr &&
 			MainCamera != nullptr) {
-			
+
 			glDepthMask(false);
 			glDisable(GL_CULL_FACE);
 			glDepthFunc(GL_LEQUAL);
