@@ -17,23 +17,31 @@
 #include <Gameplay/Components/EnemyBehaviour.h>
 #include <Gameplay/Components/TargetBehaviour.h>
 #include <Gameplay/Components/GUI/GuiText.h>
+#include "Application/Application.h"
+#include <Gameplay/InputEngine.h>
+#include <Gameplay/Components/UIController.h>
+#include <Gameplay/Components/EnemySpawnerBehaviour.h>
+#include <Gameplay/Components/TargetController.h>
 
 namespace Gameplay {
 	Scene::Scene() :
 		_objects(std::vector<GameObject::Sptr>()),
 		_deletionQueue(std::vector<std::weak_ptr<GameObject>>()),
 		Lights(std::vector<Light>()),
+		Enemies(std::vector<GameObject::Sptr>()),
 		PlayerLastPosition(glm::vec3(0.0f)),
 		IsPlaying(false),
 		IsPaused(false),
-		PauseUIUp(false),
-		GameOver(false),
-		GameWon(false),
+		IsPauseUIUp(false),
+		IsGameEnd(false),
+		IsGameWon(false),
+		IsTitleUp(false),
+		IsLoseScreenUp(false),
+		IsWinScreenUp(false),
 		GameStarted(false),
 		IsCheatActivated(false),
 		GameRound(0),
 		EnemiesKilled(0),
-		EnemiesThreshold(10),
 		MainCamera(nullptr),
 		DefaultMaterial(nullptr),
 		_isAwake(false),
@@ -49,14 +57,26 @@ namespace Gameplay {
 		_lightingUbo->Update();
 		_lightingUbo->Bind(LIGHT_UBO_BINDING_SLOT);
 
+		GameObject::Sptr mainCam = CreateGameObject("Main Camera");
+		MainCamera = mainCam->Add<Camera>();
+
 		_InitPhysics();
 
 	}
 
 	Scene::~Scene() {
+		MainCamera = nullptr;
+		DefaultMaterial = nullptr;
+		_skyboxShader = nullptr;
+		_skyboxMesh = nullptr;
+		_skyboxTexture = nullptr;
 		_objects.clear();
+		Lights.clear();
 		_CleanupPhysics();
 	}
+
+	////// Code Added //////////
+
 
 	GameObject::Sptr Scene::FindTarget()
 	{
@@ -67,7 +87,7 @@ namespace Gameplay {
 		else
 		{
 			RemoveGameObject(FindObjectByName("Player"));
-			GameOver = true;
+			IsGameEnd = true;
 		}
 		return nullptr;
 	}
@@ -81,160 +101,195 @@ namespace Gameplay {
 			Targets.erase(Targets.begin() + index);
 			RemoveGameObject(object);
 		}
-		FindObjectByName("Enemy")->Get<EnemyBehaviour>()->NewTarget();
-		FindObjectByName("FastEnemy")->Get<EnemyBehaviour>()->NewTarget();
-		FindObjectByName("LargeEnemy")->Get<EnemyBehaviour>()->NewTarget();
+		for (auto Enemy : Enemies) {
+			Enemy->Get<EnemyBehaviour>()->NewTarget();
+		}
 	}
-	/// <summary>
-	/// Level Difficulty Controller
-	/// </summary>
+	void Scene::DeleteEnemy(const GameObject::Sptr& object)
+	{
+		std::vector<GameObject::Sptr>::iterator it = std::find(Enemies.begin(), Enemies.end(), object);
+		if (it != Enemies.end())
+		{
+			int index = std::distance(Enemies.begin(), it);
+			Enemies.erase(Enemies.begin() + index);
+			LOG_INFO("Deleting Object {}", object->Name);
+		}
+		EnemiesKilled++;
+	}
 	void Scene::LevellCheck()
 	{
-		if (EnemiesKilled >= EnemiesThreshold) {
-			EnemiesThreshold = EnemiesThreshold + 10;
-			switch (GameRound)
+			switch (EnemiesKilled)
 			{
-			case 1:
-
-				for each (GameObject::Sptr var in Targets)
-				{
-					var->Get<TargetBehaviour>()->MaxHealth += 100;
-					var->Get<TargetBehaviour>()->Heal();
-				}
-				for each (GameObject::Sptr var in Enemies)
-				{
-					var->Get<EnemyBehaviour>()->_speed++;
-				}
-				GameRound++;
-				UpdateUI();
-				break;
-			case 2:
-				for each (GameObject::Sptr var in Targets)
-				{
-					var->Get<TargetBehaviour>()->MaxHealth += 100;
-					var->Get<TargetBehaviour>()->Heal();
-				}
-				for each (GameObject::Sptr var in Enemies)
-				{
-					var->Get<EnemyBehaviour>()->_speed++;
-				}
-				GameRound++;
-				UpdateUI();
-				break;
-			case 3:
-				for each (GameObject::Sptr var in Targets)
-				{
-					var->Get<TargetBehaviour>()->MaxHealth += 100;
-					var->Get<TargetBehaviour>()->Heal();
-				}
-				for each (GameObject::Sptr var in Enemies)
-				{
-					var->Get<EnemyBehaviour>()->_speed++;
-				}
-				GameRound++;
-				UpdateUI();
-				break;
-			case 4:
-				for each (GameObject::Sptr var in Targets)
-				{
-					var->Get<TargetBehaviour>()->MaxHealth += 100;
-					var->Get<TargetBehaviour>()->Heal();
-				}
-				for each (GameObject::Sptr var in Enemies)
-				{
-					var->Get<EnemyBehaviour>()->_speed++;
-				}
-				GameRound++;
-				UpdateUI();
-				break;
+			/// <summary>
+			/// rounds 1 - 5
+			/// </summary>
 			case 5:
 				for each (GameObject::Sptr var in Targets)
 				{
-					var->Get<TargetBehaviour>()->MaxHealth += 100;
 					var->Get<TargetBehaviour>()->Heal();
 				}
-				for each (GameObject::Sptr var in Enemies)
-				{
-					var->Get<EnemyBehaviour>()->_speed++;
-				}
 				GameRound++;
-				UpdateUI();
+				if (GameRound == 5) {
+					EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->IncreaseEnemySpeed();
+					EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(0, 5, 5);
+				}
+				else if (GameRound > 2) {
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->IncreaseEnemySpeed();
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(0, 3, 3);
+				}
+				else {
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->IncreaseEnemySpeed();
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(0, 0, 6);
+				}
+				EnemiesKilled = 0;
 				break;
-			case 6:
+			/// <summary>
+			/// Rounds 5 - 7
+			/// </summary>
+			case 9:
 				for each (GameObject::Sptr var in Targets)
 				{
-					var->Get<TargetBehaviour>()->MaxHealth += 100;
 					var->Get<TargetBehaviour>()->Heal();
 				}
-				for each (GameObject::Sptr var in Enemies)
+				GameRound++;
+				if (GameRound > 6) {
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->IncreaseEnemySpeed();
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(0, 7, 7);
+				}
+				else {
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->IncreaseEnemySpeed();
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(0, 5, 5);
+				}
+				EnemiesKilled = 0;
+				break;
+			/// <summary>
+			/// round 8
+			/// </summary>
+			case 13:
+				for each (GameObject::Sptr var in Targets)
 				{
-					var->Get<EnemyBehaviour>()->_speed++;
+					var->Get<TargetBehaviour>()->Heal();
 				}
 				GameRound++;
-				UpdateUI();
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->IncreaseEnemySpeed();
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(3, 5, 9);
+				EnemiesKilled = 0;
+				break;
+			/// <summary>
+			/// round 9-10
+			/// </summary>
+			case 16:
+				for each (GameObject::Sptr var in Targets)
+				{
+					var->Get<TargetBehaviour>()->Heal();
+				}
+				GameRound++;
+				if (GameRound == 10) {
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->IncreaseEnemySpeed();
+						EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(5, 7, 11);
+				}
+				else {
+					EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->IncreaseEnemySpeed();
+					EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(5, 3, 9);
+				}
+				EnemiesKilled = 0;
+				break;
+			/// <summary>
+			/// Game Won
+			/// </summary>
+			case 20:
+				IsGameWon = true;
+				IsGameEnd = true;
 				break;
 			default:
 				break;
 			}
-			IsCheatActivated = false;
-		}
-		else if (EnemiesKilled > 50) {
-			RemoveGameObject(FindObjectByName("Player"));
-			RemoveGameObject(FindObjectByName("GameOver"));
-			RemoveGameObject(FindObjectByName("GamePause"));
-			GameWon = true;
-			GameOver = true;
+
+		IsCheatActivated = false;
+
+		if (EnemiesKilled > 26) {
+			IsGameWon = true;
+			IsGameEnd = true;
 		}
 	}
 
 	void Scene::GameStart()
 	{
-		RemoveGameObject(FindObjectByName("UI Canvas"));
-		EnemiesKilledUI = FindObjectByName("EnemiesKilled");
-		RoundUI= FindObjectByName("Rounds");
 		GameRound = 1;
-		std::string RoundText = "Round: ";
-		RoundText += std::to_string(GameRound);
-		RoundUI->Get<GuiText>()->SetText(RoundText);
+		EnemiesKilled = 0;
+		IsCheatActivated = false;
+
+		//Spawn Targets
+		TargetSpawnerObject->Get<TargetController>()->Spawntargets();
+
+		// Set up Lights for scene
+		Lights.resize(Targets.size());
+		int lightIndex;
+		lightIndex = 0;
+		for (auto Target : Targets) {
+			
+			Lights[lightIndex].Position = Target->GetPosition();
+			Lights[lightIndex].Color= glm::vec3(1.0f, 1.0f, 1.0f);
+			Lights[lightIndex].Range = 200.0f;
+			lightIndex++;
+		}
+		// Call this to bake lights
+		SetupShaderAndLights();
+
+		//Spawning first wave of enemies for round 1
+		//for (auto EnemySpawnerObject : EnemySpawnerObject) {
+			EnemySpawnerObject->Get<EnemySpawnerBehaviour>()->SpawnWave(0, 0, 6);
+		//}
+
+		//Change UI
+		UiControllerObject->Get<UiController>()->SetupGameScreen();
+		IsTitleUp = false;
+
 		GameStarted = true;
 	}
 
-	void Scene::UpdateUI()
+	void Scene::GameWon()
 	{
-		std::string RoundText = "Round: ";
-		RoundText += std::to_string(GameRound);
-		std::string EnemiesText = "Enemies Killed: ";
-		EnemiesText += std::to_string(EnemiesKilled);
-		RoundUI->Get<GuiText>()->SetText(RoundText);
-		EnemiesKilledUI->Get<GuiText>()->SetText(EnemiesText);
+		if (!IsTitleUp && !IsWinScreenUp) {
+			UiControllerObject->Get<UiController>()->GameWinScreen();
+			IsWinScreenUp = true;
+		}
+	}
+
+	void Scene::GameOver()
+	{
+		if (!IsTitleUp && !IsLoseScreenUp) {
+			UiControllerObject->Get<UiController>()->GameOverScreen();
+			IsLoseScreenUp = true;
+		}
 	}
 
 	void Scene::GamePause(bool IsPaused)
 	{
-		if (IsPaused && !PauseUIUp) {
-			PlayerLastPosition = FindObjectByName("Main Camera")->GetPosition();
-			FindObjectByName("Main Camera")->SetPostion(glm::vec3(0.0f));
-			FindObjectByName("Main Camera")->SetRotation(glm::vec3(0.0f));
-			FindObjectByName("GamePause")->SetPostion(glm::vec3(0.0f, -0.900f, -6.550f));
-			FindObjectByName("GamePause")->SetRotation(FindObjectByName("Main Camera")->GetRotation());
-			PauseUIUp = true;
+		if (IsPaused && !IsPauseUIUp) {
+			UiControllerObject->Get<UiController>()->GamePauseScreen();
+			IsPauseUIUp = true;
 		}
 		else {
-			FindObjectByName("Main Camera")->SetPostion(PlayerLastPosition);
-			FindObjectByName("GamePause")->SetPostion(glm::vec3(300000));
-			PauseUIUp = false;
+			RemoveGameObject(FindObjectByName("Game Pause"));
+			IsPauseUIUp = false;
 		}
 	}
-
+	
+	//////////// Default code
 	void Scene::SetPhysicsDebugDrawMode(BulletDebugMode mode) {
 		_bulletDebugDraw->setDebugMode((btIDebugDraw::DebugDrawModes)mode);
 	}
 
-	void Scene::SetSkyboxShader(const std::shared_ptr<Shader>& shader) {
+	BulletDebugMode Scene::GetPhysicsDebugDrawMode() const {
+		return (BulletDebugMode)_bulletDebugDraw->getDebugMode();
+	}
+
+	void Scene::SetSkyboxShader(const std::shared_ptr<ShaderProgram>& shader) {
 		_skyboxShader = shader;
 	}
 
-	std::shared_ptr<Shader> Scene::GetSkyboxShader() const {
+	std::shared_ptr<ShaderProgram> Scene::GetSkyboxShader() const {
 		return _skyboxShader;
 	}
 
@@ -296,9 +351,11 @@ namespace Gameplay {
 	void Scene::Awake() {
 		// Not a huge fan of this, but we need to get window size to notify our camera
 		// of the current screen size
-		int width, height;
-		glfwGetWindowSize(Window, &width, &height);
-		MainCamera->ResizeWindow(width, height);
+		Application& app = Application::Get();
+		glm::ivec2 windowSize = app.GetWindowSize();
+		if (MainCamera != nullptr) {
+			MainCamera->ResizeWindow(windowSize.x, windowSize.y);
+		}
 
 		if (_skyboxMesh == nullptr) {
 			_skyboxMesh = ResourceManager::CreateAsset<MeshResource>();
@@ -316,50 +373,53 @@ namespace Gameplay {
 
 		_isAwake = true;
 
-		_window = Window;
+		//Code Added
+		UiControllerObject = FindObjectByName("UI");
+		TargetSpawnerObject = FindObjectByName("Target Spawner");
+		EnemySpawnerObject = FindObjectByName("Enemy Spawner");
 	}
 
 	void Scene::DoPhysics(float dt) {
-		ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
+		_components.Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
 			body->PhysicsPreStep(dt);
 			});
-		ComponentManager::Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
+		_components.Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
 			body->PhysicsPreStep(dt);
 			});
-		if (!GameOver)
-		{
-			if (IsPlaying) {
 
-				_physicsWorld->stepSimulation(dt, 15);
+		if (IsPlaying) {
 
-				ComponentManager::Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
-					body->PhysicsPostStep(dt);
-					});
-				ComponentManager::Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
-					body->PhysicsPostStep(dt);
-					});
-				if (_bulletDebugDraw->getDebugMode() != btIDebugDraw::DBG_NoDebug) {
-					_physicsWorld->debugDrawWorld();
-					DebugDrawer::Get().FlushAll();
-				}
-			}
+			_physicsWorld->stepSimulation(dt, 15);
+
+			_components.Each<Gameplay::Physics::RigidBody>([=](const std::shared_ptr<Gameplay::Physics::RigidBody>& body) {
+				body->PhysicsPostStep(dt);
+				});
+			_components.Each<Gameplay::Physics::TriggerVolume>([=](const std::shared_ptr<Gameplay::Physics::TriggerVolume>& body) {
+				body->PhysicsPostStep(dt);
+				});
 		}
 	}
 
+	void Scene::DrawPhysicsDebug() {
+		if (_bulletDebugDraw->getDebugMode() != btIDebugDraw::DBG_NoDebug) {
+			_physicsWorld->debugDrawWorld();
+			DebugDrawer::Get().FlushAll();
+		}
+	}
+	//Game Loop
 	void Scene::Update(float dt) {
-		if (!GameOver)
+		if (!IsGameEnd)
 		{
 			//Cheats
-			if (glfwGetKey(_window, GLFW_KEY_F2) && IsPaused){
+			if ((InputEngine::GetKeyState(GLFW_KEY_F2) == ButtonState::Pressed) && IsPaused) {
 				if (!IsCheatActivated) {
-					EnemiesKilled = EnemiesThreshold;
-					UpdateUI();
+					EnemiesKilled = 100;
 					IsCheatActivated = true;
 				}
 			}
 			// Pause
-			if (glfwGetKey(_window, GLFW_KEY_ESCAPE)) {
-				if (IsPaused && PauseUIUp)
+			if (InputEngine::GetKeyState(GLFW_KEY_ESCAPE) == ButtonState::Pressed) {
+				if (IsPaused && IsPauseUIUp)
 				{
 					IsPaused = false;
 					GamePause(IsPaused);
@@ -372,7 +432,7 @@ namespace Gameplay {
 
 			}
 			//Start
-			if (glfwGetKey(_window, GLFW_KEY_ENTER)) {
+			if (InputEngine::IsKeyDown(GLFW_KEY_ENTER)) {
 				if (!IsPlaying && !GameStarted)
 				{
 					IsPlaying = true;
@@ -386,23 +446,52 @@ namespace Gameplay {
 					for (auto& obj : _objects) {
 						obj->Update(dt);
 					}
-					LevellCheck();
+					if (GameStarted) {
+						UiControllerObject->Get<UiController>()->UpdateUI();
+						LevellCheck();
+					}
+				}
+			}
+			else {
+				if (!GameStarted && !IsTitleUp) {
+					for (auto Target : Targets) {
+						RemoveGameObject(Target);
+					}
+					for (auto Enemy : Enemies) {
+						RemoveGameObject(Enemy);
+					}
+					UiControllerObject->Get<UiController>()->GameTitleScreen();
+					IsTitleUp = true;
 				}
 			}
 			_FlushDeleteQueue();
 		}
 		else {
-			if (GameWon) {
-				FindObjectByName("Main Camera")->SetPostion(glm::vec3(0.0f));
-				FindObjectByName("Main Camera")->SetRotation(glm::vec3(0.0f));
-				FindObjectByName("GameWin")->SetPostion(glm::vec3(0.0f, -0.900f, -6.550f));
-				FindObjectByName("GameWin")->SetRotation(FindObjectByName("Main Camera")->GetRotation());
+
+			if (IsGameWon) {
+				GameWon();
 			}
 			else {
-				FindObjectByName("Main Camera")->SetPostion(glm::vec3(0.0f));
-				FindObjectByName("Main Camera")->SetRotation(glm::vec3(0.0f));
-				FindObjectByName("GameOver")->SetPostion(glm::vec3(0.0f, -0.900f, -6.550f));
-				FindObjectByName("GameOver")->SetRotation(FindObjectByName("Main Camera")->GetRotation());
+				GameOver();
+			}
+			/// <summary>
+			/// Restart Game
+			/// TODO: Major lag after restart cause:Unkown
+			/// </summary>
+			/// <param name="dt"></param>
+			if (InputEngine::GetKeyState(GLFW_KEY_TAB) == ButtonState::Pressed) {
+				
+				Lights.clear();
+				Enemies.clear();
+				IsGameEnd = false;
+				IsGameWon = false;
+				GameStarted = false;
+				IsTitleUp = false;
+				IsPlaying = false;
+
+				//Application& app = Application::Get();
+				//app.LoadScene("scene.json");
+				//app.CurrentScene()->Load("scene.json");
 			}
 		}
 	}
@@ -459,25 +548,28 @@ namespace Gameplay {
 
 	Scene::Sptr Scene::FromJson(const nlohmann::json& data)
 	{
+
 		Scene::Sptr result = std::make_shared<Scene>();
+		result->MainCamera = nullptr;
+		result->_objects.clear();
 		result->DefaultMaterial = ResourceManager::Get<Material>(Guid(data["default_material"]));
 
 		if (data.contains("ambient")) {
-			result->SetAmbientLight(ParseJsonVec3(data["ambient"]));
+			result->SetAmbientLight((data["ambient"]));
 		}
 
 		if (data.contains("skybox") && data["skybox"].is_object()) {
 			nlohmann::json& blob = data["skybox"].get<nlohmann::json>();
 			result->_skyboxMesh = ResourceManager::Get<MeshResource>(Guid(blob["mesh"]));
-			result->SetSkyboxShader(ResourceManager::Get<Shader>(Guid(blob["shader"])));
+			result->SetSkyboxShader(ResourceManager::Get<ShaderProgram>(Guid(blob["shader"])));
 			result->SetSkyboxTexture(ResourceManager::Get<TextureCube>(Guid(blob["texture"])));
-			result->SetSkyboxRotation(glm::mat3_cast(ParseJsonQuat(blob["orientation"])));
+			result->SetSkyboxRotation(glm::mat3_cast((glm::quat)(blob["orientation"])));
 		}
 
 		// Make sure the scene has objects, then load them all in!
 		LOG_ASSERT(data["objects"].is_array(), "Objects not present in scene!");
 		for (auto& object : data["objects"]) {
-			GameObject::Sptr obj = GameObject::FromJson(object);
+			GameObject::Sptr obj = GameObject::FromJson(result.get(), object);
 			obj->_scene = result.get();
 			obj->_parent.SceneContext = result.get();
 			obj->_selfRef = obj;
@@ -498,7 +590,7 @@ namespace Gameplay {
 		}
 
 		// Create and load camera config
-		result->MainCamera = ComponentManager::GetComponentByGUID<Camera>(Guid(data["main_camera"]));
+		result->MainCamera = result->_components.GetComponentByGUID<Camera>(Guid(data["main_camera"]));
 
 		return result;
 	}
@@ -509,13 +601,13 @@ namespace Gameplay {
 		// Save the default shader (really need a material class)
 		blob["default_material"] = DefaultMaterial ? DefaultMaterial->GetGUID().str() : "null";
 
-		blob["ambient"] = GlmToJson(GetAmbientLight());
+		blob["ambient"] = GetAmbientLight();
 
 		blob["skybox"] = nlohmann::json();
 		blob["skybox"]["mesh"] = _skyboxMesh ? _skyboxMesh->GetGUID().str() : "null";
 		blob["skybox"]["shader"] = _skyboxShader ? _skyboxShader->GetGUID().str() : "null";
 		blob["skybox"]["texture"] = _skyboxTexture ? _skyboxTexture->GetGUID().str() : "null";
-		blob["skybox"]["orientation"] = GlmToJson(_skyboxRotation);
+		blob["skybox"]["orientation"] = (glm::quat)_skyboxRotation;
 
 		// Save renderables
 		std::vector<nlohmann::json> objects;
@@ -557,7 +649,7 @@ namespace Gameplay {
 	}
 
 	int Scene::NumObjects() const {
-		return _objects.size();
+		return static_cast<int>(_objects.size());
 	}
 
 	GameObject::Sptr Scene::GetObjectByIndex(int index) const {

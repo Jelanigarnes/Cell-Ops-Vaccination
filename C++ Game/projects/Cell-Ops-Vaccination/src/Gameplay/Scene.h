@@ -8,12 +8,17 @@
 
 #include "Physics/BulletDebugDraw.h"
 
-#include "Graphics/UniformBuffer.h"
+#include "Graphics/Buffers/UniformBuffer.h"
+
 
 struct GLFWwindow;
 
 class TextureCube;
-class Shader;
+class ShaderProgram;
+
+class InspectorWindow;
+class HierarchyWindow;
+
 
 const int LIGHT_UBO_BINDING_SLOT = 0;
 
@@ -46,26 +51,27 @@ namespace Gameplay {
 		// Instead of a "base shader", we can specify a default material
 		std::shared_ptr<Material>  DefaultMaterial;
 
-		GLFWwindow* Window; // another place that can use improvement
-
 		// Whether the application is in "play mode", lets us leverage editors!
 		bool                       IsPlaying;
 		/// Things I added for our game
 		std::vector<GameObject::Sptr> Targets;
 		std::vector<GameObject::Sptr> Enemies;
-		GameObject::Sptr EnemiesKilledUI;
-		GameObject::Sptr RoundUI;
+		std::vector<GameObject::Sptr> BackgroundObjects;
+		GameObject::Sptr EnemySpawnerObject;
+		GameObject::Sptr TargetSpawnerObject;
+		GameObject::Sptr UiControllerObject;
 		glm::vec3 PlayerLastPosition;
-		bool					   IsPaused;
-		bool PauseUIUp;
-		bool GameOver;
-		bool GameWon;
+		bool IsPaused;
+		bool IsPauseUIUp;
+		bool IsGameEnd;
+		bool IsGameWon;
 		bool GameStarted;
 		bool IsCheatActivated;
+		bool IsTitleUp;
+		bool IsWinScreenUp;
+		bool IsLoseScreenUp;
 		int GameRound;
 		int EnemiesKilled;
-		int EnemiesThreshold;
-		GLFWwindow* _window;
 
 
 		Scene();
@@ -74,17 +80,43 @@ namespace Gameplay {
 
 		/////// METHODS I ADD ////
 		GameObject::Sptr FindTarget();
+		/// <summary>
+		/// Cycles through target vector and deletes target from list
+		/// </summary>
+		/// <param name="object"></param>
 		void DeleteTarget(const GameObject::Sptr& object);
+		/// <summary>
+		/// When enemy hits 0 hp this method is called
+		/// Finds enemy in enemy pool
+		/// deletes enemy from enemy pool
+		/// </summary>
+		/// <param name="object">Enemy</param>
+		void DeleteEnemy(const GameObject::Sptr& object);
+		/// <summary>
+		/// Game Level
+		/// May turn this into a class later
+		/// </summary>
 		void LevellCheck();
+		/// <summary>
+		/// Starts Game
+		/// </summary>
 		void GameStart();
-		void UpdateUI();
+		/// <summary>
+		/// Game Win
+		/// </summary>
+		void GameWon();
+		/// <summary>
+		/// Game Over
+		/// </summary>
+		void GameOver();
 		void GamePause(bool IsPaused);
 		///
 
 		void SetPhysicsDebugDrawMode(BulletDebugMode mode);
+		BulletDebugMode GetPhysicsDebugDrawMode() const;
 
-		void SetSkyboxShader(const std::shared_ptr<Shader>& shader);
-		std::shared_ptr<Shader> GetSkyboxShader() const;
+		void SetSkyboxShader(const std::shared_ptr<ShaderProgram>& shader);
+		std::shared_ptr<ShaderProgram> GetSkyboxShader() const;
 
 		void SetSkyboxTexture(const std::shared_ptr<TextureCube>& texture);
 		std::shared_ptr<TextureCube> GetSkyboxTexture() const;
@@ -118,6 +150,7 @@ namespace Gameplay {
 		/// </summary>
 		/// <param name="name">The name of the object to find</param>
 		GameObject::Sptr FindObjectByName(const std::string name) const;
+
 		/// <summary>
 		/// Searches all render objects in the scene and returns the first
 		/// one who's guid matches the one given, or nullptr if no object
@@ -155,6 +188,10 @@ namespace Gameplay {
 		/// </summary>
 		/// <param name="dt">The time in seconds since the last frame</param>
 		void DoPhysics(float dt);
+		/// <summary>
+		/// Renders debug information for the physics scene
+		/// </summary>
+		void DrawPhysicsDebug();
 
 		/// <summary>
 		/// Performs updates on all enabled components and gameobjects in the
@@ -209,6 +246,9 @@ namespace Gameplay {
 		/// </summary>
 		nlohmann::json ToJson() const;
 
+		ComponentManager& Components() { return _components; }
+		const ComponentManager& Components() const { return _components; }
+
 		/// <summary>
 		/// Saves this scene to an output JSON file
 		/// </summary>
@@ -226,6 +266,12 @@ namespace Gameplay {
 		GameObject::Sptr GetObjectByIndex(int index) const;
 
 	protected:
+		friend class HierarchyWindow;
+		friend class GameObject;
+
+		// The component manager will store all components for objects in this scene
+		ComponentManager _components;
+
 		// Bullet physics stuff world
 		btDynamicsWorld* _physicsWorld;
 		// Our bullet physics configuration
@@ -252,7 +298,7 @@ namespace Gameplay {
 		std::vector<std::weak_ptr<GameObject>>  _deletionQueue;
 
 		// Info for rendering our skybox will be stored in the scene itself
-		std::shared_ptr<Shader>       _skyboxShader;
+		std::shared_ptr<ShaderProgram>       _skyboxShader;
 		std::shared_ptr<MeshResource> _skyboxMesh;
 		std::shared_ptr<TextureCube>  _skyboxTexture;
 		glm::mat3                     _skyboxRotation;
